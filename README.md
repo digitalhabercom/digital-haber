@@ -1,4 +1,4 @@
-# digitalhaber.com
+# digitalhaber.com 
 
 Astro ile yapılmış, ücretsiz barındırılabilen teknoloji haber sitesi.
 

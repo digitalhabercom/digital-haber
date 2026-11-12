@@ -1,7 +1,7 @@
 backend:
   name: github
   repo: digitalhabercom/digital-haber
-  branch: master
+  branch: main
 # Panelden yüklenen görseller buraya kaydedilir ve sitede /uploads/... adresiyle yayınlanır
 media_folder: public/uploads
 public_folder: /uploads

@@ -1,10 +1,7 @@
-# Editör paneli ayarları (Sveltia CMS)
-# ÖNEMLİ: aşağıdaki "repo" satırını kendi GitHub deponuzla değiştirin (kullanici/depo-adi).
 backend:
   name: github
-  repo: KULLANICI_ADINIZ/digitalhaber
-  branch: main
-
+  repo: digitalhabercom/digital-haber
+  branch: master
 # Panelden yüklenen görseller buraya kaydedilir ve sitede /uploads/... adresiyle yayınlanır
 media_folder: public/uploads
 public_folder: /uploads

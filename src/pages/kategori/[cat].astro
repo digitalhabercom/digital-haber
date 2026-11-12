@@ -1,0 +1,42 @@
+---
+import Base from '../../layouts/Base.astro';
+import NewsCard from '../../components/NewsCard.astro';
+import MostRead from '../../components/MostRead.astro';
+import { CATEGORIES, getNews } from '../../lib/news';
+
+export function getStaticPaths() {
+  return CATEGORIES.map((c) => ({ params: { cat: c.slug }, props: { cat: c } }));
+}
+
+const { cat } = Astro.props;
+const all = await getNews();
+const items = all.filter((h) => h.data.category === cat.slug);
+const popular = [...all.filter((h) => h.data.popular), ...all.filter((h) => !h.data.popular)].slice(0, 5);
+---
+
+<Base
+  title={`${cat.name} Haberleri`}
+  description={`${cat.name} alanındaki en güncel teknoloji haberleri ve rehberler.`}
+>
+  <div class="page-head">
+    <h1 style={`border-left:4px solid ${cat.color};padding-left:12px`}>{cat.name}</h1>
+    <p>{items.length} haber</p>
+  </div>
+
+  <div class="layout">
+    <section>
+      {
+        items.length ? (
+          <div class="grid2">
+            {items.map((h) => <NewsCard item={h} />)}
+          </div>
+        ) : (
+          <p>Bu kategoride henüz haber yok.</p>
+        )
+      }
+    </section>
+    <aside>
+      <MostRead items={popular} />
+    </aside>
+  </div>
+</Base>

@@ -1,0 +1,51 @@
+# Editör paneli ayarları (Sveltia CMS)
+# ÖNEMLİ: aşağıdaki "repo" satırını kendi GitHub deponuzla değiştirin (kullanici/depo-adi).
+backend:
+  name: github
+  repo: KULLANICI_ADINIZ/digitalhaber
+  branch: main
+
+# Panelden yüklenen görseller buraya kaydedilir ve sitede /uploads/... adresiyle yayınlanır
+media_folder: public/uploads
+public_folder: /uploads
+
+locale: tr
+
+# Başlıktan temiz, Türkçe karaktersiz adres (URL) üretir: "Yapay Zekâ Çağı" -> yapay-zeka-cagi
+slug:
+  encoding: ascii
+  clean_accents: true
+
+collections:
+  - name: haberler
+    label: Haberler
+    label_singular: Haber
+    folder: src/content/haberler
+    create: true
+    extension: md
+    format: frontmatter
+    slug: "{{slug}}"
+    summary: "{{title}} — {{category}}"
+    sortable_fields: ["date", "title", "category"]
+    fields:
+      - { label: Başlık, name: title, widget: string, hint: "Net ve arama motorlarına uygun bir başlık yazın (60-70 karakter ideal)." }
+      - { label: Kısa Açıklama (Spot), name: description, widget: text, hint: "Haberin özeti. Google sonuçlarında ve paylaşımlarda görünür (150-160 karakter ideal)." }
+      - { label: Yayın Tarihi, name: date, widget: datetime, format: "YYYY-MM-DDTHH:mm:ssZ", date_format: "DD.MM.YYYY", time_format: "HH:mm" }
+      - label: Kategori
+        name: category
+        widget: select
+        options:
+          - { label: Yapay Zeka, value: yapay-zeka }
+          - { label: Donanım, value: donanim }
+          - { label: Siber Güvenlik, value: siber-guvenlik }
+          - { label: Yazılım, value: yazilim }
+          - { label: Bulut Altyapı, value: bulut-altyapi }
+      - { label: Kapak Görseli, name: image, widget: image, hint: "Yükleyin veya tam bir görsel adresi (https://...) yapıştırın." }
+      - { label: Görsel Açıklaması (alt), name: imageAlt, widget: string, required: false, hint: "Görselde ne olduğunu kısaca yazın (SEO ve erişilebilirlik için)." }
+      - { label: Yazar, name: author, widget: string, default: "digitalhaber Editör" }
+      - { label: Manşette Göster, name: featured, widget: boolean, default: false, hint: "Açık olursa ana sayfadaki kayan manşete girer (en fazla 6 haber gösterilir)." }
+      - { label: En Çok Okunanlar'da Göster, name: popular, widget: boolean, default: false }
+      - { label: Taslak, name: draft, widget: boolean, default: false, hint: "Açıksa haber sitede yayınlanmaz." }
+      - { label: Etiketler, name: tags, widget: list, required: false }
+      - { label: Güncelleme Tarihi, name: updated, widget: datetime, format: "YYYY-MM-DDTHH:mm:ssZ", required: false }
+      - { label: Haber Metni, name: body, widget: markdown }

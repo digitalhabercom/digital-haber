@@ -1,0 +1,23 @@
+---
+import Base from '../layouts/Base.astro';
+import { SITE } from '../consts';
+---
+
+<Base title="Hakkımızda" description={`${SITE.name} hakkında bilgi.`}>
+  <div class="page-head"><h1>Hakkımızda</h1></div>
+  <div class="panel prose">
+    <p>
+      {SITE.name}, yapay zeka, donanım, siber güvenlik, yazılım ve bulut altyapı alanlarında güncel haberler ve
+      anlaşılır rehberler sunan bağımsız bir teknoloji yayınıdır.
+    </p>
+    <h2>Yayın ilkelerimiz</h2>
+    <p>
+      Haberlerimizi doğruluk, açıklık ve okuyucuya fayda sağlama ilkeleriyle hazırlarız. Hatalı bir bilgi fark
+      ederseniz bize yazın; düzeltmeyi hızlıca yayınlarız.
+    </p>
+    <p>
+      <!-- Bu metni kendi bilgilerinizle güncelleyin: ekip, kuruluş yılı, yayın politikası vb. -->
+      İletişim için <a href="/iletisim">iletişim sayfamızı</a> kullanabilirsiniz.
+    </p>
+  </div>
+</Base>

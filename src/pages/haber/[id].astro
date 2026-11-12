@@ -1,0 +1,111 @@
+---
+import { render } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import ShareModal from '../../components/ShareModal.astro';
+import NewsCard from '../../components/NewsCard.astro';
+import MostRead from '../../components/MostRead.astro';
+import { SITE } from '../../consts';
+import { catColor, catName, fmtDate, getNews, readMins } from '../../lib/news';
+
+export async function getStaticPaths() {
+  const all = await getNews();
+  return all.map((entry) => ({ params: { id: entry.id }, props: { entry } }));
+}
+
+const { entry } = Astro.props;
+const d = entry.data;
+const { Content } = await render(entry);
+
+const all = await getNews();
+const related = all
+  .filter((h) => h.id !== entry.id && h.data.category === d.category)
+  .concat(all.filter((h) => h.id !== entry.id && h.data.category !== d.category))
+  .slice(0, 4);
+const popular = [...all.filter((h) => h.data.popular), ...all.filter((h) => !h.data.popular)]
+  .filter((h) => h.id !== entry.id)
+  .slice(0, 5);
+
+const url = new URL(Astro.url.pathname, Astro.site).href;
+const img = d.image.startsWith('http') ? d.image : new URL(d.image, Astro.site).href;
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'NewsArticle',
+  headline: d.title,
+  description: d.description,
+  image: [img],
+  datePublished: d.date.toISOString(),
+  dateModified: (d.updated ?? d.date).toISOString(),
+  author: { '@type': 'Person', name: d.author },
+  publisher: {
+    '@type': 'Organization',
+    name: SITE.name,
+    logo: { '@type': 'ImageObject', url: new URL('/favicon.svg', Astro.site).href },
+  },
+  mainEntityOfPage: url,
+  articleSection: catName(d.category),
+  inLanguage: 'tr',
+};
+---
+
+<Base
+  title={d.title}
+  description={d.description}
+  image={d.image}
+  type="article"
+  publishedTime={d.date}
+  modifiedTime={d.updated ?? d.date}
+  section={catName(d.category)}
+  jsonLd={jsonLd}
+>
+  <nav class="crumbs" aria-label="Sayfa yolu">
+    <a href="/">Ana Sayfa</a> › <a href={`/kategori/${d.category}`}>{catName(d.category)}</a>
+  </nav>
+
+  <div class="layout">
+    <div>
+      <article class="article">
+        <header class="article-head">
+          <span class="badge" style={`background:${catColor(d.category)}`}>{catName(d.category)}</span>
+          <h1>{d.title}</h1>
+          <p class="article-lead">{d.description}</p>
+          <div class="article-meta">
+            <span>✍️ {d.author}</span>
+            <time datetime={d.date.toISOString()}>📅 {fmtDate(d.date)}</time>
+            <span>⏱ {readMins(entry.body)} dk okuma</span>
+            <span class="spacer"></span>
+            <button class="btn-share" type="button" data-share-open>↗ Paylaş</button>
+          </div>
+        </header>
+
+        <figure>
+          <img src={d.image} alt={d.imageAlt ?? d.title} width="1200" height="675" fetchpriority="high" />
+        </figure>
+
+        <div class="article-body">
+          <Content />
+        </div>
+
+        <footer class="article-foot">
+          <div class="tags">
+            {d.tags.map((t) => <span class="tag">#{t}</span>)}
+          </div>
+          <button class="btn-share" type="button" data-share-open>↗ Haberi Paylaş</button>
+        </footer>
+      </article>
+
+      <section style="margin-top:32px">
+        <h2 class="section-title">İlginizi Çekebilir</h2>
+        <div class="grid2">
+          {related.map((h) => <NewsCard item={h} />)}
+        </div>
+      </section>
+    </div>
+
+    <aside style="display:flex;flex-direction:column;gap:20px">
+      <MostRead items={popular} />
+    </aside>
+  </div>
+
+  <ShareModal url={url} title={d.title} image={img} />
+</Base>

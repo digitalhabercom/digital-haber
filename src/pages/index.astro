@@ -1,0 +1,67 @@
+---
+import Base from '../layouts/Base.astro';
+import Slider from '../components/Slider.astro';
+import NewsCard from '../components/NewsCard.astro';
+import MostRead from '../components/MostRead.astro';
+import { SITE } from '../consts';
+import { catName, getNews } from '../lib/news';
+
+const all = await getNews();
+
+// Manşet: "featured" işaretli haberler önce, eksik kalırsa en yeniler ile 6'ya tamamlanır
+const featured = all.filter((h) => h.data.featured);
+const slides = [...featured, ...all.filter((h) => !h.data.featured)].slice(0, 6);
+const slideIds = new Set(slides.map((s) => s.id));
+
+// Gündem akışı: en yeni 5 haber
+const feed = all.slice(0, 5);
+
+// En çok okunanlar: "popular" işaretliler, eksik kalırsa en yeniler
+const popular = [...all.filter((h) => h.data.popular), ...all.filter((h) => !h.data.popular)].slice(0, 5);
+
+// Manşette olmayan haberler kartlarda
+const rest = all.filter((h) => !slideIds.has(h.id)).slice(0, 12);
+const more = rest.length ? rest : all.slice(0, 6);
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'WebSite',
+  name: SITE.name,
+  url: Astro.site?.href,
+  inLanguage: 'tr',
+  description: SITE.description,
+};
+---
+
+<Base jsonLd={jsonLd}>
+  <section class="hero">
+    <Slider items={slides} />
+
+    <aside class="panel">
+      <h2 class="panel-title">⚡ Gündem Akışı</h2>
+      <div class="feed">
+        {
+          feed.map((h) => (
+            <a href={`/haber/${h.id}`}>
+              <small>{catName(h.data.category)}</small>
+              <p>{h.data.title}</p>
+            </a>
+          ))
+        }
+      </div>
+    </aside>
+  </section>
+
+  <div class="layout">
+    <section>
+      <h2 class="section-title">Son Haberler</h2>
+      <div class="grid2">
+        {more.map((h) => <NewsCard item={h} />)}
+      </div>
+    </section>
+
+    <aside>
+      <MostRead items={popular} />
+    </aside>
+  </div>
+</Base>

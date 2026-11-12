@@ -1,0 +1,83 @@
+---
+import { catColor, catName, type Haber } from '../lib/news';
+
+interface Props {
+  items: Haber[];
+}
+const { items } = Astro.props;
+---
+
+<div class="slider" id="slider" role="region" aria-roledescription="carousel" aria-label="Manşet haberleri">
+  {
+    items.map((h, i) => (
+      <a class={`slide${i === 0 ? ' active' : ''}`} href={`/haber/${h.id}`}>
+        <img
+          src={h.data.image}
+          alt={h.data.imageAlt ?? h.data.title}
+          width="1200"
+          height="675"
+          loading={i === 0 ? 'eager' : 'lazy'}
+          fetchpriority={i === 0 ? 'high' : 'auto'}
+        />
+        <div class="slide-overlay" />
+        <div class="slide-content">
+          <span class="badge" style={`background:${catColor(h.data.category)}`}>
+            {catName(h.data.category)}
+          </span>
+          <h2>{h.data.title}</h2>
+          <p>{h.data.description}</p>
+        </div>
+      </a>
+    ))
+  }
+  <button class="slider-btn prev" type="button" aria-label="Önceki haber">❮</button>
+  <button class="slider-btn next" type="button" aria-label="Sonraki haber">❯</button>
+  <div class="slider-dots">
+    {items.map((_, i) => <button type="button" class={`dot${i === 0 ? ' active' : ''}`} aria-label={`${i + 1}. habere git`} />)}
+  </div>
+</div>
+
+<script>
+  const root = document.getElementById('slider');
+  if (root) {
+    const slides = Array.from(root.querySelectorAll<HTMLElement>('.slide'));
+    const dots = Array.from(root.querySelectorAll<HTMLElement>('.dot'));
+    let index = 0;
+    let timer: number | undefined;
+
+    const show = (n: number) => {
+      index = (n + slides.length) % slides.length;
+      slides.forEach((s, i) => s.classList.toggle('active', i === index));
+      dots.forEach((d, i) => d.classList.toggle('active', i === index));
+    };
+    const start = () => {
+      stop();
+      if (slides.length > 1) timer = window.setInterval(() => show(index + 1), 5000);
+    };
+    const stop = () => {
+      if (timer) window.clearInterval(timer);
+    };
+
+    root.querySelector('.prev')?.addEventListener('click', () => { show(index - 1); start(); });
+    root.querySelector('.next')?.addEventListener('click', () => { show(index + 1); start(); });
+    dots.forEach((d, i) => d.addEventListener('click', () => { show(i); start(); }));
+    root.addEventListener('mouseenter', stop);
+    root.addEventListener('mouseleave', start);
+    root.addEventListener('focusin', stop);
+    root.addEventListener('focusout', start);
+
+    // Dokunmatik kaydırma
+    let x0: number | null = null;
+    root.addEventListener('touchstart', (e) => { x0 = e.touches[0].clientX; stop(); }, { passive: true });
+    root.addEventListener('touchend', (e) => {
+      if (x0 !== null) {
+        const dx = e.changedTouches[0].clientX - x0;
+        if (Math.abs(dx) > 50) show(index + (dx < 0 ? 1 : -1));
+      }
+      x0 = null;
+      start();
+    });
+
+    start();
+  }
+</script>

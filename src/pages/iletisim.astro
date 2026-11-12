@@ -1,0 +1,12 @@
+---
+import Base from '../layouts/Base.astro';
+import { SITE } from '../consts';
+---
+
+<Base title="İletişim" description={`${SITE.name} ile iletişime geçin.`}>
+  <div class="page-head"><h1>İletişim</h1></div>
+  <div class="panel prose">
+    <p>Haber ihbarı, düzeltme talebi, reklam ve iş birliği için bize e-posta ile ulaşabilirsiniz:</p>
+    <p><a href={`mailto:${SITE.email}`}><strong>{SITE.email}</strong></a></p>
+  </div>
+</Base>

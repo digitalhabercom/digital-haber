@@ -1,0 +1,19 @@
+---
+import { catColor, catName, fmtDate, type Haber } from '../lib/news';
+
+interface Props {
+  item: Haber;
+}
+const { item } = Astro.props;
+const d = item.data;
+---
+
+<a class="card" href={`/haber/${item.id}`}>
+  <img src={d.image} alt={d.imageAlt ?? d.title} width="600" height="338" loading="lazy" />
+  <div class="card-body">
+    <span class="card-cat" style={`color:${catColor(d.category)}`}>{catName(d.category)}</span>
+    <h3>{d.title}</h3>
+    <p>{d.description}</p>
+    <span class="meta">{fmtDate(d.date)}</span>
+  </div>
+</a>

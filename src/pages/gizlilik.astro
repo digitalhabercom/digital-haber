@@ -1,0 +1,26 @@
+---
+import Base from '../layouts/Base.astro';
+import { SITE } from '../consts';
+---
+
+<Base title="Gizlilik Politikası" description={`${SITE.name} gizlilik politikası.`}>
+  <div class="page-head"><h1>Gizlilik Politikası</h1></div>
+  <div class="panel prose">
+    <p>
+      Bu sayfa, {SITE.name} sitesini ziyaret ettiğinizde hangi verilerin işlendiğini özetler.
+      <strong>Not:</strong> Bu metin bir başlangıç taslağıdır; reklam, analitik veya çerez araçları eklediğinizde güncelleyin.
+    </p>
+    <h2>Toplanan veriler</h2>
+    <p>
+      Site şu an kullanıcı hesabı veya form içermez. Barındırma sağlayıcısı, standart sunucu kayıtları (IP adresi,
+      tarayıcı bilgisi) tutabilir.
+    </p>
+    <h2>Üçüncü taraf hizmetler</h2>
+    <p>
+      Haber görselleri harici bir sağlayıcıdan yüklenebilir. Reklam veya analitik hizmetleri eklenirse bunlar
+      çerez kullanabilir ve bu sayfada belirtilecektir.
+    </p>
+    <h2>İletişim</h2>
+    <p>Sorularınız için: <a href={`mailto:${SITE.email}`}>{SITE.email}</a></p>
+  </div>
+</Base>

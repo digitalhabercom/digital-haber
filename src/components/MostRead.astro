@@ -1,0 +1,15 @@
+---
+import type { Haber } from '../lib/news';
+
+interface Props {
+  items: Haber[];
+}
+const { items } = Astro.props;
+---
+
+<section class="panel" aria-labelledby="mostread-title">
+  <h2 class="panel-title" id="mostread-title">🔥 En Çok Okunanlar</h2>
+  <ol class="mostread">
+    {items.map((h) => <li><a href={`/haber/${h.id}`}>{h.data.title}</a></li>)}
+  </ol>
+</section>

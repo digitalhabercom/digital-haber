@@ -1,52 +1,58 @@
 {
   "categories": [
     {
-      "slug": "yapay-zeka",
       "name": "Yapay Zeka",
+      "slug": "yapay-zeka",
       "color": "#6d28d9",
       "desc": "Yapay zeka modelleri, araçları ve günlük hayata etkileri."
     },
     {
-      "slug": "donanim",
       "name": "Donanım",
+      "slug": "donanim",
       "color": "#b45309",
       "desc": "Bilgisayar, telefon ve donanım dünyasından haberler ve alım rehberleri."
     },
     {
-      "slug": "siber-guvenlik",
       "name": "Siber Güvenlik",
+      "slug": "siber-guvenlik",
       "color": "#b91c1c",
       "desc": "Güvenlik açıkları, saldırılar ve korunma yöntemleri."
     },
     {
-      "slug": "yazilim",
       "name": "Yazılım",
+      "slug": "yazilim",
       "color": "#047857",
       "desc": "Yazılım geliştirme, araçlar ve programlamaya dair rehberler."
     },
     {
-      "slug": "bulut-altyapi",
       "name": "Bulut Altyapı",
+      "slug": "bulut-altyapi",
       "color": "#0369a1",
       "desc": "Bulut hizmetleri, sunucular, ağlar ve yedekleme çözümleri."
     },
     {
-      "slug": "mobil",
       "name": "Mobil",
+      "slug": "mobil",
       "color": "#be185d",
       "desc": "Telefonlar, tabletler ve mobil uygulamalardan haberler."
     },
     {
-      "slug": "oyun",
       "name": "Oyun",
+      "slug": "oyun",
       "color": "#0f766e",
       "desc": "Oyun dünyasından haberler, incelemeler ve çıkış tarihleri."
     },
     {
-      "slug": "bilim",
       "name": "Bilim",
+      "slug": "bilim",
       "color": "#a21caf",
       "desc": "Bilim ve uzay dünyasından teknoloji odaklı haberler."
+    },
+    {
+      "name": "Bilgi Teknolojileri",
+      "slug": "bilgi-teknolojileri",
+      "color": "#d39d27",
+      "desc": ""
     }
   ]
 }

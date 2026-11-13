@@ -1,13 +1,20 @@
 import { defineCollection, z } from 'astro:content';
 import { glob } from 'astro/loaders';
 
+// Panelden boş ya da bozuk gelen tarihleri yok sayar (build'i düşürmesin)
+const optDate = z.preprocess((v) => {
+  if (v === null || v === undefined || v === '') return undefined;
+  const d = v instanceof Date ? v : new Date(String(v));
+  return isNaN(d.getTime()) ? undefined : d;
+}, z.date().optional());
+
 const haberler = defineCollection({
   loader: glob({ pattern: '**/*.md', base: './src/content/haberler' }),
   schema: z.object({
     title: z.string(),
     description: z.string(),
     date: z.coerce.date(),
-    updated: z.coerce.date().optional(),
+    updated: optDate,
     category: z.string(), // kategori kodu; liste panelden yönetilir (Ayarlar → Kategoriler)
     image: z.string(), // manşet / kapak görseli: /uploads/dosya.jpg veya https://...
     imageAlt: z.string().optional(),

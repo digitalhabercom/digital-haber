@@ -3,23 +3,26 @@ import Base from '../layouts/Base.astro';
 import { SITE } from '../consts';
 ---
 
-<Base title="Gizlilik Politikası" description={`${SITE.name} gizlilik politikası.`}>
+<Base title="Gizlilik Politikası" description={`${SITE.name} gizlilik ve çerez politikası.`}>
   <div class="page-head"><h1>Gizlilik Politikası</h1></div>
-  <div class="panel prose">
+  <div class="prose">
     <p>
-      Bu sayfa, {SITE.name} sitesini ziyaret ettiğinizde hangi verilerin işlendiğini özetler.
-      <strong>Not:</strong> Bu metin bir başlangıç taslağıdır; reklam, analitik veya çerez araçları eklediğinizde güncelleyin.
+      Bu sayfa, {SITE.name} sitesini ziyaret ettiğinizde hangi verilerin işlendiğini özetler. Metin bir başlangıç
+      taslağıdır; reklam, analitik veya yeni çerez araçları eklediğinizde güncelleyin.
     </p>
     <h2>Toplanan veriler</h2>
     <p>
-      Site şu an kullanıcı hesabı veya form içermez. Barındırma sağlayıcısı, standart sunucu kayıtları (IP adresi,
-      tarayıcı bilgisi) tutabilir.
+      Sitede üyelik veya form yoktur. Barındırma sağlayıcısı, standart sunucu kayıtlarını (IP adresi, tarayıcı bilgisi)
+      tutabilir.
     </p>
-    <h2>Üçüncü taraf hizmetler</h2>
+    <h2>Çerezler ve reklamlar</h2>
     <p>
-      Haber görselleri harici bir sağlayıcıdan yüklenebilir. Reklam veya analitik hizmetleri eklenirse bunlar
-      çerez kullanabilir ve bu sayfada belirtilecektir.
+      Reklam hizmeti etkinleştirildiğinde, reklam sağlayıcıları ilgi alanlarına uygun reklam göstermek için çerez
+      kullanabilir. Reklam çerezleri yalnızca çerez bildirimini kabul etmeniz halinde yüklenir. Tercihinizi tarayıcı
+      verilerini silerek sıfırlayabilirsiniz.
     </p>
+    <h2>Üçüncü taraf içerik</h2>
+    <p>Yazı tipleri ve bazı görseller harici sunuculardan yüklenebilir.</p>
     <h2>İletişim</h2>
     <p>Sorularınız için: <a href={`mailto:${SITE.email}`}>{SITE.email}</a></p>
   </div>

@@ -1,5 +1,5 @@
 ---
-import type { Haber } from '../lib/news';
+import { catOf, haberUrl, type Haber } from '../lib/news';
 
 interface Props {
   items: Haber[];
@@ -7,9 +7,18 @@ interface Props {
 const { items } = Astro.props;
 ---
 
-<section class="panel" aria-labelledby="mostread-title">
-  <h2 class="panel-title" id="mostread-title">🔥 En Çok Okunanlar</h2>
+<section aria-labelledby="mostread-title">
+  <div class="sec-head"><h2 id="mostread-title">En Çok Okunanlar</h2></div>
   <ol class="mostread">
-    {items.map((h) => <li><a href={`/haber/${h.id}`}>{h.data.title}</a></li>)}
+    {
+      items.map((h) => (
+        <li>
+          <div>
+            <span class="cat" style={`--c:${catOf(h.data.category).color}`}>{catOf(h.data.category).name}</span>
+            <a href={haberUrl(h.id)}>{h.data.title}</a>
+          </div>
+        </li>
+      ))
+    }
   </ol>
 </section>

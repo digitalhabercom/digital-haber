@@ -1,5 +1,5 @@
 ---
-import { catColor, catName, type Haber } from '../lib/news';
+import { catOf, fmtShort, haberUrl, type Haber } from '../lib/news';
 
 interface Props {
   items: Haber[];
@@ -7,77 +7,133 @@ interface Props {
 const { items } = Astro.props;
 ---
 
-<div class="slider" id="slider" role="region" aria-roledescription="carousel" aria-label="Manşet haberleri">
-  {
-    items.map((h, i) => (
-      <a class={`slide${i === 0 ? ' active' : ''}`} href={`/haber/${h.id}`}>
-        <img
-          src={h.data.image}
-          alt={h.data.imageAlt ?? h.data.title}
-          width="1200"
-          height="675"
-          loading={i === 0 ? 'eager' : 'lazy'}
-          fetchpriority={i === 0 ? 'high' : 'auto'}
-        />
-        <div class="slide-overlay" />
-        <div class="slide-content">
-          <span class="badge" style={`background:${catColor(h.data.category)}`}>
-            {catName(h.data.category)}
-          </span>
-          <h2>{h.data.title}</h2>
-          <p>{h.data.description}</p>
-        </div>
-      </a>
-    ))
-  }
-  <button class="slider-btn prev" type="button" aria-label="Önceki haber">❮</button>
-  <button class="slider-btn next" type="button" aria-label="Sonraki haber">❯</button>
-  <div class="slider-dots">
-    {items.map((_, i) => <button type="button" class={`dot${i === 0 ? ' active' : ''}`} aria-label={`${i + 1}. habere git`} />)}
+<section class="hero" id="hero" aria-roledescription="carousel" aria-label="Manşet haberleri">
+  <div>
+    <div class="hero-stage">
+      {
+        items.map((h, i) => {
+          const c = catOf(h.data.category);
+          return (
+            <a class:list={['hero-slide', { active: i === 0 }]} href={haberUrl(h.id)} style={`--c:${c.color}`}>
+              <img
+                src={h.data.image}
+                alt={h.data.imageAlt ?? h.data.title}
+                width="1200"
+                height="750"
+                loading={i === 0 ? 'eager' : 'lazy'}
+                fetchpriority={i === 0 ? 'high' : 'auto'}
+                decoding="async"
+              />
+              <div class="hero-shade" />
+              <div class="hero-copy">
+                <span class="chip">{c.name}</span>
+                <h2>{h.data.title}</h2>
+                <p>{h.data.description}</p>
+                <div class="meta">
+                  <time datetime={h.data.date.toISOString()}>{fmtShort(h.data.date)}</time>
+                  <span>{h.data.author}</span>
+                </div>
+              </div>
+            </a>
+          );
+        })
+      }
+      <div class="hero-ctrl">
+        <button type="button" data-prev aria-label="Önceki manşet">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"></path></svg>
+        </button>
+        <button type="button" data-next aria-label="Sonraki manşet">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"></path></svg>
+        </button>
+      </div>
+    </div>
+    <div class="hero-dots">
+      {items.map((_, i) => <button type="button" class:list={[{ active: i === 0 }]} aria-label={`${i + 1}. habere git`} />)}
+    </div>
   </div>
-</div>
+
+  <ol class="hero-rail">
+    {
+      items.map((h, i) => {
+        const c = catOf(h.data.category);
+        return (
+          <li>
+            <a class:list={[{ 'is-active': i === 0 }]} href={haberUrl(h.id)} style={`--c:${c.color}`}>
+              <span>
+                <span class="rail-cat">{c.name}</span>
+                <span class="rail-title">{h.data.title}</span>
+              </span>
+              <span class="rail-bar" />
+            </a>
+          </li>
+        );
+      })
+    }
+  </ol>
+</section>
 
 <script>
-  const root = document.getElementById('slider');
+  const root = document.getElementById('hero');
   if (root) {
-    const slides = Array.from(root.querySelectorAll<HTMLElement>('.slide'));
-    const dots = Array.from(root.querySelectorAll<HTMLElement>('.dot'));
-    let index = 0;
+    const slides = Array.from(root.querySelectorAll<HTMLElement>('.hero-slide'));
+    const rail = Array.from(root.querySelectorAll<HTMLElement>('.hero-rail a'));
+    const dots = Array.from(root.querySelectorAll<HTMLElement>('.hero-dots button'));
+    const DELAY = 6000;
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const canHover = window.matchMedia('(hover: hover)').matches;
+    let i = 0;
     let timer: number | undefined;
 
+    root.style.setProperty('--hero-ms', DELAY + 'ms');
+    if (reduce) root.classList.add('no-auto');
+
     const show = (n: number) => {
-      index = (n + slides.length) % slides.length;
-      slides.forEach((s, i) => s.classList.toggle('active', i === index));
-      dots.forEach((d, i) => d.classList.toggle('active', i === index));
-    };
-    const start = () => {
-      stop();
-      if (slides.length > 1) timer = window.setInterval(() => show(index + 1), 5000);
+      i = (n + slides.length) % slides.length;
+      slides.forEach((s, k) => s.classList.toggle('active', k === i));
+      dots.forEach((d, k) => d.classList.toggle('active', k === i));
+      rail.forEach((r) => r.classList.remove('is-active'));
+      void root.offsetWidth; // ilerleme çubuğu animasyonunu baştan başlat
+      rail[i]?.classList.add('is-active');
     };
     const stop = () => {
       if (timer) window.clearInterval(timer);
+      timer = undefined;
+      root.classList.add('is-paused');
+    };
+    const play = () => {
+      stop();
+      root.classList.remove('is-paused');
+      if (reduce || slides.length < 2) return;
+      show(i);
+      timer = window.setInterval(() => show(i + 1), DELAY);
     };
 
-    root.querySelector('.prev')?.addEventListener('click', () => { show(index - 1); start(); });
-    root.querySelector('.next')?.addEventListener('click', () => { show(index + 1); start(); });
-    dots.forEach((d, i) => d.addEventListener('click', () => { show(i); start(); }));
-    root.addEventListener('mouseenter', stop);
-    root.addEventListener('mouseleave', start);
-    root.addEventListener('focusin', stop);
-    root.addEventListener('focusout', start);
+    root.querySelector('[data-prev]')?.addEventListener('click', () => { show(i - 1); play(); });
+    root.querySelector('[data-next]')?.addEventListener('click', () => { show(i + 1); play(); });
+    dots.forEach((d, k) => d.addEventListener('click', () => { show(k); play(); }));
 
-    // Dokunmatik kaydırma
+    // Listede habere gelince manşet o habere geçer, tıklayınca habere gidilir
+    rail.forEach((r, k) => {
+      r.addEventListener('mouseenter', () => { if (canHover) show(k); });
+      r.addEventListener('focus', () => show(k));
+    });
+    root.addEventListener('mouseenter', () => { if (canHover) stop(); });
+    root.addEventListener('mouseleave', () => { if (canHover) play(); });
+    root.addEventListener('focusin', stop);
+    root.addEventListener('focusout', play);
+
+    // Telefonda parmakla kaydırma
     let x0: number | null = null;
-    root.addEventListener('touchstart', (e) => { x0 = e.touches[0].clientX; stop(); }, { passive: true });
-    root.addEventListener('touchend', (e) => {
+    const stage = root.querySelector('.hero-stage');
+    stage?.addEventListener('touchstart', (e) => { x0 = (e as TouchEvent).touches[0].clientX; }, { passive: true });
+    stage?.addEventListener('touchend', (e) => {
       if (x0 !== null) {
-        const dx = e.changedTouches[0].clientX - x0;
-        if (Math.abs(dx) > 50) show(index + (dx < 0 ? 1 : -1));
+        const dx = (e as TouchEvent).changedTouches[0].clientX - x0;
+        if (Math.abs(dx) > 50) { show(i + (dx < 0 ? 1 : -1)); play(); }
       }
       x0 = null;
-      start();
     });
 
-    start();
+    play();
   }
 </script>

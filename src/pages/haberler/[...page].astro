@@ -1,0 +1,40 @@
+---
+import Base from '../../layouts/Base.astro';
+import NewsCard from '../../components/NewsCard.astro';
+import MostRead from '../../components/MostRead.astro';
+import AdSlot from '../../components/AdSlot.astro';
+import { getNews, getPopular } from '../../lib/news';
+
+export async function getStaticPaths({ paginate }: { paginate: any }) {
+  const all = await getNews();
+  return paginate(all, { pageSize: 12 });
+}
+
+const { page } = Astro.props;
+const all = await getNews();
+const popular = getPopular(all, 5);
+const title = page.currentPage > 1 ? `Tüm Haberler, Sayfa ${page.currentPage}` : 'Tüm Haberler';
+---
+
+<Base title={title} description="digitalhaber üzerindeki tüm teknoloji haberleri, yeniden eskiye sıralı.">
+  <div class="page-head">
+    <h1>Tüm Haberler</h1>
+    <p>{page.total} haber, yeniden eskiye sıralı.</p>
+  </div>
+
+  <div class="cols" style="margin-top:28px">
+    <section aria-label="Haber listesi">
+      <div class="grid2">
+        {page.data.map((h: any) => <NewsCard item={h} />)}
+      </div>
+      <nav class="pager" aria-label="Sayfalama">
+        {page.url.prev ? <a class="btn btn--ghost" href={page.url.prev}>Yeni haberler</a> : <span />}
+        {page.url.next ? <a class="btn" href={page.url.next}>Eski haberler</a> : <span />}
+      </nav>
+    </section>
+    <aside class="side" aria-label="Yan sütun">
+      <AdSlot size="rectangle" />
+      <MostRead items={popular} />
+    </aside>
+  </div>
+</Base>

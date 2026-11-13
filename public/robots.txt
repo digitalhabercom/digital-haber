@@ -1,5 +1,7 @@
 User-agent: *
 Allow: /
 Disallow: /admin/
+Disallow: /arama/
 
-Sitemap: https://digitalhaber.com/sitemap-index.xml
+Sitemap: https://www.digitalhaber.com/sitemap-index.xml
+Sitemap: https://www.digitalhaber.com/news-sitemap.xml

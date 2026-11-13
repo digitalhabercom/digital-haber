@@ -2,6 +2,6 @@ import { defineConfig } from 'astro/config';
 import sitemap from '@astrojs/sitemap';
 
 export default defineConfig({
-  site: 'https://digitalhaber.com',
-  integrations: [sitemap()],
+  site: 'https://www.digitalhaber.com',
+  integrations: [sitemap({ filter: (page) => !page.includes('/arama') })],
 });

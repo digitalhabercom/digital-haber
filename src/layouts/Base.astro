@@ -1,7 +1,8 @@
 ---
 import '../styles/global.css';
+import Consent from '../components/Consent.astro';
 import { SITE } from '../consts';
-import { CATEGORIES, getNews } from '../lib/news';
+import { CATEGORIES, getNews, haberUrl, absUrl } from '../lib/news';
 
 interface Props {
   title?: string;
@@ -11,7 +12,7 @@ interface Props {
   publishedTime?: Date;
   modifiedTime?: Date;
   section?: string;
-  jsonLd?: Record<string, unknown>;
+  jsonLd?: Record<string, unknown> | Record<string, unknown>[];
   noindex?: boolean;
 }
 
@@ -27,18 +28,25 @@ const {
   noindex = false,
 } = Astro.props;
 
-const fullTitle = title ? `${title} | ${SITE.name}` : `${SITE.name} - ${SITE.tagline}`;
-const canonical = new URL(Astro.url.pathname, Astro.site).href;
-const ogImage = image.startsWith('http') ? image : new URL(image, Astro.site).href;
-const path = Astro.url.pathname;
+const fullTitle = title ? `${title} | ${SITE.name}` : SITE.name;
+let path = Astro.url.pathname;
+if (!path.endsWith('/') && !/\.[a-z0-9]+$/i.test(path)) path += '/';
+const canonical = new URL(path, Astro.site).href;
+const ogImage = absUrl(image, Astro.site);
+const origin = Astro.site?.href.replace(/\/$/, '') ?? '';
 
 const latest = (await getNews()).slice(0, 8);
-const today = new Date().toLocaleDateString('tr-TR', {
-  weekday: 'long',
-  day: 'numeric',
-  month: 'long',
-  year: 'numeric',
-});
+
+const orgLd = {
+  '@context': 'https://schema.org',
+  '@type': 'NewsMediaOrganization',
+  name: SITE.name,
+  url: origin + '/',
+  logo: { '@type': 'ImageObject', url: absUrl(SITE.logo, Astro.site) },
+  email: SITE.email,
+};
+const ld = [orgLd, ...(Array.isArray(jsonLd) ? jsonLd : jsonLd ? [jsonLd] : [])];
+const ldString = JSON.stringify(ld).replace(/</g, '\\u003c');
 ---
 
 <!doctype html>
@@ -48,11 +56,18 @@ const today = new Date().toLocaleDateString('tr-TR', {
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>{fullTitle}</title>
     <meta name="description" content={description} />
+    <meta name="theme-color" content="#0d1033" />
     <link rel="canonical" href={canonical} />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <link rel="alternate" type="application/rss+xml" title={SITE.name} href="/rss.xml" />
-    {noindex && <meta name="robots" content="noindex, nofollow" />}
-    {!noindex && <meta name="robots" content="index, follow, max-image-preview:large" />}
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Source+Serif+4:ital,opsz,wght@0,8..60,400..700;1,8..60,400..700&display=swap"
+      rel="stylesheet"
+    />
+    {noindex ? <meta name="robots" content="noindex, nofollow" /> : <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1" />}
 
     <meta property="og:site_name" content={SITE.name} />
     <meta property="og:locale" content="tr_TR" />
@@ -69,56 +84,89 @@ const today = new Date().toLocaleDateString('tr-TR', {
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={ogImage} />
 
-    {jsonLd && <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />}
+    <script type="application/ld+json" set:html={ldString} />
     <slot name="head" />
   </head>
   <body>
-    <!-- Kayan son dakika bandı -->
+    <a class="skip" href="#icerik">İçeriğe geç</a>
+
     <div class="ticker">
-      <div class="ticker-in">
-        <span class="ticker-label">Son Dakika</span>
+      <div class="wrap ticker-in">
+        <span class="ticker-label">Son Haberler</span>
         <div class="ticker-track">
           <div class="ticker-move">
             <div class="ticker-grp">
-              {latest.map((h) => <a href={`/haber/${h.id}`}>{h.data.title}</a>)}
+              {latest.map((h) => <a href={haberUrl(h.id)}>{h.data.title}</a>)}
             </div>
             <div class="ticker-grp" aria-hidden="true">
-              {latest.map((h) => <a href={`/haber/${h.id}`} tabindex="-1">{h.data.title}</a>)}
+              {latest.map((h) => <a href={haberUrl(h.id)} tabindex="-1">{h.data.title}</a>)}
             </div>
           </div>
         </div>
       </div>
     </div>
 
-    <header class="site-header">
-      <div class="header-in">
-        <a href="/" aria-label={`${SITE.name} ana sayfa`}>
-          <p class="logo">digital<span>haber</span>.com</p>
+    <header class="masthead">
+      <div class="wrap masthead-in">
+        <a class="logo" href="/" aria-label={`${SITE.name} ana sayfa`}>
+          <span class="logo-mark" aria-hidden="true">dh</span>
+          <span class="logo-text">digital<b>haber</b></span>
         </a>
-        <nav class="nav" aria-label="Kategoriler">
-          {CATEGORIES.map((c) => (
-            <a href={`/kategori/${c.slug}`} class={path.startsWith(`/kategori/${c.slug}`) ? 'active' : ''}>
-              {c.name}
-            </a>
-          ))}
-        </nav>
+        <div class="head-actions">
+          <p class="tagline">{SITE.tagline}</p>
+          <a class="icon-btn" href="/arama/">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-3.5-3.5"></path></svg>
+            Ara
+          </a>
+        </div>
       </div>
     </header>
 
-    <main class="wrap">
+    <nav class="nav" aria-label="Kategoriler">
+      <div class="wrap nav-in">
+        {CATEGORIES.map((c) => (
+          <a href={`/kategori/${c.slug}/`} class:list={[{ active: path.startsWith(`/kategori/${c.slug}/`) }]}>{c.name}</a>
+        ))}
+        <a href="/haberler/" class:list={[{ active: path.startsWith('/haberler/') }]}>Tüm Haberler</a>
+      </div>
+    </nav>
+
+    <main id="icerik" class="wrap">
       <slot />
     </main>
 
-    <footer class="site-footer">
-      <div class="footer-in">
-        <p style="margin:0">© {new Date().getFullYear()} {SITE.name} — Tüm hakları saklıdır.</p>
-        <div class="footer-links">
-          <a href="/hakkimizda">Hakkımızda</a>
-          <a href="/iletisim">İletişim</a>
-          <a href="/gizlilik">Gizlilik Politikası</a>
-          <a href="/rss.xml">RSS</a>
+    <footer class="footer">
+      <div class="wrap">
+        <div class="footer-grid">
+          <div>
+            <div class="logo"><span class="logo-mark" aria-hidden="true">dh</span><span class="logo-text">digital<b>haber</b></span></div>
+            <p>{SITE.description}</p>
+          </div>
+          <div>
+            <h3>Kategoriler</h3>
+            <ul>{CATEGORIES.map((c) => <li><a href={`/kategori/${c.slug}/`}>{c.name}</a></li>)}</ul>
+          </div>
+          <div>
+            <h3>Kurumsal</h3>
+            <ul>
+              <li><a href="/hakkimizda/">Hakkımızda</a></li>
+              <li><a href="/iletisim/">İletişim</a></li>
+              <li><a href="/gizlilik/">Gizlilik Politikası</a></li>
+            </ul>
+          </div>
+          <div>
+            <h3>Takip</h3>
+            <ul>
+              <li><a href="/rss.xml">RSS</a></li>
+              <li><a href="/arama/">Haberlerde ara</a></li>
+              <li><a href="/haberler/">Tüm haberler</a></li>
+            </ul>
+          </div>
         </div>
+        <p class="footer-bottom">© {new Date().getFullYear()} {SITE.name}.com Tüm hakları saklıdır.</p>
       </div>
     </footer>
+
+    <Consent />
   </body>
 </html>

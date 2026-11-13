@@ -1,0 +1,48 @@
+---
+import { ADS } from '../consts';
+const client = ADS.adsenseClient;
+---
+
+{
+  client && (
+    <div id="consent" class="consent" role="dialog" aria-label="Çerez bildirimi" data-client={client} hidden>
+      <p>
+        Reklam gösterebilmek için çerez kullanıyoruz. Ayrıntılar için{' '}
+        <a href="/gizlilik/">gizlilik politikasını</a> okuyabilirsiniz.
+      </p>
+      <div class="consent-btns">
+        <button id="consent-no" type="button">Reddet</button>
+        <button id="consent-yes" type="button">Kabul et</button>
+      </div>
+    </div>
+  )
+}
+
+<script>
+  const box = document.getElementById('consent');
+  if (box) {
+    const client = box.dataset.client ?? '';
+    const KEY = 'dh-consent';
+    const get = () => {
+      try { return localStorage.getItem(KEY); } catch { return null; }
+    };
+    const set = (v: string) => {
+      try { localStorage.setItem(KEY, v); } catch { /* yok say */ }
+    };
+    const loadAds = () => {
+      const s = document.createElement('script');
+      s.async = true;
+      s.crossOrigin = 'anonymous';
+      s.src = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=' + client;
+      document.head.appendChild(s);
+      const w = window as unknown as { adsbygoogle?: unknown[] };
+      w.adsbygoogle = w.adsbygoogle || [];
+      document.querySelectorAll('ins.adsbygoogle').forEach(() => w.adsbygoogle!.push({}));
+    };
+    const saved = get();
+    if (saved === 'yes') loadAds();
+    else if (!saved) box.hidden = false;
+    document.getElementById('consent-yes')?.addEventListener('click', () => { set('yes'); box.hidden = true; loadAds(); });
+    document.getElementById('consent-no')?.addEventListener('click', () => { set('no'); box.hidden = true; });
+  }
+</script>

@@ -1,0 +1,29 @@
+---
+import Base from '../../layouts/Base.astro';
+import NewsCard from '../../components/NewsCard.astro';
+import { getNews, tagSlug } from '../../lib/news';
+
+export async function getStaticPaths() {
+  const all = await getNews();
+  const map = new Map<string, string>();
+  for (const h of all) for (const t of h.data.tags) if (!map.has(tagSlug(t))) map.set(tagSlug(t), t);
+  return [...map.entries()].filter(([slug]) => slug).map(([slug, label]) => ({ params: { tag: slug }, props: { label } }));
+}
+
+const { tag } = Astro.params;
+const { label } = Astro.props;
+const all = await getNews();
+const items = all.filter((h) => h.data.tags.some((t) => tagSlug(t) === tag));
+---
+
+<Base title={`${label} Haberleri`} description={`${label} etiketli haberler.`}>
+  <div class="page-head">
+    <h1>#{label}</h1>
+    <p>{items.length} haber</p>
+  </div>
+  <section class="sec" style="margin-top:24px" aria-label={`${label} haberleri`}>
+    <div class="grid3">
+      {items.map((h) => <NewsCard item={h} />)}
+    </div>
+  </section>
+</Base>

@@ -1,0 +1,32 @@
+---
+import { ADS } from '../consts';
+
+interface Props {
+  size: 'leaderboard' | 'rectangle' | 'tall' | 'inarticle';
+}
+const { size } = Astro.props;
+const slotId = ADS.slots[size];
+const live = Boolean(ADS.adsenseClient && slotId);
+const show = live || ADS.showPlaceholders || import.meta.env.DEV;
+const dims = { leaderboard: '728×90', rectangle: '300×250', tall: '300×600', inarticle: 'duyarlı' } as const;
+---
+
+{
+  show && (
+    <aside class={`ad ad--${size}`} aria-label="Reklam">
+      <span class="ad-label">Reklam</span>
+      {live ? (
+        <ins
+          class="adsbygoogle"
+          style="display:block"
+          data-ad-client={ADS.adsenseClient}
+          data-ad-slot={slotId}
+          data-ad-format="auto"
+          data-full-width-responsive="true"
+        />
+      ) : (
+        <div class="ad-box">Reklam alanı ({dims[size]})</div>
+      )}
+    </aside>
+  )
+}

@@ -1,0 +1,70 @@
+---
+import Base from '../layouts/Base.astro';
+---
+
+<Base title="Haberlerde Ara" description="digitalhaber haberlerinde arama yapın." noindex={true}>
+  <div class="page-head">
+    <h1>Haberlerde ara</h1>
+  </div>
+
+  <form class="search-box" id="search-form" role="search">
+    <label class="sr-only" for="q">Aranacak kelime</label>
+    <input id="q" name="q" type="search" placeholder="Örn: yapay zeka, parola, SSD" autocomplete="off" autofocus />
+    <button class="btn" type="submit">Ara</button>
+  </form>
+  <p class="result-count" id="count" aria-live="polite"></p>
+  <div class="results" id="results"></div>
+</Base>
+
+<script>
+  type Item = { t: string; d: string; u: string; c: string; i: string; s: string };
+  const norm = (s: string) =>
+    s.toLocaleLowerCase('tr').normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/ı/g, 'i');
+
+  const form = document.getElementById('search-form') as HTMLFormElement;
+  const input = document.getElementById('q') as HTMLInputElement;
+  const out = document.getElementById('results')!;
+  const count = document.getElementById('count')!;
+  let data: Item[] | null = null;
+
+  async function load() {
+    if (!data) data = await (await fetch('/search.json')).json();
+    return data!;
+  }
+
+  async function run() {
+    const q = norm(input.value.trim());
+    out.replaceChildren();
+    if (!q) { count.textContent = ''; return; }
+    const words = q.split(/\s+/);
+    const hits = (await load()).filter((it) => words.every((w) => norm(`${it.t} ${it.d} ${it.s}`).includes(w)));
+    count.textContent = hits.length ? `${hits.length} sonuç bulundu` : 'Sonuç bulunamadı. Başka bir kelime deneyin.';
+    for (const it of hits) {
+      const a = document.createElement('a');
+      a.className = 'story-row story-row--big';
+      a.href = it.u;
+      const wrap = document.createElement('div');
+      wrap.className = 'story-img';
+      const img = document.createElement('img');
+      img.src = it.i; img.alt = ''; img.loading = 'lazy'; img.width = 180; img.height = 135;
+      wrap.appendChild(img);
+      const body = document.createElement('div');
+      const cat = document.createElement('span'); cat.className = 'cat'; cat.textContent = it.c;
+      const h3 = document.createElement('h3'); h3.textContent = it.t;
+      const p = document.createElement('p'); p.textContent = it.d; p.style.cssText = 'margin:0;color:var(--muted);font-size:.95rem';
+      body.append(cat, h3, p);
+      a.append(wrap, body);
+      out.appendChild(a);
+    }
+  }
+
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    history.replaceState(null, '', input.value ? `?q=${encodeURIComponent(input.value)}` : location.pathname);
+    run();
+  });
+  input.addEventListener('input', run);
+
+  const initial = new URLSearchParams(location.search).get('q');
+  if (initial) { input.value = initial; run(); }
+</script>

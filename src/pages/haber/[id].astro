@@ -1,11 +1,13 @@
 ---
 import { render } from 'astro:content';
 import Base from '../../layouts/Base.astro';
+import ShareBar from '../../components/ShareBar.astro';
 import ShareModal from '../../components/ShareModal.astro';
 import NewsCard from '../../components/NewsCard.astro';
 import MostRead from '../../components/MostRead.astro';
+import AdSlot from '../../components/AdSlot.astro';
 import { SITE } from '../../consts';
-import { catColor, catName, fmtDate, getNews, readMins } from '../../lib/news';
+import { absUrl, catOf, fmtDate, getNews, getPopular, haberUrl, readMins, tagSlug } from '../../lib/news';
 
 export async function getStaticPaths() {
   const all = await getNews();
@@ -14,38 +16,49 @@ export async function getStaticPaths() {
 
 const { entry } = Astro.props;
 const d = entry.data;
+const c = catOf(d.category);
 const { Content } = await render(entry);
 
 const all = await getNews();
-const related = all
-  .filter((h) => h.id !== entry.id && h.data.category === d.category)
-  .concat(all.filter((h) => h.id !== entry.id && h.data.category !== d.category))
-  .slice(0, 4);
-const popular = [...all.filter((h) => h.data.popular), ...all.filter((h) => !h.data.popular)]
-  .filter((h) => h.id !== entry.id)
-  .slice(0, 5);
+const sameCat = all.filter((h) => h.id !== entry.id && h.data.category === d.category);
+const others = all.filter((h) => h.id !== entry.id && h.data.category !== d.category);
+const related = [...sameCat, ...others].slice(0, 3);
+const popular = getPopular(all, 5, entry.id);
 
-const url = new URL(Astro.url.pathname, Astro.site).href;
-const img = d.image.startsWith('http') ? d.image : new URL(d.image, Astro.site).href;
+const origin = Astro.site!.href.replace(/\/$/, '');
+const url = origin + haberUrl(entry.id);
+const img = absUrl(d.image, Astro.site);
 
-const jsonLd = {
-  '@context': 'https://schema.org',
-  '@type': 'NewsArticle',
-  headline: d.title,
-  description: d.description,
-  image: [img],
-  datePublished: d.date.toISOString(),
-  dateModified: (d.updated ?? d.date).toISOString(),
-  author: { '@type': 'Person', name: d.author },
-  publisher: {
-    '@type': 'Organization',
-    name: SITE.name,
-    logo: { '@type': 'ImageObject', url: new URL('/favicon.svg', Astro.site).href },
+const jsonLd = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'NewsArticle',
+    headline: d.title,
+    description: d.description,
+    image: [img],
+    datePublished: d.date.toISOString(),
+    dateModified: (d.updated ?? d.date).toISOString(),
+    author: { '@type': 'Person', name: d.author },
+    publisher: {
+      '@type': 'Organization',
+      name: SITE.name,
+      logo: { '@type': 'ImageObject', url: absUrl(SITE.logo, Astro.site) },
+    },
+    mainEntityOfPage: { '@type': 'WebPage', '@id': url },
+    articleSection: c.name,
+    keywords: d.tags.join(', '),
+    inLanguage: 'tr',
   },
-  mainEntityOfPage: url,
-  articleSection: catName(d.category),
-  inLanguage: 'tr',
-};
+  {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Ana Sayfa', item: origin + '/' },
+      { '@type': 'ListItem', position: 2, name: c.name, item: `${origin}/kategori/${c.slug}/` },
+      { '@type': 'ListItem', position: 3, name: d.title, item: url },
+    ],
+  },
+];
 ---
 
 <Base
@@ -55,57 +68,91 @@ const jsonLd = {
   type="article"
   publishedTime={d.date}
   modifiedTime={d.updated ?? d.date}
-  section={catName(d.category)}
+  section={c.name}
   jsonLd={jsonLd}
 >
+  <div class="progress" id="progress" aria-hidden="true"></div>
+
   <nav class="crumbs" aria-label="Sayfa yolu">
-    <a href="/">Ana Sayfa</a> › <a href={`/kategori/${d.category}`}>{catName(d.category)}</a>
+    <a href="/">Ana Sayfa</a> / <a href={`/kategori/${c.slug}/`}>{c.name}</a>
   </nav>
 
-  <div class="layout">
-    <div>
-      <article class="article">
-        <header class="article-head">
-          <span class="badge" style={`background:${catColor(d.category)}`}>{catName(d.category)}</span>
-          <h1>{d.title}</h1>
-          <p class="article-lead">{d.description}</p>
-          <div class="article-meta">
-            <span>✍️ {d.author}</span>
-            <time datetime={d.date.toISOString()}>📅 {fmtDate(d.date)}</time>
-            <span>⏱ {readMins(entry.body)} dk okuma</span>
-            <span class="spacer"></span>
-            <button class="btn-share" type="button" data-share-open>↗ Paylaş</button>
-          </div>
-        </header>
-
-        <figure>
-          <img src={d.image} alt={d.imageAlt ?? d.title} width="1200" height="675" fetchpriority="high" />
-        </figure>
-
-        <div class="article-body">
-          <Content />
+  <div class="article-wrap">
+    <article class="article-main">
+      <header class="article-head" style={`--c:${c.color}`}>
+        <a class="chip" href={`/kategori/${c.slug}/`}>{c.name}</a>
+        <h1>{d.title}</h1>
+        <p class="lead">{d.description}</p>
+        <div class="byline">
+          <span>Yazar: <strong>{d.author}</strong></span>
+          <time datetime={d.date.toISOString()}>{fmtDate(d.date)}</time>
+          {d.updated && <span>Güncelleme: {fmtDate(d.updated)}</span>}
+          <span>{readMins(entry.body)} dk okuma</span>
         </div>
+        <ShareBar url={url} title={d.title} />
+      </header>
 
-        <footer class="article-foot">
-          <div class="tags">
-            {d.tags.map((t) => <span class="tag">#{t}</span>)}
-          </div>
-          <button class="btn-share" type="button" data-share-open>↗ Haberi Paylaş</button>
-        </footer>
-      </article>
+      <figure class="figure">
+        <img src={d.image} alt={d.imageAlt ?? d.title} width="1200" height="675" fetchpriority="high" decoding="async" />
+        {d.imageCredit && <figcaption>Görsel: {d.imageCredit}</figcaption>}
+      </figure>
 
-      <section style="margin-top:32px">
-        <h2 class="section-title">İlginizi Çekebilir</h2>
-        <div class="grid2">
-          {related.map((h) => <NewsCard item={h} />)}
-        </div>
-      </section>
-    </div>
+      <div class="article-body">
+        <Content />
+      </div>
+      <template id="ad-mid"><AdSlot size="inarticle" /></template>
 
-    <aside style="display:flex;flex-direction:column;gap:20px">
+      <footer class="article-foot">
+        {
+          d.tags.length > 0 && (
+            <div class="tags">
+              {d.tags.map((t) => <a class="tag" href={`/etiket/${tagSlug(t)}/`}>#{t}</a>)}
+            </div>
+          )
+        }
+        <ShareBar url={url} title={d.title} />
+      </footer>
+
+      <AdSlot size="leaderboard" />
+    </article>
+
+    <aside class="side" aria-label="Yan sütun">
+      <AdSlot size="rectangle" />
       <MostRead items={popular} />
+      <AdSlot size="tall" />
     </aside>
   </div>
 
+  <section class="sec" aria-labelledby="ilgi">
+    <div class="sec-head"><h2 id="ilgi">İlginizi çekebilir</h2></div>
+    <div class="grid3">
+      {related.map((h) => <NewsCard item={h} excerpt={false} />)}
+    </div>
+  </section>
+
   <ShareModal url={url} title={d.title} image={img} />
 </Base>
+
+<script>
+  // Okuma ilerleme çubuğu
+  const bar = document.getElementById('progress');
+  const body = document.querySelector('.article-main');
+  if (bar && body) {
+    const update = () => {
+      const r = body.getBoundingClientRect();
+      const total = r.height - window.innerHeight * 0.6;
+      const done = Math.min(Math.max(-r.top, 0), Math.max(total, 1));
+      bar.style.transform = `scaleX(${total > 0 ? done / total : 0})`;
+    };
+    window.addEventListener('scroll', update, { passive: true });
+    window.addEventListener('resize', update);
+    update();
+  }
+
+  // Haber metninin 2. paragrafından sonra reklam alanı
+  const tpl = document.getElementById('ad-mid') as HTMLTemplateElement | null;
+  const paras = document.querySelectorAll('.article-body > p');
+  if (tpl && tpl.content.childElementCount > 0 && paras.length >= 4) {
+    paras[1].after(tpl.content.cloneNode(true));
+  }
+</script>

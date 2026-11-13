@@ -1,49 +1,49 @@
-# digitalhaber.com 
+# digitalhaber.com
 
-Astro ile yapılmış, ücretsiz barındırılabilen teknoloji haber sitesi.
+Astro ile yapılmış, ücretsiz barındırılan teknoloji haber sitesi. Telefon, tablet ve bilgisayara uyumludur; telefon koyu moddaysa site de koyu görünür.
 
-**Özellikler:** kayan manşet (6 haber) · kayan "Son Dakika" bandı · En Çok Okunanlar · tıklanabilir haber sayfaları · Paylaş penceresi · kategori sayfaları · RSS · sitemap · NewsArticle schema (SEO) · `/admin` editör paneli.
+## Haber ekleme (editör paneli)
 
-## 1. Bilgisayarında çalıştır
+Adres: `https://www.digitalhaber.com/admin`
+
+1. **Haberler → Yeni Haber**'e basın.
+2. Başlık, kısa açıklama, kategori yazın.
+3. **Manşet / Kapak Görseli** alanından bilgisayarınızdan görsel yükleyin (yatay, 1600 piksel genişlik, 300 KB altı ideal).
+4. Haber metnini yazın. Başlık, kalın, liste, bağlantı ve görsel ekleyebilirsiniz.
+5. Manşette görünsün istiyorsanız **Manşette Göster**'i açın (en fazla 6 haber).
+6. Sağ üstten **Yayınla**'ya basın. Site 1-2 dakika içinde kendini yeniler.
+
+Haber taslak kalsın istiyorsanız **Taslak**'ı açın.
+
+## Reklam alanları
+
+Sitede hazır reklam yerleri var: manşet altı, haber içi (2. paragraftan sonra), yan sütun (iki yer) ve haber sonu. AdSense onayı gelene kadar yayında görünmezler, sayfada boşluk kalmaz.
+
+Onay gelince `src/consts.ts` dosyasında:
+
+1. `adsenseClient` alanına `ca-pub-...` kodunuzu yazın.
+2. `slots` içine AdSense'te oluşturduğunuz reklam birimi numaralarını yazın.
+
+Reklamlar, ziyaretçi çerez bildirimini kabul ettikten sonra yüklenir. AdSense onayı için yeterli sayıda özgün haber, Hakkımızda, İletişim ve Gizlilik sayfaları gerekir. Bu sayfalar hazır; metinleri kendinize göre güncelleyin.
+
+## Kendi bilgisayarınızda deneme
 
 ```bash
 npm install
 npm run dev      # http://localhost:4321
-npm run build    # canlıya çıkacak dosyalar dist/ klasörüne
 ```
 
-## 2. Yayına al (ücretsiz)
+## SEO
 
-1. Bu klasörü bir **GitHub deposuna** yükle (örn. `kullanici/digitalhaber`).
-2. **Cloudflare Pages** → Create project → GitHub deposunu bağla.
-   - Build command: `npm run build`
-   - Output directory: `dist`
-3. Cloudflare'de domain ekleyerek `digitalhaber.com` adresini projeye bağla.
+- Her haber için NewsArticle, BreadcrumbList ve site için NewsMediaOrganization verisi
+- `sitemap-index.xml` ve Google News için `news-sitemap.xml`
+- RSS (`/rss.xml`), canonical adresler, paylaşım kartları (Open Graph)
+- Search Console'a iki site haritasını da gönderin:
+  `https://www.digitalhaber.com/sitemap-index.xml` ve `https://www.digitalhaber.com/news-sitemap.xml`
 
-Her haber kaydedildiğinde site otomatik yeniden derlenir (genelde 1-2 dakika).
+## Notlar
 
-## 3. Editör paneli (WordPress gibi haber yazma)
-
-Adres: **https://digitalhaber.com/admin**
-
-Kurulum (bir kerelik):
-
-1. `public/admin/config.yml` içindeki `repo: KULLANICI_ADINIZ/digitalhaber` satırını kendi GitHub deponla değiştir.
-2. GitHub → Settings → Developer settings → **Fine-grained personal access token** oluştur:
-   - Sadece bu depoya erişim ver
-   - Yetki: **Contents → Read and write**
-3. `/admin` sayfasında **GitHub ile giriş → Token ile giriş** seçeneğine bu token'ı yapıştır.
-
-Sonra: **Haberler → Yeni Haber** → başlık, spot, kategori, kapak görseli, metin → **Yayınla**.
-- **Manşette Göster** açıksa haber ana sayfadaki kayan manşete girer.
-- **En Çok Okunanlar'da Göster** açıksa sağdaki listede çıkar.
-- **Taslak** açıksa haber yayınlanmaz.
-
-## 4. Önemli notlar
-
-- **"En Çok Okunanlar" gerçek okuma sayısına göre sıralanmaz.** Site statik olduğu için sayaç yok; liste, editörün işaretlediği haberlerden oluşur (eksik kalırsa en yeniler tamamlanır). Gerçek sayaç için ileride Cloudflare Web Analytics veya küçük bir Worker eklenebilir.
-- `src/content/haberler/` altındaki 8 haber **örnek içeriktir**. Kendi haberlerini girince panelden silebilirsin.
-- `public/og-default.svg` varsayılan paylaşım görselidir; Facebook/WhatsApp SVG göstermez. 1200x630 bir **PNG** hazırlayıp `public/og-default.png` olarak koy ve `src/consts.ts` içindeki `defaultImage` değerini güncelle. (Her haberin kendi kapak görseli zaten kullanılır.)
-- `src/consts.ts` içindeki e-posta adresini kendi adresinle değiştir. Hakkımızda ve Gizlilik sayfalarındaki metinleri de kendine göre güncelle (AdSense ve Google News için gerekli).
-- Paylaş penceresinde TikTok ve Snapchat yok; bu platformların tarayıcıdan bağlantı paylaşma adresi bulunmuyor. Messenger butonu telefonda çalışır; bilgisayarda Facebook uygulama kimliği gerektirir.
-- Yayına aldıktan sonra **Google Search Console**'a `https://digitalhaber.com/sitemap-index.xml` adresini gönder.
+- "En Çok Okunanlar" gerçek okunma sayısına göre değil, editörün işaretlediği haberlere göre dolar.
+- Kategori eklemek için `src/lib/news.ts`, `src/content.config.ts` ve `public/admin/config.yml` dosyalarındaki kategori listesine aynı kaydı ekleyin.
+- Kendi görsellerinizi kullanın ya da kaynağını belirtin; başka sitelerden alınan görseller telif sorunu çıkarabilir.
+- `src/consts.ts` içindeki e-posta adresini kendi adresinizle değiştirin.

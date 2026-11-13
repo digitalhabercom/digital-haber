@@ -16,7 +16,8 @@ export async function GET(context) {
       description: h.data.description,
       pubDate: h.data.date,
       link: `/haber/${h.id}/`,
-      categories: [h.data.category],
+      categories: [h.data.category, ...h.data.tags],
+      author: h.data.author,
     })),
     customData: '<language>tr-tr</language>',
   });

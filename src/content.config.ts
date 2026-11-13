@@ -8,18 +8,13 @@ const haberler = defineCollection({
     description: z.string(),
     date: z.coerce.date(),
     updated: z.coerce.date().optional(),
-    category: z.enum([
-      'yapay-zeka',
-      'donanim',
-      'siber-guvenlik',
-      'yazilim',
-      'bulut-altyapi',
-    ]),
-    image: z.string(),
+    category: z.enum(['yapay-zeka', 'donanim', 'siber-guvenlik', 'yazilim', 'bulut-altyapi']),
+    image: z.string(), // manşet / kapak görseli: /uploads/dosya.jpg veya https://...
     imageAlt: z.string().optional(),
+    imageCredit: z.string().optional(),
     author: z.string().default('digitalhaber Editör'),
-    featured: z.boolean().default(false), // manşet slider'ında göster
-    popular: z.boolean().default(false), // "En Çok Okunanlar" listesinde göster
+    featured: z.boolean().default(false), // manşette göster
+    popular: z.boolean().default(false), // en çok okunanlarda göster
     draft: z.boolean().default(false),
     tags: z.array(z.string()).default([]),
   }),

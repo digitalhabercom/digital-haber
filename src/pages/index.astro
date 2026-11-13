@@ -3,65 +3,90 @@ import Base from '../layouts/Base.astro';
 import Slider from '../components/Slider.astro';
 import NewsCard from '../components/NewsCard.astro';
 import MostRead from '../components/MostRead.astro';
+import AdSlot from '../components/AdSlot.astro';
 import { SITE } from '../consts';
-import { catName, getNews } from '../lib/news';
+import { CATEGORIES, getNews, getPopular } from '../lib/news';
 
 const all = await getNews();
 
-// Manşet: "featured" işaretli haberler önce, eksik kalırsa en yeniler ile 6'ya tamamlanır
-const featured = all.filter((h) => h.data.featured);
-const slides = [...featured, ...all.filter((h) => !h.data.featured)].slice(0, 6);
+// Manşet: "featured" işaretliler önce, eksik kalırsa en yeniler ile 6'ya tamamlanır
+const slides = [...all.filter((h) => h.data.featured), ...all.filter((h) => !h.data.featured)].slice(0, 6);
 const slideIds = new Set(slides.map((s) => s.id));
 
-// Gündem akışı: en yeni 5 haber
-const feed = all.slice(0, 5);
+// Son haberler: manşette olmayanlar; yetmezse tüm haberler
+const rest = all.filter((h) => !slideIds.has(h.id));
+const feedSource = rest.length >= 3 ? rest : all;
+const lead = feedSource[0];
+const feed = feedSource.slice(1, 7);
 
-// En çok okunanlar: "popular" işaretliler, eksik kalırsa en yeniler
-const popular = [...all.filter((h) => h.data.popular), ...all.filter((h) => !h.data.popular)].slice(0, 5);
+const popular = getPopular(all, 5);
 
-// Manşette olmayan haberler kartlarda
-const rest = all.filter((h) => !slideIds.has(h.id)).slice(0, 12);
-const more = rest.length ? rest : all.slice(0, 6);
+// Kategori blokları: en az 2 haberi olan ilk 3 kategori
+const blocks = CATEGORIES.map((c) => ({ c, items: all.filter((h) => h.data.category === c.slug).slice(0, 4) }))
+  .filter((b) => b.items.length >= 2)
+  .slice(0, 3);
 
+const origin = Astro.site!.href.replace(/\/$/, '');
 const jsonLd = {
   '@context': 'https://schema.org',
   '@type': 'WebSite',
   name: SITE.name,
-  url: Astro.site?.href,
+  url: origin + '/',
   inLanguage: 'tr',
   description: SITE.description,
+  potentialAction: {
+    '@type': 'SearchAction',
+    target: `${origin}/arama/?q={search_term_string}`,
+    'query-input': 'required name=search_term_string',
+  },
 };
 ---
 
-<Base jsonLd={jsonLd}>
-  <section class="hero">
-    <Slider items={slides} />
+<Base title="Teknoloji Haberleri, Yapay Zeka ve Siber Güvenlik" jsonLd={jsonLd}>
+  {
+    all.length === 0 ? (
+      <p class="empty">Henüz haber yok. /admin adresinden ilk haberi ekleyin.</p>
+    ) : (
+      <>
+        <Slider items={slides} />
+        <AdSlot size="leaderboard" />
 
-    <aside class="panel">
-      <h2 class="panel-title">⚡ Gündem Akışı</h2>
-      <div class="feed">
+        <div class="cols">
+          <section class="sec" style="margin-top:16px" aria-labelledby="son-haberler">
+            <div class="sec-head">
+              <h2 id="son-haberler">Son Haberler</h2>
+              <a href="/haberler/">Tüm haberler</a>
+            </div>
+            <div class="grid2">
+              <NewsCard item={lead} variant="lead" />
+              {feed.map((h) => <NewsCard item={h} />)}
+            </div>
+          </section>
+
+          <aside class="side" style="margin-top:56px" aria-label="Yan sütun">
+            <AdSlot size="rectangle" />
+            <MostRead items={popular} />
+            <AdSlot size="tall" />
+          </aside>
+        </div>
+
         {
-          feed.map((h) => (
-            <a href={`/haber/${h.id}`}>
-              <small>{catName(h.data.category)}</small>
-              <p>{h.data.title}</p>
-            </a>
+          blocks.map((b, i) => (
+            <>
+              <section class="sec" aria-labelledby={`blok-${b.c.slug}`}>
+                <div class="sec-head">
+                  <h2 id={`blok-${b.c.slug}`}>{b.c.name}</h2>
+                  <a href={`/kategori/${b.c.slug}/`}>Tümü</a>
+                </div>
+                <div class="grid4">
+                  {b.items.map((h) => <NewsCard item={h} excerpt={false} />)}
+                </div>
+              </section>
+              {i === 0 && <AdSlot size="leaderboard" />}
+            </>
           ))
         }
-      </div>
-    </aside>
-  </section>
-
-  <div class="layout">
-    <section>
-      <h2 class="section-title">Son Haberler</h2>
-      <div class="grid2">
-        {more.map((h) => <NewsCard item={h} />)}
-      </div>
-    </section>
-
-    <aside>
-      <MostRead items={popular} />
-    </aside>
-  </div>
+      </>
+    )
+  }
 </Base>

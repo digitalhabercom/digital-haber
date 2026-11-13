@@ -8,7 +8,7 @@ const haberler = defineCollection({
     description: z.string(),
     date: z.coerce.date(),
     updated: z.coerce.date().optional(),
-    category: z.enum(['yapay-zeka', 'donanim', 'siber-guvenlik', 'yazilim', 'bulut-altyapi']),
+    category: z.string(), // kategori kodu; liste panelden yönetilir (Ayarlar → Kategoriler)
     image: z.string(), // manşet / kapak görseli: /uploads/dosya.jpg veya https://...
     imageAlt: z.string().optional(),
     imageCredit: z.string().optional(),

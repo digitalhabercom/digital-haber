@@ -1,8 +1,10 @@
 ---
 import '../styles/global.css';
 import Consent from '../components/Consent.astro';
+import AdSlot from '../components/AdSlot.astro';
+import HeaderSearch from '../components/HeaderSearch.astro';
 import { SITE } from '../consts';
-import { CATEGORIES, getNews, haberUrl, absUrl } from '../lib/news';
+import { activeCategories, getNews, haberUrl, absUrl } from '../lib/news';
 
 interface Props {
   title?: string;
@@ -14,6 +16,8 @@ interface Props {
   section?: string;
   jsonLd?: Record<string, unknown> | Record<string, unknown>[];
   noindex?: boolean;
+  /** false: üst/alt reklam ve kenar reklamları gösterme (404, yasal sayfalar) */
+  ads?: boolean;
 }
 
 const {
@@ -26,6 +30,7 @@ const {
   section,
   jsonLd,
   noindex = false,
+  ads = true,
 } = Astro.props;
 
 const fullTitle = title ? `${title} | ${SITE.name}` : SITE.name;
@@ -35,7 +40,9 @@ const canonical = new URL(path, Astro.site).href;
 const ogImage = absUrl(image, Astro.site);
 const origin = Astro.site?.href.replace(/\/$/, '') ?? '';
 
-const latest = (await getNews()).slice(0, 8);
+const all = await getNews();
+const latest = all.slice(0, 8);
+const navCats = activeCategories(all);
 
 const orgLd = {
   '@context': 'https://schema.org',
@@ -56,7 +63,7 @@ const ldString = JSON.stringify(ld).replace(/</g, '\\u003c');
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>{fullTitle}</title>
     <meta name="description" content={description} />
-    <meta name="theme-color" content="#0d1033" />
+    <meta name="theme-color" content="#1a1c22" />
     <link rel="canonical" href={canonical} />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
@@ -112,28 +119,35 @@ const ldString = JSON.stringify(ld).replace(/</g, '\\u003c');
           <span class="logo-mark" aria-hidden="true">dh</span>
           <span class="logo-text">digital<b>haber</b></span>
         </a>
-        <div class="head-actions">
-          <p class="tagline">{SITE.tagline}</p>
-          <a class="icon-btn" href="/arama/">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-3.5-3.5"></path></svg>
-            Ara
-          </a>
-        </div>
+        <HeaderSearch />
       </div>
     </header>
 
     <nav class="nav" aria-label="Kategoriler">
       <div class="wrap nav-in">
-        {CATEGORIES.map((c) => (
+        {navCats.map((c) => (
           <a href={`/kategori/${c.slug}/`} class:list={[{ active: path.startsWith(`/kategori/${c.slug}/`) }]}>{c.name}</a>
         ))}
         <a href="/haberler/" class:list={[{ active: path.startsWith('/haberler/') }]}>Tüm Haberler</a>
       </div>
     </nav>
 
+    {ads && <div class="wrap"><AdSlot pos="ust" /></div>}
+
+    {
+      ads && (
+        <>
+          <div class="siderail siderail--l"><AdSlot pos="sol-kenar" /></div>
+          <div class="siderail siderail--r"><AdSlot pos="sag-kenar" /></div>
+        </>
+      )
+    }
+
     <main id="icerik" class="wrap">
       <slot />
     </main>
+
+    {ads && <div class="wrap"><AdSlot pos="alt" /></div>}
 
     <footer class="footer">
       <div class="wrap">
@@ -144,7 +158,7 @@ const ldString = JSON.stringify(ld).replace(/</g, '\\u003c');
           </div>
           <div>
             <h3>Kategoriler</h3>
-            <ul>{CATEGORIES.map((c) => <li><a href={`/kategori/${c.slug}/`}>{c.name}</a></li>)}</ul>
+            <ul>{navCats.map((c) => <li><a href={`/kategori/${c.slug}/`}>{c.name}</a></li>)}</ul>
           </div>
           <div>
             <h3>Kurumsal</h3>

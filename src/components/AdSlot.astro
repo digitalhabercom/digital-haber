@@ -1,31 +1,76 @@
 ---
-import { ADS } from '../consts';
+import ads from '../data/reklam.json';
 
 interface Props {
-  size: 'leaderboard' | 'rectangle' | 'tall' | 'inarticle';
+  pos: string;
 }
-const { size } = Astro.props;
-const slotId = ADS.slots[size];
-const live = Boolean(ADS.adsenseClient && slotId);
-const show = live || ADS.showPlaceholders || import.meta.env.DEV;
-const dims = { leaderboard: '728×90', rectangle: '300×250', tall: '300×600', inarticle: 'duyarlı' } as const;
+const { pos } = Astro.props;
+
+const TYPES: Record<string, string> = {
+  ust: 'leaderboard',
+  'manset-alti': 'leaderboard',
+  'anasayfa-orta': 'leaderboard',
+  alt: 'leaderboard',
+  'yan-ust': 'rectangle',
+  'yan-alt': 'tall',
+  'sol-kenar': 'skyscraper',
+  'sag-kenar': 'skyscraper',
+  'haber-ici-1': 'inarticle',
+  'haber-ici-2': 'inarticle',
+  'haber-sonu': 'inarticle',
+};
+const LABELS: Record<string, string> = {
+  ust: 'Üst',
+  'manset-alti': 'Manşet altı',
+  'anasayfa-orta': 'Ana sayfa ortası',
+  alt: 'Alt',
+  'yan-ust': 'Yan sütun üst',
+  'yan-alt': 'Yan sütun alt',
+  'sol-kenar': 'Sol kenar',
+  'sag-kenar': 'Sağ kenar',
+  'haber-ici-1': 'Haber içi 1',
+  'haber-ici-2': 'Haber içi 2',
+  'haber-sonu': 'Haber sonu',
+};
+const DIMS: Record<string, string> = {
+  leaderboard: '728×90',
+  rectangle: '300×250',
+  tall: '300×600',
+  skyscraper: '160×600',
+  inarticle: 'duyarlı',
+};
+
+const type = TYPES[pos] ?? 'rectangle';
+const cfg = ((ads as any).alanlar?.[pos] ?? {}) as { slot?: string; banner?: string; link?: string; alt?: string };
+const client = ((ads as any).adsenseClient ?? '') as string;
+const hasBanner = Boolean(cfg.banner && cfg.link);
+const live = Boolean(client && cfg.slot);
+const show = hasBanner || live || Boolean((ads as any).showPlaceholders) || import.meta.env.DEV;
 ---
 
 {
   show && (
-    <aside class={`ad ad--${size}`} aria-label="Reklam">
+    <aside class={`ad ad--${type}`} aria-label="Reklam" data-pos={pos}>
       <span class="ad-label">Reklam</span>
-      {live ? (
+      {hasBanner ? (
+        <a href={cfg.link} target="_blank" rel="sponsored noopener noreferrer">
+          <img src={cfg.banner} alt={cfg.alt || 'Reklam'} loading="lazy" decoding="async" />
+        </a>
+      ) : live ? (
         <ins
           class="adsbygoogle"
           style="display:block"
-          data-ad-client={ADS.adsenseClient}
-          data-ad-slot={slotId}
+          data-ad-client={client}
+          data-ad-slot={cfg.slot}
           data-ad-format="auto"
           data-full-width-responsive="true"
         />
       ) : (
-        <div class="ad-box">Reklam alanı ({dims[size]})</div>
+        <div class="ad-box">
+          {LABELS[pos] ?? pos}
+          <br />
+          {DIMS[type]}
+        </div>
       )}
     </aside>
   )

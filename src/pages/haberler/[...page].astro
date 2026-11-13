@@ -33,8 +33,9 @@ const title = page.currentPage > 1 ? `Tüm Haberler, Sayfa ${page.currentPage}` 
       </nav>
     </section>
     <aside class="side" aria-label="Yan sütun">
-      <AdSlot size="rectangle" />
+      <AdSlot pos="yan-ust" />
       <MostRead items={popular} />
+      <div class="stick"><AdSlot pos="yan-alt" /></div>
     </aside>
   </div>
 </Base>

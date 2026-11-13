@@ -1,17 +1,16 @@
 import { getCollection, type CollectionEntry } from 'astro:content';
+import catData from '../data/kategoriler.json';
 
 export type Haber = CollectionEntry<'haberler'>;
+export type Category = { slug: string; name: string; color: string; desc?: string };
 
-export const CATEGORIES = [
-  { slug: 'yapay-zeka', name: 'Yapay Zeka', color: '#6d28d9', desc: 'Yapay zeka modelleri, araçları ve günlük hayata etkileri.' },
-  { slug: 'donanim', name: 'Donanım', color: '#b45309', desc: 'Bilgisayar, telefon ve donanım dünyasından haberler ve alım rehberleri.' },
-  { slug: 'siber-guvenlik', name: 'Siber Güvenlik', color: '#b91c1c', desc: 'Güvenlik açıkları, saldırılar ve korunma yöntemleri.' },
-  { slug: 'yazilim', name: 'Yazılım', color: '#047857', desc: 'Yazılım geliştirme, araçlar ve programlamaya dair rehberler.' },
-  { slug: 'bulut-altyapi', name: 'Bulut Altyapı', color: '#0369a1', desc: 'Bulut hizmetleri, sunucular, ağlar ve yedekleme çözümleri.' },
-] as const;
+/** Kategoriler panelden (Ayarlar → Kategoriler) yönetilir: src/data/kategoriler.json */
+export const CATEGORIES: Category[] = (((catData as unknown as { categories?: Category[] }).categories) ?? []).filter(
+  (c) => c && c.slug && c.name
+);
 
-export const catOf = (slug: string) =>
-  CATEGORIES.find((c) => c.slug === slug) ?? { slug, name: slug, color: '#2a3df5', desc: '' };
+export const catOf = (slug: string): Category =>
+  CATEGORIES.find((c) => c.slug === slug) ?? { slug, name: slug, color: '#2455d6', desc: '' };
 
 /** Taslak olmayan tüm haberler, yeniden eskiye sıralı. */
 export async function getNews(): Promise<Haber[]> {
@@ -19,10 +18,23 @@ export async function getNews(): Promise<Haber[]> {
   return all.sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
 }
 
+/** En az bir haberi olan kategoriler (menüde boş sekme görünmesin diye). */
+export const activeCategories = (all: Haber[]): Category[] =>
+  CATEGORIES.filter((c) => all.some((h) => h.data.category === c.slug));
+
 /** "popular" işaretliler önce, eksik kalırsa en yeniler tamamlar. */
 export function getPopular(all: Haber[], n = 5, excludeId?: string): Haber[] {
   const pool = all.filter((h) => h.id !== excludeId);
   return [...pool.filter((h) => h.data.popular), ...pool.filter((h) => !h.data.popular)].slice(0, n);
+}
+
+export const haberUrl = (id: string) => `/haber/${id}/`;
+
+/** Haber sayfasında aşağı inince sırayla yüklenecek haberler: önce aynı kategori, sonra diğerleri. */
+export function queueFor(all: Haber[], entry: Haber, n = 12): string[] {
+  const same = all.filter((h) => h.id !== entry.id && h.data.category === entry.data.category);
+  const rest = all.filter((h) => h.id !== entry.id && h.data.category !== entry.data.category);
+  return [...same, ...rest].slice(0, n).map((h) => haberUrl(h.id));
 }
 
 const TZ = 'Europe/Istanbul';
@@ -33,8 +45,6 @@ export const fmtShort = (d: Date) =>
 
 export const readMins = (body = '') =>
   Math.max(1, Math.round(body.split(/\s+/).filter(Boolean).length / 200));
-
-export const haberUrl = (id: string) => `/haber/${id}/`;
 
 export const tagSlug = (t: string) =>
   t

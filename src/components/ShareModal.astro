@@ -1,86 +1,126 @@
 ---
-interface Props {
-  url: string;
-  title: string;
-  image?: string;
-}
-const { url, title, image = '' } = Astro.props;
+import Icon from './Icon.astro';
 
-const u = encodeURIComponent(url);
-const t = encodeURIComponent(title);
-const m = encodeURIComponent(image);
-
-const targets = [
-  { name: 'Pinterest', bc: '#e60023', ico: 'P', href: `https://pinterest.com/pin/create/button/?url=${u}&media=${m}&description=${t}` },
-  { name: 'Facebook', bc: '#1877f2', ico: 'f', href: `https://www.facebook.com/sharer/sharer.php?u=${u}` },
-  { name: 'X (Twitter)', bc: '#111111', ico: 'X', href: `https://twitter.com/intent/tweet?url=${u}&text=${t}` },
-  { name: 'WhatsApp', bc: '#1fa855', ico: 'W', href: `https://wa.me/?text=${t}%20${u}` },
-  { name: 'Telegram', bc: '#229ed9', ico: 'T', href: `https://t.me/share/url?url=${u}&text=${t}` },
-  { name: 'Messenger', bc: '#0a7cff', ico: 'M', href: `fb-messenger://share/?link=${u}` },
-  { name: 'Reddit', bc: '#ff4500', ico: 'R', href: `https://www.reddit.com/submit?url=${u}&title=${t}` },
-  { name: 'LinkedIn', bc: '#0a66c2', ico: 'in', href: `https://www.linkedin.com/sharing/share-offsite/?url=${u}` },
+const nets = [
+  { net: 'pinterest', name: 'Pinterest', bc: '#e60023' },
+  { net: 'facebook', name: 'Facebook', bc: '#1877f2' },
+  { net: 'x', name: 'X (Twitter)', bc: '#111111' },
+  { net: 'whatsapp', name: 'WhatsApp', bc: '#1fa855' },
+  { net: 'telegram', name: 'Telegram', bc: '#229ed9' },
+  { net: 'reddit', name: 'Reddit', bc: '#ff4500' },
+  { net: 'linkedin', name: 'LinkedIn', bc: '#0a66c2' },
 ];
-const mail = `mailto:?subject=${t}&body=${u}`;
 ---
 
 <dialog class="share" id="share-dialog" aria-labelledby="share-title">
   <div class="share-in">
     <div class="share-head">
       <h2 id="share-title">Bu haberi paylaş</h2>
-      <p>{title}</p>
+      <p id="share-name"></p>
       <button class="share-close" type="button" data-share-close aria-label="Kapat">✕</button>
     </div>
 
     <div class="share-grid">
       {
-        targets.map((s) => (
-          <a class="share-btn" style={`--bc:${s.bc}`} href={s.href} target="_blank" rel="noopener noreferrer">
-            <i>{s.ico}</i>
-            {s.name}
+        nets.map((n) => (
+          <a class="share-btn" style={`--bc:${n.bc}`} data-net={n.net} href="#" target="_blank" rel="noopener noreferrer">
+            <i><Icon name={n.net} size={14} /></i>
+            {n.name}
           </a>
         ))
       }
-      <button class="share-btn wide" id="share-native" style="--bc:#2a3df5" type="button" hidden>
-        <i>↗</i> Telefonundaki uygulamalarla paylaş
+      <a class="share-btn only-touch" style="--bc:#0a7cff" data-net="messenger" href="#">
+        <i><Icon name="messenger" size={14} /></i> Messenger
+      </a>
+      <a class="share-btn only-mouse" style="--bc:#d93025" data-net="gmail" href="#" target="_blank" rel="noopener noreferrer">
+        <i><Icon name="mail" size={14} /></i> Gmail
+      </a>
+      <button class="share-btn wide" id="share-native" style="--bc:#2455d6" type="button" hidden>
+        <i><Icon name="share" size={14} /></i> Telefonundaki uygulamalarla paylaş
       </button>
-      <a class="share-btn wide" style="--bc:#6b7280" href={mail}><i>@</i> E-Posta</a>
+      <a class="share-btn wide" style="--bc:#6b7280" data-net="mail" href="#">
+        <i><Icon name="mail" size={14} /></i> E-Posta
+      </a>
     </div>
 
     <div class="share-or">veya bağlantıyı kopyala</div>
     <div class="share-copy">
-      <input type="text" readonly value={url} id="share-url" aria-label="Haber bağlantısı" />
-      <button type="button" id="share-copy" data-share-copy>Kopyala</button>
+      <input type="text" readonly value="" id="share-url" aria-label="Haber bağlantısı" />
+      <button type="button" id="share-copy">Kopyala</button>
     </div>
   </div>
 </dialog>
 
 <script>
+  import { shareHref, type Ctx } from '../lib/share';
+
   const dlg = document.getElementById('share-dialog') as HTMLDialogElement | null;
   const input = document.getElementById('share-url') as HTMLInputElement | null;
+  const nameEl = document.getElementById('share-name');
   const native = document.getElementById('share-native') as HTMLButtonElement | null;
+  let ctx: Ctx | null = null;
 
-  document.querySelectorAll('[data-share-open]').forEach((b) => b.addEventListener('click', () => dlg?.showModal()));
+  const flash = (btn: HTMLElement, text: string) => {
+    const old = btn.innerHTML;
+    btn.innerHTML = text;
+    window.setTimeout(() => (btn.innerHTML = old), 1600);
+  };
+  const copyText = async (text: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+    } catch {
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand('copy');
+      ta.remove();
+    }
+  };
+
+  const open = (c: Ctx) => {
+    if (!dlg || !input) return;
+    ctx = c;
+    input.value = c.url;
+    if (nameEl) nameEl.textContent = c.title;
+    dlg.querySelectorAll<HTMLAnchorElement>('a[data-net]').forEach((a) => {
+      a.href = shareHref(a.dataset.net!, c);
+    });
+    dlg.showModal();
+  };
+
+  // Tek bir dinleyici: sonradan eklenen haberlerdeki butonlar da çalışır
+  document.addEventListener('click', (e) => {
+    const el = e.target as HTMLElement;
+
+    const opener = el.closest<HTMLElement>('[data-share-open]');
+    if (opener) {
+      const w = window as any;
+      const c: Ctx | undefined = opener.dataset.url
+        ? { url: opener.dataset.url, title: opener.dataset.title ?? '', image: opener.dataset.image ?? '' }
+        : w.__dhCtx;
+      if (c) open(c);
+      return;
+    }
+
+    const cp = el.closest<HTMLElement>('[data-copy-link]');
+    if (cp) {
+      const w = window as any;
+      const url = cp.dataset.url ?? w.__dhCtx?.url ?? location.href;
+      copyText(url).then(() => flash(cp, '✓'));
+    }
+  });
+
   dlg?.querySelector('[data-share-close]')?.addEventListener('click', () => dlg.close());
   dlg?.addEventListener('click', (e) => { if (e.target === dlg) dlg.close(); });
+  document.getElementById('share-copy')?.addEventListener('click', (e) => {
+    if (input) copyText(input.value).then(() => flash(e.currentTarget as HTMLElement, 'Kopyalandı ✓'));
+  });
 
-  const copy = async (btn: HTMLElement) => {
-    if (!input) return;
-    try {
-      await navigator.clipboard.writeText(input.value);
-    } catch {
-      input.select();
-      document.execCommand('copy');
-    }
-    const old = btn.textContent;
-    btn.textContent = 'Kopyalandı ✓';
-    window.setTimeout(() => (btn.textContent = old), 1800);
-  };
-  document.querySelectorAll<HTMLElement>('[data-share-copy], [data-copy-link]').forEach((b) => b.addEventListener('click', () => copy(b)));
-
-  if (native && typeof navigator.share === 'function' && input) {
+  if (native && typeof navigator.share === 'function') {
     native.hidden = false;
     native.addEventListener('click', () => {
-      navigator.share({ title: document.title, url: input.value }).catch(() => {});
+      if (ctx) navigator.share({ title: ctx.title, url: ctx.url }).catch(() => {});
     });
   }
 </script>

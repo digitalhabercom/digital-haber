@@ -1,6 +1,6 @@
 ---
-import { ADS } from '../consts';
-const client = ADS.adsenseClient;
+import ads from '../data/reklam.json';
+const client = ((ads as any).adsenseClient ?? '') as string;
 ---
 
 {
@@ -30,14 +30,18 @@ const client = ADS.adsenseClient;
       try { localStorage.setItem(KEY, v); } catch { /* yok say */ }
     };
     const loadAds = () => {
+      const w = window as any;
+      w.__dhAdsOn = true;
       const s = document.createElement('script');
       s.async = true;
       s.crossOrigin = 'anonymous';
       s.src = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=' + client;
       document.head.appendChild(s);
-      const w = window as unknown as { adsbygoogle?: unknown[] };
       w.adsbygoogle = w.adsbygoogle || [];
-      document.querySelectorAll('ins.adsbygoogle').forEach(() => w.adsbygoogle!.push({}));
+      document.querySelectorAll('ins.adsbygoogle:not([data-pushed])').forEach((el) => {
+        el.setAttribute('data-pushed', '1');
+        w.adsbygoogle.push({});
+      });
     };
     const saved = get();
     if (saved === 'yes') loadAds();

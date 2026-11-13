@@ -4,8 +4,9 @@ import Slider from '../components/Slider.astro';
 import NewsCard from '../components/NewsCard.astro';
 import MostRead from '../components/MostRead.astro';
 import AdSlot from '../components/AdSlot.astro';
+import RandomPicks from '../components/RandomPicks.astro';
 import { SITE } from '../consts';
-import { CATEGORIES, getNews, getPopular } from '../lib/news';
+import { getNews, getPopular } from '../lib/news';
 
 const all = await getNews();
 
@@ -15,16 +16,15 @@ const slideIds = new Set(slides.map((s) => s.id));
 
 // Son haberler: manşette olmayanlar; yetmezse tüm haberler
 const rest = all.filter((h) => !slideIds.has(h.id));
-const feedSource = rest.length >= 3 ? rest : all;
-const lead = feedSource[0];
-const feed = feedSource.slice(1, 7);
+const feed = (rest.length >= 3 ? rest : all).slice(0, 6);
+const feedIds = new Set(feed.map((h) => h.id));
 
 const popular = getPopular(all, 5);
 
-// Kategori blokları: en az 2 haberi olan ilk 3 kategori
-const blocks = CATEGORIES.map((c) => ({ c, items: all.filter((h) => h.data.category === c.slug).slice(0, 4) }))
-  .filter((b) => b.items.length >= 2)
-  .slice(0, 3);
+// "Bunları da okuyun": sayfa HTML'inde hazır liste; tarayıcıda her yenilemede karıştırılır
+const used = new Set([...slideIds, ...feedIds]);
+const left = all.filter((h) => !used.has(h.id));
+const picks = (left.length >= 8 ? left : all).slice(0, 8);
 
 const origin = Astro.site!.href.replace(/\/$/, '');
 const jsonLd = {
@@ -49,7 +49,7 @@ const jsonLd = {
     ) : (
       <>
         <Slider items={slides} />
-        <AdSlot size="leaderboard" />
+        <AdSlot pos="manset-alti" />
 
         <div class="cols">
           <section class="sec" style="margin-top:16px" aria-labelledby="son-haberler">
@@ -58,34 +58,20 @@ const jsonLd = {
               <a href="/haberler/">Tüm haberler</a>
             </div>
             <div class="grid2">
-              <NewsCard item={lead} variant="lead" />
               {feed.map((h) => <NewsCard item={h} />)}
             </div>
           </section>
 
           <aside class="side" style="margin-top:56px" aria-label="Yan sütun">
-            <AdSlot size="rectangle" />
+            <AdSlot pos="yan-ust" />
             <MostRead items={popular} />
-            <AdSlot size="tall" />
+            <div class="stick"><AdSlot pos="yan-alt" /></div>
           </aside>
         </div>
 
-        {
-          blocks.map((b, i) => (
-            <>
-              <section class="sec" aria-labelledby={`blok-${b.c.slug}`}>
-                <div class="sec-head">
-                  <h2 id={`blok-${b.c.slug}`}>{b.c.name}</h2>
-                  <a href={`/kategori/${b.c.slug}/`}>Tümü</a>
-                </div>
-                <div class="grid4">
-                  {b.items.map((h) => <NewsCard item={h} excerpt={false} />)}
-                </div>
-              </section>
-              {i === 0 && <AdSlot size="leaderboard" />}
-            </>
-          ))
-        }
+        <AdSlot pos="anasayfa-orta" />
+
+        <RandomPicks items={picks} excludeIds={[...used]} count={8} />
       </>
     )
   }

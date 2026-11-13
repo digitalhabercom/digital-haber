@@ -4,7 +4,7 @@ backend:
   repo: digitalhabercom/digital-haber
   branch: main
 
-# Panelden yüklenen görseller (manşet görselleri dahil) buraya kaydedilir, sitede /uploads/... adresiyle yayınlanır
+# Panelden yüklenen görseller (manşet ve banner görselleri dahil) buraya kaydedilir, sitede /uploads/... adresiyle yayınlanır
 media_folder: public/uploads
 public_folder: /uploads
 
@@ -29,7 +29,7 @@ collections:
     fields:
       - { label: Başlık, name: title, widget: string, hint: "Net bir başlık yazın. Google için 60-70 karakter idealdir." }
       - { label: Kısa Açıklama (Spot), name: description, widget: text, hint: "Haberin özeti. Google sonuçlarında ve paylaşımlarda görünür (150-160 karakter ideal)." }
-      - { label: Kategori, name: category, widget: select, options: [{ label: Yapay Zeka, value: yapay-zeka }, { label: Donanım, value: donanim }, { label: Siber Güvenlik, value: siber-guvenlik }, { label: Yazılım, value: yazilim }, { label: Bulut Altyapı, value: bulut-altyapi }] }
+      - { label: Kategori, name: category, widget: relation, collection: ayarlar, file: kategoriler, value_field: "categories.*.slug", display_fields: ["categories.*.name"], search_fields: ["categories.*.name"], hint: "Kategori listesi Ayarlar bölümündeki Kategoriler'den gelir." }
       - { label: Manşet / Kapak Görseli, name: image, widget: image, hint: "Bilgisayarınızdan yükleyin. 1600 piksel genişlikte, 300 KB altında bir görsel siteyi hızlı tutar. Manşet için yatay (16:10) görsel seçin." }
       - { label: Görsel Açıklaması (alt), name: imageAlt, widget: string, required: false, hint: "Görselde ne olduğunu kısaca yazın (arama motorları ve ekran okuyucular için)." }
       - { label: Görsel Kaynağı, name: imageCredit, widget: string, required: false, hint: "Örn: Unsplash / Ad Soyad. Haber sayfasında görselin altında görünür." }
@@ -41,3 +41,132 @@ collections:
       - { label: Etiketler, name: tags, widget: list, required: false, hint: "Her etiket için bir giriş ekleyin. Etiket sayfaları otomatik oluşur." }
       - { label: Güncelleme Tarihi, name: updated, widget: datetime, format: "YYYY-MM-DDTHH:mm:ssZ", required: false, hint: "Haberi sonradan düzelttiyseniz doldurun." }
       - { label: Haber Metni, name: body, widget: markdown }
+
+  - name: ayarlar
+    label: Ayarlar
+    files:
+      - name: kategoriler
+        label: Kategoriler
+        file: src/data/kategoriler.json
+        fields:
+          - label: Kategoriler
+            name: categories
+            widget: list
+            summary: "{{fields.name}}"
+            hint: "Sıralama menüdeki sıradır. Haberi olmayan kategori menüde görünmez."
+            fields:
+              - { label: Ad, name: name, widget: string, hint: "Menüde görünen ad. Örn: Mobil" }
+              - { label: Kod (slug), name: slug, widget: string, pattern: ["^[a-z0-9-]+$", "Sadece küçük harf, rakam ve tire kullanın (örn: bilim-teknoloji)"], hint: "Adres kodu. Küçük harf, Türkçe karakter yok. Haber eklendikten sonra değiştirmeyin." }
+              - { label: Renk, name: color, widget: color, default: "#2455d6", hint: "Kategori etiketinin rengi. Beyaz yazı okunsun diye koyu bir ton seçin." }
+              - { label: Açıklama, name: desc, widget: text, required: false, hint: "Kategori sayfasında ve Google'da görünür." }
+
+      - name: reklam
+        label: Reklam Ayarları
+        file: src/data/reklam.json
+        fields:
+          - { label: "AdSense yayıncı kodu", name: adsenseClient, widget: string, required: false, hint: "AdSense onayı gelince buraya ca-pub-XXXXXXXXXXXXXXXX kodunu yazın. Boşsa AdSense yüklenmez." }
+          - { label: "Reklam yerlerini boş kutu olarak göster", name: showPlaceholders, widget: boolean, default: false, hint: "Reklam yerlerini görmek için açın. Yayına almadan önce kapatın." }
+          - label: "Reklam alanları"
+            name: alanlar
+            widget: object
+            hint: "Her alana AdSense birim numarası ya da kendi banner'ınızı girin. İkisi de doluysa banner gösterilir. Boş alan sitede görünmez."
+            fields:
+              - label: "Üst (her sayfanın en üstü)"
+                name: ust
+                widget: object
+                collapsed: true
+                fields:
+                  - { label: "AdSense reklam birimi numarası", name: slot, widget: string, required: false, hint: "AdSense'ten aldığınız birim numarası (sadece rakamlar). Boşsa bu alanda AdSense reklamı gösterilmez." }
+                  - { label: "Kendi banner görseliniz", name: banner, widget: image, required: false, hint: "Doğrudan reklam verenin görseli. Doluysa AdSense yerine bu gösterilir." }
+                  - { label: "Banner bağlantısı", name: link, widget: string, required: false, hint: "Banner'a tıklanınca gidilecek adres (https://...)." }
+                  - { label: "Banner açıklaması", name: alt, widget: string, required: false }
+              - label: "Manşet altı (ana sayfa)"
+                name: manset-alti
+                widget: object
+                collapsed: true
+                fields:
+                  - { label: "AdSense reklam birimi numarası", name: slot, widget: string, required: false, hint: "AdSense'ten aldığınız birim numarası (sadece rakamlar). Boşsa bu alanda AdSense reklamı gösterilmez." }
+                  - { label: "Kendi banner görseliniz", name: banner, widget: image, required: false, hint: "Doğrudan reklam verenin görseli. Doluysa AdSense yerine bu gösterilir." }
+                  - { label: "Banner bağlantısı", name: link, widget: string, required: false, hint: "Banner'a tıklanınca gidilecek adres (https://...)." }
+                  - { label: "Banner açıklaması", name: alt, widget: string, required: false }
+              - label: "Ana sayfa ortası"
+                name: anasayfa-orta
+                widget: object
+                collapsed: true
+                fields:
+                  - { label: "AdSense reklam birimi numarası", name: slot, widget: string, required: false, hint: "AdSense'ten aldığınız birim numarası (sadece rakamlar). Boşsa bu alanda AdSense reklamı gösterilmez." }
+                  - { label: "Kendi banner görseliniz", name: banner, widget: image, required: false, hint: "Doğrudan reklam verenin görseli. Doluysa AdSense yerine bu gösterilir." }
+                  - { label: "Banner bağlantısı", name: link, widget: string, required: false, hint: "Banner'a tıklanınca gidilecek adres (https://...)." }
+                  - { label: "Banner açıklaması", name: alt, widget: string, required: false }
+              - label: "Sol kenar (geniş ekranlarda)"
+                name: sol-kenar
+                widget: object
+                collapsed: true
+                fields:
+                  - { label: "AdSense reklam birimi numarası", name: slot, widget: string, required: false, hint: "AdSense'ten aldığınız birim numarası (sadece rakamlar). Boşsa bu alanda AdSense reklamı gösterilmez." }
+                  - { label: "Kendi banner görseliniz", name: banner, widget: image, required: false, hint: "Doğrudan reklam verenin görseli. Doluysa AdSense yerine bu gösterilir." }
+                  - { label: "Banner bağlantısı", name: link, widget: string, required: false, hint: "Banner'a tıklanınca gidilecek adres (https://...)." }
+                  - { label: "Banner açıklaması", name: alt, widget: string, required: false }
+              - label: "Sağ kenar (geniş ekranlarda)"
+                name: sag-kenar
+                widget: object
+                collapsed: true
+                fields:
+                  - { label: "AdSense reklam birimi numarası", name: slot, widget: string, required: false, hint: "AdSense'ten aldığınız birim numarası (sadece rakamlar). Boşsa bu alanda AdSense reklamı gösterilmez." }
+                  - { label: "Kendi banner görseliniz", name: banner, widget: image, required: false, hint: "Doğrudan reklam verenin görseli. Doluysa AdSense yerine bu gösterilir." }
+                  - { label: "Banner bağlantısı", name: link, widget: string, required: false, hint: "Banner'a tıklanınca gidilecek adres (https://...)." }
+                  - { label: "Banner açıklaması", name: alt, widget: string, required: false }
+              - label: "Yan sütun üst"
+                name: yan-ust
+                widget: object
+                collapsed: true
+                fields:
+                  - { label: "AdSense reklam birimi numarası", name: slot, widget: string, required: false, hint: "AdSense'ten aldığınız birim numarası (sadece rakamlar). Boşsa bu alanda AdSense reklamı gösterilmez." }
+                  - { label: "Kendi banner görseliniz", name: banner, widget: image, required: false, hint: "Doğrudan reklam verenin görseli. Doluysa AdSense yerine bu gösterilir." }
+                  - { label: "Banner bağlantısı", name: link, widget: string, required: false, hint: "Banner'a tıklanınca gidilecek adres (https://...)." }
+                  - { label: "Banner açıklaması", name: alt, widget: string, required: false }
+              - label: "Yan sütun alt (kayarken sabit kalır)"
+                name: yan-alt
+                widget: object
+                collapsed: true
+                fields:
+                  - { label: "AdSense reklam birimi numarası", name: slot, widget: string, required: false, hint: "AdSense'ten aldığınız birim numarası (sadece rakamlar). Boşsa bu alanda AdSense reklamı gösterilmez." }
+                  - { label: "Kendi banner görseliniz", name: banner, widget: image, required: false, hint: "Doğrudan reklam verenin görseli. Doluysa AdSense yerine bu gösterilir." }
+                  - { label: "Banner bağlantısı", name: link, widget: string, required: false, hint: "Banner'a tıklanınca gidilecek adres (https://...)." }
+                  - { label: "Banner açıklaması", name: alt, widget: string, required: false }
+              - label: "Haber içi 1 (2. paragraftan sonra)"
+                name: haber-ici-1
+                widget: object
+                collapsed: true
+                fields:
+                  - { label: "AdSense reklam birimi numarası", name: slot, widget: string, required: false, hint: "AdSense'ten aldığınız birim numarası (sadece rakamlar). Boşsa bu alanda AdSense reklamı gösterilmez." }
+                  - { label: "Kendi banner görseliniz", name: banner, widget: image, required: false, hint: "Doğrudan reklam verenin görseli. Doluysa AdSense yerine bu gösterilir." }
+                  - { label: "Banner bağlantısı", name: link, widget: string, required: false, hint: "Banner'a tıklanınca gidilecek adres (https://...)." }
+                  - { label: "Banner açıklaması", name: alt, widget: string, required: false }
+              - label: "Haber içi 2 (uzun haberlerde 6. paragraftan sonra)"
+                name: haber-ici-2
+                widget: object
+                collapsed: true
+                fields:
+                  - { label: "AdSense reklam birimi numarası", name: slot, widget: string, required: false, hint: "AdSense'ten aldığınız birim numarası (sadece rakamlar). Boşsa bu alanda AdSense reklamı gösterilmez." }
+                  - { label: "Kendi banner görseliniz", name: banner, widget: image, required: false, hint: "Doğrudan reklam verenin görseli. Doluysa AdSense yerine bu gösterilir." }
+                  - { label: "Banner bağlantısı", name: link, widget: string, required: false, hint: "Banner'a tıklanınca gidilecek adres (https://...)." }
+                  - { label: "Banner açıklaması", name: alt, widget: string, required: false }
+              - label: "Haber sonu"
+                name: haber-sonu
+                widget: object
+                collapsed: true
+                fields:
+                  - { label: "AdSense reklam birimi numarası", name: slot, widget: string, required: false, hint: "AdSense'ten aldığınız birim numarası (sadece rakamlar). Boşsa bu alanda AdSense reklamı gösterilmez." }
+                  - { label: "Kendi banner görseliniz", name: banner, widget: image, required: false, hint: "Doğrudan reklam verenin görseli. Doluysa AdSense yerine bu gösterilir." }
+                  - { label: "Banner bağlantısı", name: link, widget: string, required: false, hint: "Banner'a tıklanınca gidilecek adres (https://...)." }
+                  - { label: "Banner açıklaması", name: alt, widget: string, required: false }
+              - label: "Alt (alt bilginin üstü)"
+                name: alt
+                widget: object
+                collapsed: true
+                fields:
+                  - { label: "AdSense reklam birimi numarası", name: slot, widget: string, required: false, hint: "AdSense'ten aldığınız birim numarası (sadece rakamlar). Boşsa bu alanda AdSense reklamı gösterilmez." }
+                  - { label: "Kendi banner görseliniz", name: banner, widget: image, required: false, hint: "Doğrudan reklam verenin görseli. Doluysa AdSense yerine bu gösterilir." }
+                  - { label: "Banner bağlantısı", name: link, widget: string, required: false, hint: "Banner'a tıklanınca gidilecek adres (https://...)." }
+                  - { label: "Banner açıklaması", name: alt, widget: string, required: false }

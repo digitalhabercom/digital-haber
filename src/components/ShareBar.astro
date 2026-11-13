@@ -1,20 +1,33 @@
 ---
+import Icon from './Icon.astro';
+import { shareHref } from '../lib/share';
+
 interface Props {
   url: string;
   title: string;
+  image?: string;
 }
-const { url, title } = Astro.props;
-const u = encodeURIComponent(url);
-const t = encodeURIComponent(title);
+const { url, title, image = '' } = Astro.props;
+const ctx = { url, title, image };
 ---
 
 <div class="sharebar" role="group" aria-label="Haberi paylaş">
-  <button class="sb sb--main" type="button" data-share-open>
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><path d="M8.6 10.5l6.8-4M8.6 13.5l6.8 4"></path></svg>
-    Paylaş
+  <button class="sb sb--main" type="button" data-share-open data-url={url} data-title={title} data-image={image}>
+    <Icon name="share" size={16} /> Paylaş
   </button>
-  <a class="sb" style="--bc:#1fa855" href={`https://wa.me/?text=${t}%20${u}`} target="_blank" rel="noopener noreferrer">WhatsApp</a>
-  <a class="sb sb--hide" style="--bc:#111111" href={`https://twitter.com/intent/tweet?url=${u}&text=${t}`} target="_blank" rel="noopener noreferrer">X</a>
-  <a class="sb sb--hide" style="--bc:#1877f2" href={`https://www.facebook.com/sharer/sharer.php?u=${u}`} target="_blank" rel="noopener noreferrer">Facebook</a>
-  <button class="sb sb--plain" type="button" data-copy-link>Bağlantıyı kopyala</button>
+  <a class="sb" style="--bc:#1fa855" href={shareHref('whatsapp', ctx)} target="_blank" rel="noopener noreferrer">
+    <Icon name="whatsapp" size={16} /> WhatsApp
+  </a>
+  <a class="sb sb--hide" style="--bc:#111111" href={shareHref('x', ctx)} target="_blank" rel="noopener noreferrer">
+    <Icon name="x" size={16} /> X
+  </a>
+  <a class="sb sb--hide" style="--bc:#1877f2" href={shareHref('facebook', ctx)} target="_blank" rel="noopener noreferrer">
+    <Icon name="facebook" size={16} /> Facebook
+  </a>
+  <a class="sb sb--hide" style="--bc:#229ed9" href={shareHref('telegram', ctx)} target="_blank" rel="noopener noreferrer">
+    <Icon name="telegram" size={16} /> Telegram
+  </a>
+  <button class="sb sb--plain" type="button" data-copy-link data-url={url}>
+    <Icon name="link" size={16} /> Bağlantıyı kopyala
+  </button>
 </div>

@@ -1,0 +1,72 @@
+{
+  "adsenseClient": "",
+  "showPlaceholders": false,
+  "alanlar": {
+    "ust": {
+      "slot": "",
+      "banner": "",
+      "link": "",
+      "alt": ""
+    },
+    "manset-alti": {
+      "slot": "",
+      "banner": "",
+      "link": "",
+      "alt": ""
+    },
+    "anasayfa-orta": {
+      "slot": "",
+      "banner": "",
+      "link": "",
+      "alt": ""
+    },
+    "sol-kenar": {
+      "slot": "",
+      "banner": "",
+      "link": "",
+      "alt": ""
+    },
+    "sag-kenar": {
+      "slot": "",
+      "banner": "",
+      "link": "",
+      "alt": ""
+    },
+    "yan-ust": {
+      "slot": "",
+      "banner": "",
+      "link": "",
+      "alt": ""
+    },
+    "yan-alt": {
+      "slot": "",
+      "banner": "",
+      "link": "",
+      "alt": ""
+    },
+    "haber-ici-1": {
+      "slot": "",
+      "banner": "",
+      "link": "",
+      "alt": ""
+    },
+    "haber-ici-2": {
+      "slot": "",
+      "banner": "",
+      "link": "",
+      "alt": ""
+    },
+    "haber-sonu": {
+      "slot": "",
+      "banner": "",
+      "link": "",
+      "alt": ""
+    },
+    "alt": {
+      "slot": "",
+      "banner": "",
+      "link": "",
+      "alt": ""
+    }
+  }
+}

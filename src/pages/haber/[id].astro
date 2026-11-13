@@ -2,12 +2,13 @@
 import { render } from 'astro:content';
 import Base from '../../layouts/Base.astro';
 import ShareBar from '../../components/ShareBar.astro';
+import ShareDock from '../../components/ShareDock.astro';
 import ShareModal from '../../components/ShareModal.astro';
 import NewsCard from '../../components/NewsCard.astro';
 import MostRead from '../../components/MostRead.astro';
 import AdSlot from '../../components/AdSlot.astro';
 import { SITE } from '../../consts';
-import { absUrl, catOf, fmtDate, getNews, getPopular, haberUrl, readMins, tagSlug } from '../../lib/news';
+import { absUrl, catOf, fmtDate, getNews, getPopular, haberUrl, queueFor, readMins, tagSlug } from '../../lib/news';
 
 export async function getStaticPaths() {
   const all = await getNews();
@@ -24,10 +25,13 @@ const sameCat = all.filter((h) => h.id !== entry.id && h.data.category === d.cat
 const others = all.filter((h) => h.id !== entry.id && h.data.category !== d.category);
 const related = [...sameCat, ...others].slice(0, 3);
 const popular = getPopular(all, 5, entry.id);
+const queue = queueFor(all, entry, 12);
 
 const origin = Astro.site!.href.replace(/\/$/, '');
-const url = origin + haberUrl(entry.id);
+const path = haberUrl(entry.id);
+const url = origin + path;
 const img = absUrl(d.image, Astro.site);
+const docTitle = `${d.title} | ${SITE.name}`;
 
 const jsonLd = [
   {
@@ -78,48 +82,60 @@ const jsonLd = [
   </nav>
 
   <div class="article-wrap">
-    <article class="article-main">
-      <header class="article-head" style={`--c:${c.color}`}>
-        <a class="chip" href={`/kategori/${c.slug}/`}>{c.name}</a>
-        <h1>{d.title}</h1>
-        <p class="lead">{d.description}</p>
-        <div class="byline">
-          <span>Yazar: <strong>{d.author}</strong></span>
-          <time datetime={d.date.toISOString()}>{fmtDate(d.date)}</time>
-          {d.updated && <span>Güncelleme: {fmtDate(d.updated)}</span>}
-          <span>{readMins(entry.body)} dk okuma</span>
-        </div>
-        <ShareBar url={url} title={d.title} />
-      </header>
+    <ShareDock url={url} title={d.title} image={img} />
 
-      <figure class="figure">
-        <img src={d.image} alt={d.imageAlt ?? d.title} width="1200" height="675" fetchpriority="high" decoding="async" />
-        {d.imageCredit && <figcaption>Görsel: {d.imageCredit}</figcaption>}
-      </figure>
-
-      <div class="article-body">
-        <Content />
-      </div>
-      <template id="ad-mid"><AdSlot size="inarticle" /></template>
-
-      <footer class="article-foot">
-        {
-          d.tags.length > 0 && (
-            <div class="tags">
-              {d.tags.map((t) => <a class="tag" href={`/etiket/${tagSlug(t)}/`}>#{t}</a>)}
+    <div class="article-col">
+      <div id="stream" data-queue={JSON.stringify(queue)}>
+        <article class="art" data-url={url} data-title={d.title} data-image={img} data-path={path} data-doctitle={docTitle}>
+          <header class="article-head" style={`--c:${c.color}`}>
+            <a class="chip" href={`/kategori/${c.slug}/`}>{c.name}</a>
+            <h1 class="article-title">{d.title}</h1>
+            <p class="lead">{d.description}</p>
+            <div class="byline">
+              <span>Yazar: <strong>{d.author}</strong></span>
+              <time datetime={d.date.toISOString()}>{fmtDate(d.date)}</time>
+              {d.updated && <span>Güncelleme: {fmtDate(d.updated)}</span>}
+              <span>{readMins(entry.body)} dk okuma</span>
             </div>
-          )
-        }
-        <ShareBar url={url} title={d.title} />
-      </footer>
+            <ShareBar url={url} title={d.title} image={img} />
+          </header>
 
-      <AdSlot size="leaderboard" />
-    </article>
+          <figure class="figure">
+            <img src={d.image} alt={d.imageAlt ?? d.title} width="1200" height="675" fetchpriority="high" decoding="async" />
+            {d.imageCredit && <figcaption>Görsel: {d.imageCredit}</figcaption>}
+          </figure>
+
+          <div class="article-body">
+            <Content />
+          </div>
+          <template class="ad-t" data-n="1"><AdSlot pos="haber-ici-1" /></template>
+          <template class="ad-t" data-n="2"><AdSlot pos="haber-ici-2" /></template>
+
+          <footer class="article-foot">
+            {
+              d.tags.length > 0 && (
+                <div class="tags">
+                  {d.tags.map((t) => <a class="tag" href={`/etiket/${tagSlug(t)}/`}>#{t}</a>)}
+                </div>
+              )
+            }
+            <ShareBar url={url} title={d.title} image={img} />
+          </footer>
+
+          <AdSlot pos="haber-sonu" />
+        </article>
+      </div>
+
+      <div id="stream-end" aria-hidden="true"></div>
+      <div class="loadmore" id="loadmore" hidden>
+        <button class="btn btn--ghost" id="loadmore-btn" type="button">Daha fazla haber yükle</button>
+      </div>
+    </div>
 
     <aside class="side" aria-label="Yan sütun">
-      <AdSlot size="rectangle" />
+      <AdSlot pos="yan-ust" />
       <MostRead items={popular} />
-      <AdSlot size="tall" />
+      <div class="stick"><AdSlot pos="yan-alt" /></div>
     </aside>
   </div>
 
@@ -130,29 +146,138 @@ const jsonLd = [
     </div>
   </section>
 
-  <ShareModal url={url} title={d.title} image={img} />
+  <ShareModal />
 </Base>
 
 <script>
-  // Okuma ilerleme çubuğu
-  const bar = document.getElementById('progress');
-  const body = document.querySelector('.article-main');
-  if (bar && body) {
-    const update = () => {
-      const r = body.getBoundingClientRect();
-      const total = r.height - window.innerHeight * 0.6;
-      const done = Math.min(Math.max(-r.top, 0), Math.max(total, 1));
-      bar.style.transform = `scaleX(${total > 0 ? done / total : 0})`;
-    };
-    window.addEventListener('scroll', update, { passive: true });
-    window.addEventListener('resize', update);
-    update();
-  }
+  import { shareHref } from '../../lib/share';
 
-  // Haber metninin 2. paragrafından sonra reklam alanı
-  const tpl = document.getElementById('ad-mid') as HTMLTemplateElement | null;
-  const paras = document.querySelectorAll('.article-body > p');
-  if (tpl && tpl.content.childElementCount > 0 && paras.length >= 4) {
-    paras[1].after(tpl.content.cloneNode(true));
+  const stream = document.getElementById('stream');
+  if (stream) {
+    const w = window as any;
+    const queue: string[] = JSON.parse(stream.dataset.queue || '[]');
+    const end = document.getElementById('stream-end')!;
+    const more = document.getElementById('loadmore')!;
+    const moreBtn = document.getElementById('loadmore-btn')!;
+    const bar = document.getElementById('progress')!;
+    const dock = document.getElementById('dock');
+    const BATCH = 3; // her seferde otomatik yüklenecek haber sayısı, sonra düğme çıkar
+
+    let qi = 0;
+    let budget = BATCH;
+    let loading = false;
+    document.body.classList.add('has-dock');
+
+    const arts = () => Array.from(stream.querySelectorAll<HTMLElement>('article.art'));
+    const ctxOf = (a: HTMLElement) => ({ url: a.dataset.url!, title: a.dataset.title!, image: a.dataset.image ?? '' });
+    let current = arts()[0];
+    w.__dhCtx = ctxOf(current);
+
+    // Reklam alanları: 2. paragraftan sonra ve uzun haberlerde 6. paragraftan sonra
+    const pushAds = (root: ParentNode) => {
+      if (!w.__dhAdsOn) return;
+      root.querySelectorAll('ins.adsbygoogle:not([data-pushed])').forEach((el) => {
+        el.setAttribute('data-pushed', '1');
+        (w.adsbygoogle = w.adsbygoogle || []).push({});
+      });
+    };
+    const prepare = (a: HTMLElement) => {
+      const paras = a.querySelectorAll('.article-body > p');
+      a.querySelectorAll<HTMLTemplateElement>('template.ad-t').forEach((t) => {
+        if (!t.content.childElementCount) return;
+        const first = t.dataset.n === '1';
+        const at = first ? 1 : 5;
+        const min = first ? 4 : 9;
+        if (paras.length >= min && paras[at]) paras[at].after(t.content.cloneNode(true));
+      });
+      pushAds(a);
+    };
+    prepare(current);
+
+    // Hangi haber ekrandaysa adres, başlık ve paylaşım ona geçer
+    const setCurrent = (a: HTMLElement) => {
+      current = a;
+      w.__dhCtx = ctxOf(a);
+      if (a.dataset.path) history.replaceState(null, '', a.dataset.path);
+      if (a.dataset.doctitle) document.title = a.dataset.doctitle;
+    };
+    let ticking = false;
+    const onScroll = () => {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(() => {
+        ticking = false;
+        const line = window.innerHeight * 0.35;
+        let cur = arts()[0];
+        for (const a of arts()) if (a.getBoundingClientRect().top <= line) cur = a;
+        if (cur !== current) setCurrent(cur);
+        const r = cur.getBoundingClientRect();
+        const total = r.height - window.innerHeight * 0.6;
+        const done = Math.min(Math.max(-r.top, 0), Math.max(total, 1));
+        bar.style.transform = `scaleX(${total > 0 ? done / total : 0})`;
+      });
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll);
+    onScroll();
+
+    // Yan çubuktaki paylaşım düğmeleri (o an ekrandaki haberi paylaşır)
+    dock?.addEventListener('click', (e) => {
+      const b = (e.target as HTMLElement).closest<HTMLElement>('[data-net]');
+      if (!b) return;
+      window.open(shareHref(b.dataset.net!, w.__dhCtx), '_blank', 'noopener');
+    });
+
+    // Sonraki haberi getir ve altına ekle
+    const loadNext = async () => {
+      if (loading || qi >= queue.length) return;
+      loading = true;
+      const href = queue[qi++];
+      try {
+        const res = await fetch(href);
+        if (!res.ok) throw new Error('yüklenemedi');
+        const doc = new DOMParser().parseFromString(await res.text(), 'text/html');
+        const art = doc.querySelector<HTMLElement>('article.art');
+        if (art) {
+          const node = document.importNode(art, true) as HTMLElement;
+          const h1 = node.querySelector('h1');
+          if (h1) {
+            const h2 = document.createElement('h2');
+            h2.className = h1.className;
+            h2.innerHTML = h1.innerHTML;
+            h1.replaceWith(h2);
+          }
+          stream.appendChild(node);
+          prepare(node);
+          onScroll();
+        }
+      } catch {
+        /* bu haber atlanır, sıradakine geçilir */
+      } finally {
+        loading = false;
+      }
+    };
+
+    const io = new IntersectionObserver(
+      async (entries) => {
+        if (!entries.some((en) => en.isIntersecting)) return;
+        if (budget <= 0 || qi >= queue.length) return;
+        budget--;
+        await loadNext();
+        if (budget <= 0 && qi < queue.length) more.hidden = false;
+        // Eklenen haber kısaysa ayraç hâlâ görünür olabilir: yeniden değerlendir
+        io.unobserve(end);
+        io.observe(end);
+      },
+      { rootMargin: '700px 0px' }
+    );
+    io.observe(end);
+
+    moreBtn.addEventListener('click', () => {
+      budget = BATCH;
+      more.hidden = true;
+      io.unobserve(end);
+      io.observe(end);
+    });
   }
 </script>

@@ -5,8 +5,13 @@ import MostRead from '../../components/MostRead.astro';
 import AdSlot from '../../components/AdSlot.astro';
 import { CATEGORIES, getNews, getPopular } from '../../lib/news';
 
-export function getStaticPaths() {
-  return CATEGORIES.map((c) => ({ params: { cat: c.slug }, props: { cat: c } }));
+// Yalnızca haberi olan kategoriler için sayfa üretilir (boş sayfa Google'da değersiz görünür)
+export async function getStaticPaths() {
+  const all = await getNews();
+  return CATEGORIES.filter((c) => all.some((h) => h.data.category === c.slug)).map((c) => ({
+    params: { cat: c.slug },
+    props: { cat: c },
+  }));
 }
 
 const { cat } = Astro.props;
@@ -14,6 +19,7 @@ const all = await getNews();
 const items = all.filter((h) => h.data.category === cat.slug);
 const popular = getPopular(all, 5);
 const origin = Astro.site!.href.replace(/\/$/, '');
+const desc = cat.desc || `${cat.name} alanındaki en güncel teknoloji haberleri ve rehberler.`;
 
 const jsonLd = {
   '@context': 'https://schema.org',
@@ -25,27 +31,22 @@ const jsonLd = {
 };
 ---
 
-<Base title={`${cat.name} Haberleri`} description={cat.desc} jsonLd={jsonLd}>
+<Base title={`${cat.name} Haberleri`} description={desc} jsonLd={jsonLd}>
   <div class="page-head">
     <h1>{cat.name}</h1>
-    <p>{cat.desc}</p>
+    <p>{desc}</p>
   </div>
 
   <div class="cols" style="margin-top:28px">
     <section aria-label={`${cat.name} haberleri`}>
-      {
-        items.length ? (
-          <div class="grid2">
-            {items.map((h, i) => <NewsCard item={h} variant={i === 0 ? 'lead' : 'card'} />)}
-          </div>
-        ) : (
-          <p class="empty">Bu kategoride henüz haber yok.</p>
-        )
-      }
+      <div class="grid2">
+        {items.map((h) => <NewsCard item={h} />)}
+      </div>
     </section>
     <aside class="side" aria-label="Yan sütun">
-      <AdSlot size="rectangle" />
+      <AdSlot pos="yan-ust" />
       <MostRead items={popular} />
+      <div class="stick"><AdSlot pos="yan-alt" /></div>
     </aside>
   </div>
 </Base>

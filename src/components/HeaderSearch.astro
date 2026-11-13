@@ -1,0 +1,89 @@
+---
+import Icon from './Icon.astro';
+---
+
+<form class="hs" action="/arama/" method="get" role="search" autocomplete="off">
+  <label class="sr-only" for="hs-q">Haberlerde ara</label>
+  <span class="hs-ico"><Icon name="search" size={18} /></span>
+  <input id="hs-q" name="q" type="search" placeholder="Haberlerde ara: yapay zeka, parola, SSD..." aria-controls="hs-list" />
+  <button class="hs-btn" type="submit">Ara</button>
+  <ul class="hs-list" id="hs-list" hidden></ul>
+</form>
+
+<script>
+  type Item = { t: string; u: string; c: string; col: string; d: string; s: string };
+  const norm = (s: string) =>
+    s.toLocaleLowerCase('tr').normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/ı/g, 'i');
+
+  const form = document.querySelector<HTMLFormElement>('.hs');
+  if (form) {
+    const input = form.querySelector('input')!;
+    const list = form.querySelector<HTMLElement>('.hs-list')!;
+    let data: Item[] | null = null;
+
+    const load = async () => {
+      if (!data) data = await (await fetch('/search.json')).json();
+      return data!;
+    };
+    const close = () => { list.hidden = true; };
+
+    const row = (label: string, href: string, cls = '') => {
+      const li = document.createElement('li');
+      const a = document.createElement('a');
+      a.href = href;
+      if (cls) a.className = cls;
+      a.textContent = label;
+      li.appendChild(a);
+      return { li, a };
+    };
+
+    const render = (hits: Item[], q: string) => {
+      list.replaceChildren();
+      hits.forEach((h) => {
+        const li = document.createElement('li');
+        const a = document.createElement('a');
+        a.href = h.u;
+        const cat = document.createElement('small');
+        cat.className = 'cat';
+        cat.style.setProperty('--c', h.col);
+        cat.textContent = h.c;
+        const title = document.createElement('span');
+        title.textContent = h.t;
+        a.append(cat, title);
+        li.appendChild(a);
+        list.appendChild(li);
+      });
+      if (!hits.length) {
+        const li = document.createElement('li');
+        li.className = 'hs-empty';
+        li.textContent = 'Sonuç bulunamadı';
+        list.appendChild(li);
+      }
+      list.appendChild(row('Tüm sonuçları gör', '/arama/?q=' + encodeURIComponent(q), 'hs-all').li);
+      list.hidden = false;
+    };
+
+    input.addEventListener('input', async () => {
+      const raw = input.value.trim();
+      const q = norm(raw);
+      if (!q) { close(); return; }
+      const words = q.split(/\s+/);
+      const hits = (await load())
+        .filter((it) => words.every((w) => norm(`${it.t} ${it.d} ${it.s}`).includes(w)))
+        .slice(0, 6);
+      render(hits, raw);
+    });
+
+    // Klavye: aşağı/yukarı ok ile sonuçlar arasında gezin, Esc kapatır
+    form.addEventListener('keydown', (e) => {
+      const links = Array.from(list.querySelectorAll<HTMLAnchorElement>('a'));
+      if (!links.length || list.hidden) return;
+      const i = links.indexOf(document.activeElement as HTMLAnchorElement);
+      if (e.key === 'ArrowDown') { e.preventDefault(); links[Math.min(i + 1, links.length - 1)].focus(); }
+      else if (e.key === 'ArrowUp') { e.preventDefault(); if (i <= 0) input.focus(); else links[i - 1].focus(); }
+      else if (e.key === 'Escape') { close(); input.focus(); }
+    });
+    document.addEventListener('click', (e) => { if (!form.contains(e.target as Node)) close(); });
+    input.addEventListener('focus', () => { load(); });
+  }
+</script>

@@ -25,6 +25,8 @@ interface Props {
   ads?: boolean;
 }
 
+const lang = langOf(Astro.url);
+
 const {
   title,
   description = lang === 'en' ? SITE.descriptionEn : SITE.description,
@@ -40,7 +42,6 @@ const {
   ads = true,
 } = Astro.props;
 
-const lang = langOf(Astro.url);
 const t = T[lang];
 const r = ROUTES[lang];
 const other = lang === 'tr' ? 'en' : 'tr';

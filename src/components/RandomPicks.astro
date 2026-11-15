@@ -1,6 +1,7 @@
 ---
 import NewsCard from './NewsCard.astro';
 import type { Haber } from '../lib/news';
+import { langOf, T, ROUTES } from '../lib/i18n';
 
 interface Props {
   items: Haber[];
@@ -8,14 +9,17 @@ interface Props {
   count?: number;
 }
 const { items, excludeIds = [], count = 8 } = Astro.props;
+const lang = langOf(Astro.url);
+const t = T[lang];
+const r = ROUTES[lang];
 ---
 
 <section class="sec" aria-labelledby="rastgele">
   <div class="sec-head">
-    <h2 id="rastgele">Bunları da okuyun</h2>
-    <a href="/haberler/">Tüm haberler</a>
+    <h2 id="rastgele">{t.picks}</h2>
+    <a href={r.all}>{t.allNewsLower}</a>
   </div>
-  <div class="grid4" id="picks" data-count={count} data-exclude={JSON.stringify(excludeIds)}>
+  <div class="grid4" id="picks" data-count={count} data-exclude={JSON.stringify(excludeIds)} data-json={r.searchJson} data-rm={t.readMin}>
     {items.map((h) => <NewsCard item={h} excerpt={false} />)}
   </div>
 </section>
@@ -27,6 +31,8 @@ const { items, excludeIds = [], count = 8 } = Astro.props;
   if (grid) {
     const count = Number(grid.dataset.count) || 8;
     const exclude: string[] = JSON.parse(grid.dataset.exclude || '[]');
+    const jsonUrl = grid.dataset.json || '/search.json';
+    const rmText = grid.dataset.rm || 'dk okuma';
 
     const shuffle = <T,>(a: T[]) => {
       for (let i = a.length - 1; i > 0; i--) {
@@ -52,14 +58,14 @@ const { items, excludeIds = [], count = 8 } = Astro.props;
       const h3 = document.createElement('h3'); h3.textContent = it.t;
       const meta = document.createElement('div'); meta.className = 'meta';
       const time = document.createElement('time'); time.textContent = it.dt;
-      const rm = document.createElement('span'); rm.textContent = it.rm + ' dk okuma';
+      const rm = document.createElement('span'); rm.textContent = it.rm + ' ' + rmText;
       meta.append(time, rm);
       body.append(cat, h3, meta);
       a.append(wrap, body);
       return a;
     };
 
-    fetch('/search.json')
+    fetch(jsonUrl)
       .then((r) => r.json())
       .then((all: Item[]) => {
         // Üstte zaten gösterilenleri çıkar; yeterli haber kalmazsa hepsinden seç

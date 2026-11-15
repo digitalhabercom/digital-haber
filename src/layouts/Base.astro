@@ -4,7 +4,8 @@ import Consent from '../components/Consent.astro';
 import AdSlot from '../components/AdSlot.astro';
 import HeaderSearch from '../components/HeaderSearch.astro';
 import { SITE } from '../consts';
-import { activeCategories, getNews, haberUrl, absUrl } from '../lib/news';
+import { activeCategories, getNews, haberUrl, absUrl, catUrl, SITE_CFG } from '../lib/news';
+import { langOf, T, ROUTES } from '../lib/i18n';
 
 interface Props {
   title?: string;
@@ -16,13 +17,17 @@ interface Props {
   section?: string;
   jsonLd?: Record<string, unknown> | Record<string, unknown>[];
   noindex?: boolean;
+  /** Aynı sayfanın diğer dildeki adresi (hreflang ve dil değiştirici için), örn. { en: '/en/news/x/' } */
+  alternates?: { tr?: string; en?: string };
+  /** false: telefondaki alt menü gösterilmez (haber sayfasında paylaşım çubuğu var) */
+  bottomNav?: boolean;
   /** false: üst/alt reklam ve kenar reklamları gösterme (404, yasal sayfalar) */
   ads?: boolean;
 }
 
 const {
   title,
-  description = SITE.description,
+  description = lang === 'en' ? SITE.descriptionEn : SITE.description,
   image = SITE.defaultImage,
   type = 'website',
   publishedTime,
@@ -30,8 +35,16 @@ const {
   section,
   jsonLd,
   noindex = false,
+  alternates,
+  bottomNav = true,
   ads = true,
 } = Astro.props;
+
+const lang = langOf(Astro.url);
+const t = T[lang];
+const r = ROUTES[lang];
+const other = lang === 'tr' ? 'en' : 'tr';
+const isArticle = type === 'article';
 
 const fullTitle = title ? `${title} | ${SITE.name}` : SITE.name;
 let path = Astro.url.pathname;
@@ -40,15 +53,25 @@ const canonical = new URL(path, Astro.site).href;
 const ogImage = absUrl(image, Astro.site);
 const origin = Astro.site?.href.replace(/\/$/, '') ?? '';
 
-const all = await getNews();
+const all = await getNews(lang);
 const latest = all.slice(0, 8);
-const navCats = activeCategories(all);
+const navCats = activeCategories(all, lang);
+
+// Dil bağlantıları: sayfanın kendi adresi + (varsa) diğer dildeki karşılığı
+const alt: { tr?: string; en?: string } = { ...(alternates ?? {}), [lang]: path };
+const otherHref = alt[other] ?? ROUTES[other].home;
+const hreflangs = alternates && alternates[other] ? (['tr', 'en'] as const).map((l) => ({ l, href: new URL(alt[l]!, Astro.site).href })) : [];
+const xDefault = hreflangs.find((h) => h.l === 'tr')?.href;
+
+const social = Object.entries(SITE_CFG.sosyal ?? {}).filter(([, v]) => typeof v === 'string' && /^https?:\/\//.test(v));
+const SOCIAL_NAMES: Record<string, string> = { x: 'X', telegram: 'Telegram', whatsapp: 'WhatsApp', instagram: 'Instagram', youtube: 'YouTube' };
 
 const orgLd = {
   '@context': 'https://schema.org',
   '@type': 'NewsMediaOrganization',
   name: SITE.name,
-  url: origin + '/',
+  url: origin + (lang === 'en' ? '/en/' : '/'),
+  sameAs: social.map(([, v]) => v),
   logo: { '@type': 'ImageObject', url: absUrl(SITE.logo, Astro.site) },
   email: SITE.email,
 };
@@ -57,17 +80,31 @@ const ldString = JSON.stringify(ld).replace(/</g, '\\u003c');
 ---
 
 <!doctype html>
-<html lang="tr">
+<html lang={t.htmlLang}>
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script is:inline>
+      try {
+        var de = document.documentElement;
+        var th = localStorage.getItem('dh-theme');
+        if (th === 'light' || th === 'dark') de.setAttribute('data-theme', th);
+        var fs = localStorage.getItem('dh-fs');
+        if (fs) de.setAttribute('data-fs', fs);
+      } catch (e) {}
+    </script>
     <title>{fullTitle}</title>
     <meta name="description" content={description} />
     <meta name="theme-color" content="#1a1c22" />
     <link rel="canonical" href={canonical} />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
-    <link rel="alternate" type="application/rss+xml" title={SITE.name} href="/rss.xml" />
+    <link rel="alternate" type="application/rss+xml" title={SITE.name} href={r.rss} />
+    {hreflangs.map((h) => <link rel="alternate" hreflang={h.l} href={h.href} />)}
+    {xDefault && <link rel="alternate" hreflang="x-default" href={xDefault} />}
+    {SITE_CFG.googleDogrulama && <meta name="google-site-verification" content={SITE_CFG.googleDogrulama} />}
+    {SITE_CFG.bingDogrulama && <meta name="msvalidate.01" content={SITE_CFG.bingDogrulama} />}
+    {SITE_CFG.yandexDogrulama && <meta name="yandex-verification" content={SITE_CFG.yandexDogrulama} />}
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -77,7 +114,8 @@ const ldString = JSON.stringify(ld).replace(/</g, '\\u003c');
     {noindex ? <meta name="robots" content="noindex, nofollow" /> : <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1" />}
 
     <meta property="og:site_name" content={SITE.name} />
-    <meta property="og:locale" content="tr_TR" />
+    <meta property="og:locale" content={t.locale} />
+    {hreflangs.length > 0 && <meta property="og:locale:alternate" content={T[other].locale} />}
     <meta property="og:type" content={type} />
     <meta property="og:title" content={title ?? fullTitle} />
     <meta property="og:description" content={description} />
@@ -95,18 +133,28 @@ const ldString = JSON.stringify(ld).replace(/</g, '\\u003c');
     <slot name="head" />
   </head>
   <body>
-    <a class="skip" href="#icerik">İçeriğe geç</a>
+    <a class="skip" href="#icerik">{t.skip}</a>
+
+    {
+      lang === 'tr' && (
+        <div class="langbar" id="langbar" hidden>
+          <span>This page is available in English.</span>
+          <a href={alt.en ?? '/en/'} hreflang="en" lang="en">Read in English</a>
+          <button type="button" id="langbar-x" aria-label="Close">✕</button>
+        </div>
+      )
+    }
 
     <div class="ticker">
       <div class="wrap ticker-in">
-        <span class="ticker-label">Son Haberler</span>
+        <span class="ticker-label">{t.latestLabel}</span>
         <div class="ticker-track">
           <div class="ticker-move">
             <div class="ticker-grp">
-              {latest.map((h) => <a href={haberUrl(h.id)}>{h.data.title}</a>)}
+              {latest.map((h) => <a href={haberUrl(h.id, lang)}>{h.data.title}</a>)}
             </div>
             <div class="ticker-grp" aria-hidden="true">
-              {latest.map((h) => <a href={haberUrl(h.id)} tabindex="-1">{h.data.title}</a>)}
+              {latest.map((h) => <a href={haberUrl(h.id, lang)} tabindex="-1">{h.data.title}</a>)}
             </div>
           </div>
         </div>
@@ -115,20 +163,28 @@ const ldString = JSON.stringify(ld).replace(/</g, '\\u003c');
 
     <header class="masthead">
       <div class="wrap masthead-in">
-        <a class="logo" href="/" aria-label={`${SITE.name} ana sayfa`}>
+        <a class="logo" href={r.home} aria-label={`${SITE.name} ${t.homeAria}`}>
           <span class="logo-mark" aria-hidden="true">dh</span>
           <span class="logo-text">digital<b>haber</b></span>
         </a>
         <HeaderSearch />
+        <div class="tools">
+          <button class="tool" type="button" id="font-btn" aria-label={t.fontBtn} title={t.fontBtn} hidden>Aa</button>
+          <button class="tool" type="button" id="theme-btn" aria-label={t.themeBtn} title={t.themeBtn}>
+            <svg class="i-sun" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"></path></svg>
+            <svg class="i-moon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"></path></svg>
+          </button>
+          <a class="tool tool--lang" href={otherHref} hreflang={other} lang={other} aria-label={t.langAria}>{t.navLang}</a>
+        </div>
       </div>
     </header>
 
-    <nav class="nav" aria-label="Kategoriler">
+    <nav class="nav" aria-label={t.categories}>
       <div class="wrap nav-in">
         {navCats.map((c) => (
-          <a href={`/kategori/${c.slug}/`} class:list={[{ active: path.startsWith(`/kategori/${c.slug}/`) }]}>{c.name}</a>
+          <a href={catUrl(c.slug, lang)} class:list={[{ active: path.startsWith(catUrl(c.slug, lang)) }]}>{c.name}</a>
         ))}
-        <a href="/haberler/" class:list={[{ active: path.startsWith('/haberler/') }]}>Tüm Haberler</a>
+        <a href={r.all} class:list={[{ active: path.startsWith(r.all) }]}>{t.allNews}</a>
       </div>
     </nav>
 
@@ -154,33 +210,96 @@ const ldString = JSON.stringify(ld).replace(/</g, '\\u003c');
         <div class="footer-grid">
           <div>
             <div class="logo"><span class="logo-mark" aria-hidden="true">dh</span><span class="logo-text">digital<b>haber</b></span></div>
-            <p>{SITE.description}</p>
+            <p>{lang === 'en' ? SITE.descriptionEn : SITE.description}</p>
           </div>
           <div>
-            <h3>Kategoriler</h3>
-            <ul>{navCats.map((c) => <li><a href={`/kategori/${c.slug}/`}>{c.name}</a></li>)}</ul>
+            <h3>{t.categories}</h3>
+            <ul>{navCats.map((c) => <li><a href={catUrl(c.slug, lang)}>{c.name}</a></li>)}</ul>
           </div>
           <div>
-            <h3>Kurumsal</h3>
+            <h3>{t.corporate}</h3>
             <ul>
-              <li><a href="/hakkimizda/">Hakkımızda</a></li>
-              <li><a href="/iletisim/">İletişim</a></li>
-              <li><a href="/gizlilik/">Gizlilik Politikası</a></li>
+              <li><a href={r.about}>{t.about}</a></li>
+              <li><a href={r.contact}>{t.contact}</a></li>
+              <li><a href={r.privacy}>{t.privacy}</a></li>
             </ul>
           </div>
           <div>
-            <h3>Takip</h3>
+            <h3>{t.follow}</h3>
             <ul>
-              <li><a href="/rss.xml">RSS</a></li>
-              <li><a href="/arama/">Haberlerde ara</a></li>
-              <li><a href="/haberler/">Tüm haberler</a></li>
+              {social.map(([k, v]) => <li><a href={v} rel="me noopener" target="_blank">{SOCIAL_NAMES[k] ?? k}</a></li>)}
+              <li><a href={r.rss}>RSS</a></li>
+              <li><a href={r.search}>{t.searchAll}</a></li>
+              <li><a href={r.all}>{t.allNewsLower}</a></li>
+              <li><a href={otherHref} hreflang={other} lang={other}>{t.langSwitch}</a></li>
             </ul>
           </div>
         </div>
-        <p class="footer-bottom">© {new Date().getFullYear()} {SITE.name}.com Tüm hakları saklıdır.</p>
+        <p class="footer-bottom">© {new Date().getFullYear()} {SITE.name}.com {t.rights}</p>
       </div>
     </footer>
 
+    {
+      bottomNav && !isArticle && (
+        <nav class="bnav" aria-label={t.bottomNav}>
+          <a href={r.home} class:list={[{ on: path === r.home }]}>
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11l9-8 9 8M5 10v10h14V10"></path></svg>
+            <span>{t.navHome}</span>
+          </a>
+          <a href={r.all} class:list={[{ on: path.startsWith(r.all) }]}>
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h16M4 12h16M4 19h10"></path></svg>
+            <span>{t.navLatest}</span>
+          </a>
+          <a href={r.search} class:list={[{ on: path.startsWith(r.search) }]}>
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-3.5-3.5"></path></svg>
+            <span>{t.navSearch}</span>
+          </a>
+          <a href={otherHref} hreflang={other} lang={other}>
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"></path></svg>
+            <span>{t.navLang}</span>
+          </a>
+        </nav>
+      )
+    }
+
     <Consent />
+    {SITE_CFG.cloudflareAnalitikToken && <script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon={JSON.stringify({ token: SITE_CFG.cloudflareAnalitikToken })}></script>}
   </body>
 </html>
+
+<script>
+  const de = document.documentElement;
+  const safe = (fn: () => void) => { try { fn(); } catch { /* yok say */ } };
+
+  // Tema: açık / koyu (seçim hatırlanır, seçilmediyse cihaz ayarı geçerli)
+  document.getElementById('theme-btn')?.addEventListener('click', () => {
+    const cur = de.getAttribute('data-theme') || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+    const next = cur === 'dark' ? 'light' : 'dark';
+    de.setAttribute('data-theme', next);
+    safe(() => localStorage.setItem('dh-theme', next));
+  });
+
+  // Yazı boyutu: yalnızca haber sayfalarında görünür
+  const fontBtn = document.getElementById('font-btn');
+  if (fontBtn && document.querySelector('.article-body')) {
+    fontBtn.hidden = false;
+    fontBtn.addEventListener('click', () => {
+      const next = String(((Number(de.getAttribute('data-fs')) || 0) + 1) % 3);
+      de.setAttribute('data-fs', next);
+      safe(() => localStorage.setItem('dh-fs', next));
+    });
+  }
+
+  // İngilizce tarayıcıyla gelen ziyaretçiye (zorlamadan) İngilizce sürümü öner
+  const bar = document.getElementById('langbar');
+  if (bar) {
+    let closed = false;
+    safe(() => { closed = localStorage.getItem('dh-langbar') === 'x'; });
+    const l = (navigator.language || '').toLowerCase();
+    if (!closed && l && !l.startsWith('tr')) bar.hidden = false;
+    document.getElementById('langbar-x')?.addEventListener('click', () => {
+      bar.hidden = true;
+      safe(() => localStorage.setItem('dh-langbar', 'x'));
+    });
+  }
+</script>

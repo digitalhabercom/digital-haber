@@ -1,0 +1,12 @@
+---
+import ListView from '../../../views/ListView.astro';
+import { getNews } from '../../../lib/news';
+
+export async function getStaticPaths({ paginate }: { paginate: any }) {
+  const all = await getNews('en');
+  return paginate(all, { pageSize: 12 });
+}
+const { page } = Astro.props;
+---
+
+<ListView page={page} />

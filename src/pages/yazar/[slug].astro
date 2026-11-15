@@ -1,0 +1,11 @@
+---
+import AuthorView from '../../views/AuthorView.astro';
+import { authorsFor } from '../../lib/news';
+
+export function getStaticPaths() {
+  return authorsFor('tr').map((a) => ({ params: { slug: a.slug }, props: { slug: a.slug } }));
+}
+const { slug } = Astro.props;
+---
+
+<AuthorView slug={slug} />

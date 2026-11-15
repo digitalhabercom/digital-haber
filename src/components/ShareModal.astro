@@ -1,5 +1,7 @@
 ---
 import Icon from './Icon.astro';
+import { langOf, T } from '../lib/i18n';
+const t = T[langOf(Astro.url)];
 
 const nets = [
   { net: 'pinterest', name: 'Pinterest', bc: '#e60023' },
@@ -15,9 +17,9 @@ const nets = [
 <dialog class="share" id="share-dialog" aria-labelledby="share-title">
   <div class="share-in">
     <div class="share-head">
-      <h2 id="share-title">Bu haberi paylaş</h2>
+      <h2 id="share-title">{t.shareTitle}</h2>
       <p id="share-name"></p>
-      <button class="share-close" type="button" data-share-close aria-label="Kapat">✕</button>
+      <button class="share-close" type="button" data-share-close aria-label={t.close}>✕</button>
     </div>
 
     <div class="share-grid">
@@ -36,17 +38,17 @@ const nets = [
         <i><Icon name="mail" size={14} /></i> Gmail
       </a>
       <button class="share-btn wide" id="share-native" style="--bc:#2455d6" type="button" hidden>
-        <i><Icon name="share" size={14} /></i> Telefonundaki uygulamalarla paylaş
+        <i><Icon name="share" size={14} /></i> {t.shareNative}
       </button>
       <a class="share-btn wide" style="--bc:#6b7280" data-net="mail" href="#">
-        <i><Icon name="mail" size={14} /></i> E-Posta
+        <i><Icon name="mail" size={14} /></i> {t.shareMail}
       </a>
     </div>
 
-    <div class="share-or">veya bağlantıyı kopyala</div>
+    <div class="share-or">{t.shareOr}</div>
     <div class="share-copy">
-      <input type="text" readonly value="" id="share-url" aria-label="Haber bağlantısı" />
-      <button type="button" id="share-copy">Kopyala</button>
+      <input type="text" readonly value="" id="share-url" aria-label={t.urlLabel} />
+      <button type="button" id="share-copy" data-done={t.copied}>{t.copy}</button>
     </div>
   </div>
 </dialog>
@@ -114,7 +116,7 @@ const nets = [
   dlg?.querySelector('[data-share-close]')?.addEventListener('click', () => dlg.close());
   dlg?.addEventListener('click', (e) => { if (e.target === dlg) dlg.close(); });
   document.getElementById('share-copy')?.addEventListener('click', (e) => {
-    if (input) copyText(input.value).then(() => flash(e.currentTarget as HTMLElement, 'Kopyalandı ✓'));
+    if (input) copyText(input.value).then(() => flash(e.currentTarget as HTMLElement, (e.currentTarget as HTMLElement).dataset.done || '✓'));
   });
 
   if (native && typeof navigator.share === 'function') {

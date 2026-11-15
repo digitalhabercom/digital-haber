@@ -1,21 +1,23 @@
 ---
 import { catOf, haberUrl, type Haber } from '../lib/news';
+import { langOf, T } from '../lib/i18n';
 
 interface Props {
   items: Haber[];
 }
 const { items } = Astro.props;
+const lang = langOf(Astro.url);
 ---
 
 <section aria-labelledby="mostread-title">
-  <div class="sec-head"><h2 id="mostread-title">En Çok Okunanlar</h2></div>
+  <div class="sec-head"><h2 id="mostread-title">{T[lang].mostRead}</h2></div>
   <ol class="mostread">
     {
       items.map((h) => (
         <li>
           <div>
-            <span class="cat" style={`--c:${catOf(h.data.category).color}`}>{catOf(h.data.category).name}</span>
-            <a href={haberUrl(h.id)}>{h.data.title}</a>
+            <span class="cat" style={`--c:${catOf(h.data.category, lang).color}`}>{catOf(h.data.category, lang).name}</span>
+            <a href={haberUrl(h.id, lang)}>{h.data.title}</a>
           </div>
         </li>
       ))

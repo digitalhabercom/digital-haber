@@ -1,0 +1,25 @@
+---
+import Base from '../../../layouts/Base.astro';
+import { SITE } from '../../../consts';
+---
+
+<Base title="Privacy Policy" description={`${SITE.name} privacy and cookie policy.`} ads={false} alternates={{ tr: '/gizlilik/', en: '/en/privacy/' }}>
+  <div class="page-head"><h1>Privacy Policy</h1></div>
+  <div class="prose">
+    <p>
+      This page summarizes which data is processed when you visit {SITE.name}. The text is a starting draft; update it
+      when you add advertising, analytics or new cookie tools.
+    </p>
+    <h2>Data collected</h2>
+    <p>The site has no accounts or forms. The hosting provider may keep standard server logs (IP address, browser information).</p>
+    <h2>Cookies and ads</h2>
+    <p>
+      When advertising is enabled, ad providers may use cookies to show relevant ads. Advertising cookies are loaded only
+      if you accept the cookie notice. You can reset your choice by clearing your browser data.
+    </p>
+    <h2>Third-party content</h2>
+    <p>Fonts and some images may load from external servers.</p>
+    <h2>Contact</h2>
+    <p>Questions: <a href={`mailto:${SITE.email}`}>{SITE.email}</a></p>
+  </div>
+</Base>

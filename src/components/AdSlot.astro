@@ -1,5 +1,7 @@
 ---
 import ads from '../data/reklam.json';
+import { langOf, T } from '../lib/i18n';
+const adT = T[langOf(Astro.url)];
 
 interface Props {
   pos: string;
@@ -41,18 +43,21 @@ const DIMS: Record<string, string> = {
 };
 
 const type = TYPES[pos] ?? 'rectangle';
-const cfg = ((ads as any).alanlar?.[pos] ?? {}) as { slot?: string; banner?: string; link?: string; alt?: string };
+const cfg = ((ads as any).alanlar?.[pos] ?? {}) as { slot?: string; banner?: string; link?: string; alt?: string; html?: string };
 const client = ((ads as any).adsenseClient ?? '') as string;
+const hasHtml = Boolean(cfg.html && cfg.html.trim());
 const hasBanner = Boolean(cfg.banner && cfg.link);
 const live = Boolean(client && cfg.slot);
-const show = hasBanner || live || Boolean((ads as any).showPlaceholders) || import.meta.env.DEV;
+const show = hasHtml || hasBanner || live || Boolean((ads as any).showPlaceholders) || import.meta.env.DEV;
 ---
 
 {
   show && (
-    <aside class={`ad ad--${type}`} aria-label="Reklam" data-pos={pos}>
-      <span class="ad-label">Reklam</span>
-      {hasBanner ? (
+    <aside class={`ad ad--${type}`} aria-label={adT.adAria} data-pos={pos}>
+      <span class="ad-label">{adT.ad}</span>
+      {hasHtml ? (
+        <div class="ad-custom" set:html={cfg.html} />
+      ) : hasBanner ? (
         <a href={cfg.link} target="_blank" rel="sponsored noopener noreferrer">
           <img src={cfg.banner} alt={cfg.alt || 'Reklam'} loading="lazy" decoding="async" />
         </a>

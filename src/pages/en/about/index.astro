@@ -1,0 +1,25 @@
+---
+import Base from '../../../layouts/Base.astro';
+import { SITE } from '../../../consts';
+---
+
+<Base title="About" description={`About ${SITE.name}: our editorial principles and contact details.`} ads={false} alternates={{ tr: '/hakkimizda/', en: '/en/about/' }}>
+  <div class="page-head"><h1>About</h1></div>
+  <div class="prose">
+    <p>
+      {SITE.name} is an independent technology publication offering up-to-date news and easy-to-follow guides on
+      artificial intelligence, hardware, cybersecurity, software and cloud infrastructure, for IT professionals,
+      developers and everyday readers alike.
+    </p>
+    <h2>Editorial principles</h2>
+    <p>
+      We publish with accuracy, clarity and usefulness to the reader in mind. We do not publish information whose source
+      we cannot name. If you spot an error, write to us; we publish corrections quickly and note the update date on the
+      story.
+    </p>
+    <h2>Advertising</h2>
+    <p>Ads are shown separately from editorial content and carry an "Advertisement" label.</p>
+    <h2>Contact</h2>
+    <p>You can reach us through our <a href="/en/contact/">contact page</a>.</p>
+  </div>
+</Base>

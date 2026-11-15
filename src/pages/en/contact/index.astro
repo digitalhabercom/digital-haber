@@ -1,0 +1,12 @@
+---
+import Base from '../../../layouts/Base.astro';
+import { SITE } from '../../../consts';
+---
+
+<Base title="Contact" description={`Contact ${SITE.name}: tips, corrections and partnerships.`} ads={false} alternates={{ tr: '/iletisim/', en: '/en/contact/' }}>
+  <div class="page-head"><h1>Contact</h1></div>
+  <div class="prose">
+    <p>For news tips, correction requests, advertising and partnerships, email us.</p>
+    <p><a href={`mailto:${SITE.email}`}><strong>{SITE.email}</strong></a></p>
+  </div>
+</Base>

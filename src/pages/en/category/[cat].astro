@@ -1,0 +1,15 @@
+---
+import CategoryView from '../../../views/CategoryView.astro';
+import { CATEGORIES, getNews } from '../../../lib/news';
+
+export async function getStaticPaths() {
+  const all = await getNews('en');
+  return CATEGORIES.filter((c) => all.some((h) => h.data.category === c.slug)).map((c) => ({
+    params: { cat: c.slug },
+    props: { slug: c.slug },
+  }));
+}
+const { slug } = Astro.props;
+---
+
+<CategoryView slug={slug} />

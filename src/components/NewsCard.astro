@@ -1,5 +1,6 @@
 ---
-import { catOf, fmtShort, haberUrl, readMins, type Haber } from '../lib/news';
+import { catOf, fmtShort, haberUrl, img, readMins, type Haber } from '../lib/news';
+import { langOf, T } from '../lib/i18n';
 
 interface Props {
   item: Haber;
@@ -7,26 +8,28 @@ interface Props {
   excerpt?: boolean;
 }
 const { item, variant = 'card', excerpt = true } = Astro.props;
+const lang = langOf(Astro.url);
+const t = T[lang];
 const d = item.data;
-const c = catOf(d.category);
+const c = catOf(d.category, lang);
 const isRow = variant === 'row' || variant === 'row-big';
 ---
 
 <a
   class:list={[isRow ? 'story-row' : 'story', { 'story--lead': variant === 'lead', 'story-row--big': variant === 'row-big' }]}
-  href={haberUrl(item.id)}
+  href={haberUrl(item.id, lang)}
   style={`--c:${c.color}`}
 >
   <div class="story-img">
-    <img src={d.image} alt={d.imageAlt ?? d.title} width="640" height="400" loading="lazy" decoding="async" />
+    <img src={img(d.image, 640)} alt={d.imageAlt ?? d.title} width="640" height="400" loading="lazy" decoding="async" />
   </div>
   <div class="story-body">
     <span class="cat">{c.name}</span>
     <h3>{d.title}</h3>
     {excerpt && variant !== 'row' && <p>{d.description}</p>}
     <div class="meta">
-      <time datetime={d.date.toISOString()}>{fmtShort(d.date)}</time>
-      <span>{readMins(item.body)} dk okuma</span>
+      <time datetime={d.date.toISOString()}>{fmtShort(d.date, lang)}</time>
+      <span>{readMins(item.body)} {t.readMin}</span>
     </div>
   </div>
 </a>

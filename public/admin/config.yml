@@ -34,12 +34,41 @@ collections:
       - { label: Görsel Açıklaması (alt), name: imageAlt, widget: string, required: false, hint: "Görselde ne olduğunu kısaca yazın (arama motorları ve ekran okuyucular için)." }
       - { label: Görsel Kaynağı, name: imageCredit, widget: string, required: false, hint: "Örn: Unsplash / Ad Soyad. Haber sayfasında görselin altında görünür." }
       - { label: Yayın Tarihi, name: date, widget: datetime, format: "YYYY-MM-DDTHH:mm:ssZ", date_format: "DD.MM.YYYY", time_format: "HH:mm" }
-      - { label: Yazar, name: author, widget: string, default: "digitalhaber Editör" }
+      - { label: Yazar, name: author, widget: relation, collection: ayarlar, file: yazarlar, value_field: "authors.*.name", display_fields: ["authors.*.name"], search_fields: ["authors.*.name"], default: "digitalhaber Editör", hint: "Yazar listesi Ayarlar > Yazarlar bölümünden gelir. Haberin altında yazar kutusu ve yazar sayfası oluşur." }
       - { label: Manşette Göster, name: featured, widget: boolean, default: false, hint: "Açıksa ana sayfadaki manşete girer (en fazla 6 haber gösterilir)." }
       - { label: En Çok Okunanlarda Göster, name: popular, widget: boolean, default: false }
       - { label: Taslak, name: draft, widget: boolean, default: false, hint: "Açıksa haber sitede yayınlanmaz." }
       - { label: Etiketler, name: tags, widget: list, required: false, hint: "Her etiket için bir giriş ekleyin. Etiket sayfaları otomatik oluşur." }
       - { label: Güncelleme Tarihi, name: updated, widget: datetime, format: "YYYY-MM-DDTHH:mm:ssZ", required: false, hint: "Haberi sonradan düzelttiyseniz doldurun." }
+      - { label: Kısaca (özet maddeleri), name: summary, widget: list, required: false, hint: "2-4 kısa madde. Haberin başında Kısaca kutusu olarak görünür; okuyucuya ve arama/yapay zekâ motorlarına hızlı özet verir." }
+      - { label: Haber Metni, name: body, widget: markdown }
+
+  - name: haberler_en
+    label: Haberler (İngilizce)
+    label_singular: English story
+    folder: src/content/en
+    create: true
+    extension: md
+    format: frontmatter
+    slug: "{{slug}}"
+    summary: "{{title}} ({{category}})"
+    sortable_fields: ["date", "title", "category"]
+    fields:
+      - { label: Başlık, name: title, widget: string, hint: "Write a clear headline in English. Google için 60-70 karakter idealdir." }
+      - { label: Kısa Açıklama (Spot), name: description, widget: text, hint: "Haberin özeti. Google sonuçlarında ve paylaşımlarda görünür (150-160 karakter ideal)." }
+      - { label: Kategori, name: category, widget: relation, collection: ayarlar, file: kategoriler, value_field: "categories.*.slug", display_fields: ["categories.*.name"], search_fields: ["categories.*.name"], hint: "Kategori listesi Ayarlar bölümündeki Kategoriler'den gelir." }
+      - { label: Manşet / Kapak Görseli, name: image, widget: image, hint: "Bilgisayarınızdan yükleyin. 1600 piksel genişlikte, 300 KB altında bir görsel siteyi hızlı tutar. Manşet için yatay (16:10) görsel seçin." }
+      - { label: Görsel Açıklaması (alt), name: imageAlt, widget: string, required: false, hint: "Görselde ne olduğunu kısaca yazın (arama motorları ve ekran okuyucular için)." }
+      - { label: Görsel Kaynağı, name: imageCredit, widget: string, required: false, hint: "Örn: Unsplash / Ad Soyad. Haber sayfasında görselin altında görünür." }
+      - { label: Yayın Tarihi, name: date, widget: datetime, format: "YYYY-MM-DDTHH:mm:ssZ", date_format: "DD.MM.YYYY", time_format: "HH:mm" }
+      - { label: Yazar, name: author, widget: relation, collection: ayarlar, file: yazarlar, value_field: "authors.*.name", display_fields: ["authors.*.name"], search_fields: ["authors.*.name"], default: "digitalhaber Editör", hint: "Yazar listesi Ayarlar > Yazarlar bölümünden gelir. Haberin altında yazar kutusu ve yazar sayfası oluşur." }
+      - { label: Manşette Göster, name: featured, widget: boolean, default: false, hint: "Açıksa ana sayfadaki manşete girer (en fazla 6 haber gösterilir)." }
+      - { label: En Çok Okunanlarda Göster, name: popular, widget: boolean, default: false }
+      - { label: Taslak, name: draft, widget: boolean, default: false, hint: "Açıksa haber sitede yayınlanmaz." }
+      - { label: Etiketler, name: tags, widget: list, required: false, hint: "Her etiket için bir giriş ekleyin. Etiket sayfaları otomatik oluşur." }
+      - { label: Güncelleme Tarihi, name: updated, widget: datetime, format: "YYYY-MM-DDTHH:mm:ssZ", required: false, hint: "Haberi sonradan düzelttiyseniz doldurun." }
+      - { label: Kısaca (özet maddeleri), name: summary, widget: list, required: false, hint: "2-4 kısa madde. Haberin başında Kısaca kutusu olarak görünür; okuyucuya ve arama/yapay zekâ motorlarına hızlı özet verir." }
+      - { label: "Türkçe haberin karşılığı (dil bağlantısı)", name: translationOf, widget: relation, collection: haberler, value_field: "{{slug}}", search_fields: ["title"], display_fields: ["title"], required: false, hint: "Bu haber hangi Türkçe haberin İngilizcesi? Seçerseniz iki sayfa birbirine dil bağlantısıyla bağlanır (Google için hreflang)." }
       - { label: Haber Metni, name: body, widget: markdown }
 
   - name: ayarlar
@@ -59,6 +88,8 @@ collections:
               - { label: Kod (slug), name: slug, widget: string, pattern: ["^[a-z0-9-]+$", "Sadece küçük harf, rakam ve tire kullanın (örn: bilim-teknoloji)"], hint: "Adres kodu. Küçük harf, Türkçe karakter yok. Haber eklendikten sonra değiştirmeyin." }
               - { label: Renk, name: color, widget: color, default: "#2455d6", hint: "Kategori etiketinin rengi. Beyaz yazı okunsun diye koyu bir ton seçin." }
               - { label: Açıklama, name: desc, widget: text, required: false, hint: "Kategori sayfasında ve Google'da görünür." }
+              - { label: "Ad (İngilizce)", name: name_en, widget: string, required: false, hint: "İngilizce sitede görünen ad. Örn: Mobile" }
+              - { label: "Açıklama (İngilizce)", name: desc_en, widget: text, required: false }
 
       - name: reklam
         label: Reklam Ayarları
@@ -69,7 +100,7 @@ collections:
           - label: "Reklam alanları"
             name: alanlar
             widget: object
-            hint: "Her alana AdSense birim numarası ya da kendi banner'ınızı girin. İkisi de doluysa banner gösterilir. Boş alan sitede görünmez."
+            hint: "Her alana AdSense birim numarası ya da kendi banner'ınızı girin. Öncelik sırası: özel HTML kodu, banner, AdSense. Boş alan sitede görünmez."
             fields:
               - label: "Üst (her sayfanın en üstü)"
                 name: ust
@@ -80,6 +111,7 @@ collections:
                   - { label: "Kendi banner görseliniz", name: banner, widget: image, required: false, hint: "Doğrudan reklam verenin görseli. Doluysa AdSense yerine bu gösterilir." }
                   - { label: "Banner bağlantısı", name: link, widget: string, required: false, hint: "Banner'a tıklanınca gidilecek adres (https://...)." }
                   - { label: "Banner açıklaması", name: alt, widget: string, required: false }
+                  - { label: "Özel reklam HTML kodu", name: html, widget: text, required: false, hint: "Reklam verenin verdiği HTML/script kodunu olduğu gibi yapıştırın. Doluysa banner ve AdSense yerine bu gösterilir." }
               - label: "Manşet altı (ana sayfa)"
                 name: manset-alti
                 widget: object
@@ -89,6 +121,7 @@ collections:
                   - { label: "Kendi banner görseliniz", name: banner, widget: image, required: false, hint: "Doğrudan reklam verenin görseli. Doluysa AdSense yerine bu gösterilir." }
                   - { label: "Banner bağlantısı", name: link, widget: string, required: false, hint: "Banner'a tıklanınca gidilecek adres (https://...)." }
                   - { label: "Banner açıklaması", name: alt, widget: string, required: false }
+                  - { label: "Özel reklam HTML kodu", name: html, widget: text, required: false, hint: "Reklam verenin verdiği HTML/script kodunu olduğu gibi yapıştırın. Doluysa banner ve AdSense yerine bu gösterilir." }
               - label: "Ana sayfa ortası"
                 name: anasayfa-orta
                 widget: object
@@ -98,6 +131,7 @@ collections:
                   - { label: "Kendi banner görseliniz", name: banner, widget: image, required: false, hint: "Doğrudan reklam verenin görseli. Doluysa AdSense yerine bu gösterilir." }
                   - { label: "Banner bağlantısı", name: link, widget: string, required: false, hint: "Banner'a tıklanınca gidilecek adres (https://...)." }
                   - { label: "Banner açıklaması", name: alt, widget: string, required: false }
+                  - { label: "Özel reklam HTML kodu", name: html, widget: text, required: false, hint: "Reklam verenin verdiği HTML/script kodunu olduğu gibi yapıştırın. Doluysa banner ve AdSense yerine bu gösterilir." }
               - label: "Sol kenar (geniş ekranlarda)"
                 name: sol-kenar
                 widget: object
@@ -107,6 +141,7 @@ collections:
                   - { label: "Kendi banner görseliniz", name: banner, widget: image, required: false, hint: "Doğrudan reklam verenin görseli. Doluysa AdSense yerine bu gösterilir." }
                   - { label: "Banner bağlantısı", name: link, widget: string, required: false, hint: "Banner'a tıklanınca gidilecek adres (https://...)." }
                   - { label: "Banner açıklaması", name: alt, widget: string, required: false }
+                  - { label: "Özel reklam HTML kodu", name: html, widget: text, required: false, hint: "Reklam verenin verdiği HTML/script kodunu olduğu gibi yapıştırın. Doluysa banner ve AdSense yerine bu gösterilir." }
               - label: "Sağ kenar (geniş ekranlarda)"
                 name: sag-kenar
                 widget: object
@@ -116,6 +151,7 @@ collections:
                   - { label: "Kendi banner görseliniz", name: banner, widget: image, required: false, hint: "Doğrudan reklam verenin görseli. Doluysa AdSense yerine bu gösterilir." }
                   - { label: "Banner bağlantısı", name: link, widget: string, required: false, hint: "Banner'a tıklanınca gidilecek adres (https://...)." }
                   - { label: "Banner açıklaması", name: alt, widget: string, required: false }
+                  - { label: "Özel reklam HTML kodu", name: html, widget: text, required: false, hint: "Reklam verenin verdiği HTML/script kodunu olduğu gibi yapıştırın. Doluysa banner ve AdSense yerine bu gösterilir." }
               - label: "Yan sütun üst"
                 name: yan-ust
                 widget: object
@@ -125,6 +161,7 @@ collections:
                   - { label: "Kendi banner görseliniz", name: banner, widget: image, required: false, hint: "Doğrudan reklam verenin görseli. Doluysa AdSense yerine bu gösterilir." }
                   - { label: "Banner bağlantısı", name: link, widget: string, required: false, hint: "Banner'a tıklanınca gidilecek adres (https://...)." }
                   - { label: "Banner açıklaması", name: alt, widget: string, required: false }
+                  - { label: "Özel reklam HTML kodu", name: html, widget: text, required: false, hint: "Reklam verenin verdiği HTML/script kodunu olduğu gibi yapıştırın. Doluysa banner ve AdSense yerine bu gösterilir." }
               - label: "Yan sütun alt (kayarken sabit kalır)"
                 name: yan-alt
                 widget: object
@@ -134,6 +171,7 @@ collections:
                   - { label: "Kendi banner görseliniz", name: banner, widget: image, required: false, hint: "Doğrudan reklam verenin görseli. Doluysa AdSense yerine bu gösterilir." }
                   - { label: "Banner bağlantısı", name: link, widget: string, required: false, hint: "Banner'a tıklanınca gidilecek adres (https://...)." }
                   - { label: "Banner açıklaması", name: alt, widget: string, required: false }
+                  - { label: "Özel reklam HTML kodu", name: html, widget: text, required: false, hint: "Reklam verenin verdiği HTML/script kodunu olduğu gibi yapıştırın. Doluysa banner ve AdSense yerine bu gösterilir." }
               - label: "Haber içi 1 (2. paragraftan sonra)"
                 name: haber-ici-1
                 widget: object
@@ -143,6 +181,7 @@ collections:
                   - { label: "Kendi banner görseliniz", name: banner, widget: image, required: false, hint: "Doğrudan reklam verenin görseli. Doluysa AdSense yerine bu gösterilir." }
                   - { label: "Banner bağlantısı", name: link, widget: string, required: false, hint: "Banner'a tıklanınca gidilecek adres (https://...)." }
                   - { label: "Banner açıklaması", name: alt, widget: string, required: false }
+                  - { label: "Özel reklam HTML kodu", name: html, widget: text, required: false, hint: "Reklam verenin verdiği HTML/script kodunu olduğu gibi yapıştırın. Doluysa banner ve AdSense yerine bu gösterilir." }
               - label: "Haber içi 2 (uzun haberlerde 6. paragraftan sonra)"
                 name: haber-ici-2
                 widget: object
@@ -152,6 +191,7 @@ collections:
                   - { label: "Kendi banner görseliniz", name: banner, widget: image, required: false, hint: "Doğrudan reklam verenin görseli. Doluysa AdSense yerine bu gösterilir." }
                   - { label: "Banner bağlantısı", name: link, widget: string, required: false, hint: "Banner'a tıklanınca gidilecek adres (https://...)." }
                   - { label: "Banner açıklaması", name: alt, widget: string, required: false }
+                  - { label: "Özel reklam HTML kodu", name: html, widget: text, required: false, hint: "Reklam verenin verdiği HTML/script kodunu olduğu gibi yapıştırın. Doluysa banner ve AdSense yerine bu gösterilir." }
               - label: "Haber sonu"
                 name: haber-sonu
                 widget: object
@@ -161,6 +201,7 @@ collections:
                   - { label: "Kendi banner görseliniz", name: banner, widget: image, required: false, hint: "Doğrudan reklam verenin görseli. Doluysa AdSense yerine bu gösterilir." }
                   - { label: "Banner bağlantısı", name: link, widget: string, required: false, hint: "Banner'a tıklanınca gidilecek adres (https://...)." }
                   - { label: "Banner açıklaması", name: alt, widget: string, required: false }
+                  - { label: "Özel reklam HTML kodu", name: html, widget: text, required: false, hint: "Reklam verenin verdiği HTML/script kodunu olduğu gibi yapıştırın. Doluysa banner ve AdSense yerine bu gösterilir." }
               - label: "Alt (alt bilginin üstü)"
                 name: alt
                 widget: object
@@ -170,3 +211,42 @@ collections:
                   - { label: "Kendi banner görseliniz", name: banner, widget: image, required: false, hint: "Doğrudan reklam verenin görseli. Doluysa AdSense yerine bu gösterilir." }
                   - { label: "Banner bağlantısı", name: link, widget: string, required: false, hint: "Banner'a tıklanınca gidilecek adres (https://...)." }
                   - { label: "Banner açıklaması", name: alt, widget: string, required: false }
+                  - { label: "Özel reklam HTML kodu", name: html, widget: text, required: false, hint: "Reklam verenin verdiği HTML/script kodunu olduğu gibi yapıştırın. Doluysa banner ve AdSense yerine bu gösterilir." }
+
+      - name: yazarlar
+        label: Yazarlar
+        file: src/data/yazarlar.json
+        fields:
+          - label: Yazarlar
+            name: authors
+            widget: list
+            summary: "{{fields.name}}"
+            hint: "Her yazar için haberin altında yazar kutusu ve ayrı bir yazar sayfası oluşur (arama motorlarına güven sinyali verir). Haberdeki yazar adı buradaki adla birebir aynı olmalıdır."
+            fields:
+              - { label: Ad Soyad, name: name, widget: string }
+              - { label: Kod (slug), name: slug, widget: string, pattern: ["^[a-z0-9-]+$", "Sadece küçük harf, rakam ve tire (örn: ali-yilmaz)"], hint: "Yazar sayfasının adresi: /yazar/ali-yilmaz/. Sonradan değiştirmeyin." }
+              - { label: Görevi, name: role, widget: string, required: false, hint: "Örn: Teknoloji editörü" }
+              - { label: "Görevi (İngilizce)", name: role_en, widget: string, required: false }
+              - { label: Kısa tanıtım, name: bio, widget: text, required: false, hint: "1-2 cümle: uzmanlık alanı ve deneyim." }
+              - { label: "Kısa tanıtım (İngilizce)", name: bio_en, widget: text, required: false }
+              - { label: Fotoğraf, name: photo, widget: image, required: false }
+
+      - name: site
+        label: Site Ayarları
+        file: src/data/site.json
+        fields:
+          - { label: "Google Search Console doğrulama kodu", name: googleDogrulama, widget: string, required: false, hint: "Search Console > Mülk ekle > URL öneki > HTML etiketi yöntemindeki content=\"...\" değeri (sadece kod kısmı)." }
+          - { label: "Bing Webmaster doğrulama kodu", name: bingDogrulama, widget: string, required: false, hint: "Bing Webmaster Tools'taki HTML meta etiketi yöntemindeki content değeri." }
+          - { label: "Yandex Webmaster doğrulama kodu", name: yandexDogrulama, widget: string, required: false, hint: "Yandex Webmaster'daki meta etiket yönteminin content değeri." }
+          - { label: "Cloudflare Web Analytics anahtarı (token)", name: cloudflareAnalitikToken, widget: string, required: false, hint: "Ücretsiz ziyaretçi istatistiği. Cloudflare > Web Analytics > site ekle > JS snippet içindeki token değeri." }
+          - { label: "Görsel optimizasyonu (Cloudflare)", name: gorselOptimizasyon, widget: boolean, default: false, hint: "Yalnızca Cloudflare > Images > Transformations açıkken (ücretsiz plan 5.000 dönüşüm/ay) açın. Açıkken yüklenen görseller küçük boyutlu WebP olarak sunulur, site hızlanır." }
+          - label: "Sosyal hesaplar"
+            name: sosyal
+            widget: object
+            hint: "Tam adres yazın (https://...). Boş bırakılan görünmez."
+            fields:
+              - { label: X (Twitter), name: x, widget: string, required: false }
+              - { label: Telegram kanalı, name: telegram, widget: string, required: false }
+              - { label: WhatsApp kanalı, name: whatsapp, widget: string, required: false }
+              - { label: Instagram, name: instagram, widget: string, required: false }
+              - { label: YouTube, name: youtube, widget: string, required: false }

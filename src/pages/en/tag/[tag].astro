@@ -1,0 +1,14 @@
+---
+import TagView from '../../../views/TagView.astro';
+import { getNews, tagSlug } from '../../../lib/news';
+
+export async function getStaticPaths() {
+  const all = await getNews('en');
+  const map = new Map<string, string>();
+  for (const h of all) for (const t of h.data.tags) if (!map.has(tagSlug(t))) map.set(tagSlug(t), t);
+  return [...map.entries()].filter(([slug]) => slug).map(([slug, label]) => ({ params: { tag: slug }, props: { tag: slug, label } }));
+}
+const { tag, label } = Astro.props;
+---
+
+<TagView tag={tag} label={label} />

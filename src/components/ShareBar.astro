@@ -1,6 +1,7 @@
 ---
 import Icon from './Icon.astro';
 import { shareHref } from '../lib/share';
+import { langOf, T } from '../lib/i18n';
 
 interface Props {
   url: string;
@@ -9,11 +10,12 @@ interface Props {
 }
 const { url, title, image = '' } = Astro.props;
 const ctx = { url, title, image };
+const t = T[langOf(Astro.url)];
 ---
 
-<div class="sharebar" role="group" aria-label="Haberi paylaş">
+<div class="sharebar" role="group" aria-label={t.shareNews}>
   <button class="sb sb--main" type="button" data-share-open data-url={url} data-title={title} data-image={image}>
-    <Icon name="share" size={16} /> Paylaş
+    <Icon name="share" size={16} /> {t.share}
   </button>
   <a class="sb" style="--bc:#1fa855" href={shareHref('whatsapp', ctx)} target="_blank" rel="noopener noreferrer">
     <Icon name="whatsapp" size={16} /> WhatsApp
@@ -24,10 +26,7 @@ const ctx = { url, title, image };
   <a class="sb sb--hide" style="--bc:#1877f2" href={shareHref('facebook', ctx)} target="_blank" rel="noopener noreferrer">
     <Icon name="facebook" size={16} /> Facebook
   </a>
-  <a class="sb sb--hide" style="--bc:#229ed9" href={shareHref('telegram', ctx)} target="_blank" rel="noopener noreferrer">
-    <Icon name="telegram" size={16} /> Telegram
-  </a>
   <button class="sb sb--plain" type="button" data-copy-link data-url={url}>
-    <Icon name="link" size={16} /> Bağlantıyı kopyala
+    <Icon name="link" size={16} /> {t.copyLink}
   </button>
 </div>

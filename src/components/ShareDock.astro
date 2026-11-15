@@ -1,5 +1,6 @@
 ---
 import Icon from './Icon.astro';
+import { langOf, T } from '../lib/i18n';
 
 interface Props {
   url: string;
@@ -7,18 +8,19 @@ interface Props {
   image?: string;
 }
 const { url, title, image = '' } = Astro.props;
+const t = T[langOf(Astro.url)];
 ---
 
 <!--
   Bilgisayarda haberin solunda sabit duran dikey çubuk, telefonda ekranın altında ince çubuk.
   Sayfa aşağı kayınca hangi haber ekrandaysa onu paylaşır (sürekli haber akışı için).
 -->
-<div class="dock" id="dock" role="group" aria-label="Haberi paylaş" data-url={url} data-title={title} data-image={image}>
-  <span class="dock-label">Paylaş</span>
-  <button class="dock-btn" style="--bc:#1fa855" type="button" data-net="whatsapp" aria-label="WhatsApp'ta paylaş"><Icon name="whatsapp" size={20} /></button>
-  <button class="dock-btn" style="--bc:#1877f2" type="button" data-net="facebook" aria-label="Facebook'ta paylaş"><Icon name="facebook" size={20} /></button>
-  <button class="dock-btn" style="--bc:#111111" type="button" data-net="x" aria-label="X'te paylaş"><Icon name="x" size={20} /></button>
-  <button class="dock-btn" style="--bc:#229ed9" type="button" data-net="telegram" aria-label="Telegram'da paylaş"><Icon name="telegram" size={20} /></button>
-  <button class="dock-btn dock-btn--plain" type="button" data-copy-link aria-label="Bağlantıyı kopyala"><Icon name="link" size={20} /></button>
-  <button class="dock-btn dock-btn--main" type="button" data-share-open aria-label="Diğer paylaşım seçenekleri"><Icon name="share" size={20} /></button>
+<div class="dock" id="dock" role="group" aria-label={t.shareNews} data-url={url} data-title={title} data-image={image}>
+  <span class="dock-label">{t.share}</span>
+  <button class="dock-btn" style="--bc:#1fa855" type="button" data-net="whatsapp" aria-label={`WhatsApp ${t.shareOn}`}><Icon name="whatsapp" size={20} /></button>
+  <button class="dock-btn" style="--bc:#1877f2" type="button" data-net="facebook" aria-label={`Facebook ${t.shareOn}`}><Icon name="facebook" size={20} /></button>
+  <button class="dock-btn" style="--bc:#111111" type="button" data-net="x" aria-label={`X ${t.shareOn}`}><Icon name="x" size={20} /></button>
+  <button class="dock-btn" style="--bc:#229ed9" type="button" data-net="telegram" aria-label={`Telegram ${t.shareOn}`}><Icon name="telegram" size={20} /></button>
+  <button class="dock-btn dock-btn--plain" type="button" data-copy-link aria-label={t.copyLink}><Icon name="link" size={20} /></button>
+  <button class="dock-btn dock-btn--main" type="button" data-share-open aria-label={t.shareMore}><Icon name="share" size={20} /></button>
 </div>

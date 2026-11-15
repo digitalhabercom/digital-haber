@@ -1,22 +1,25 @@
 ---
-import { catOf, fmtShort, haberUrl, type Haber } from '../lib/news';
+import { catOf, fmtShort, haberUrl, img, type Haber } from '../lib/news';
+import { langOf, T } from '../lib/i18n';
 
 interface Props {
   items: Haber[];
 }
 const { items } = Astro.props;
+const lang = langOf(Astro.url);
+const t = T[lang];
 ---
 
-<section class="hero" id="hero" aria-roledescription="carousel" aria-label="Manşet haberleri">
+<section class="hero" id="hero" aria-roledescription="carousel" aria-label={t.heroAria}>
   <div>
     <div class="hero-stage">
       {
         items.map((h, i) => {
-          const c = catOf(h.data.category);
+          const c = catOf(h.data.category, lang);
           return (
-            <a class:list={['hero-slide', { active: i === 0 }]} href={haberUrl(h.id)} style={`--c:${c.color}`}>
+            <a class:list={['hero-slide', { active: i === 0 }]} href={haberUrl(h.id, lang)} style={`--c:${c.color}`}>
               <img
-                src={h.data.image}
+                src={img(h.data.image, 1200)}
                 alt={h.data.imageAlt ?? h.data.title}
                 width="1200"
                 height="750"
@@ -30,7 +33,7 @@ const { items } = Astro.props;
                 <h2>{h.data.title}</h2>
                 <p>{h.data.description}</p>
                 <div class="meta">
-                  <time datetime={h.data.date.toISOString()}>{fmtShort(h.data.date)}</time>
+                  <time datetime={h.data.date.toISOString()}>{fmtShort(h.data.date, lang)}</time>
                   <span>{h.data.author}</span>
                 </div>
               </div>
@@ -39,26 +42,26 @@ const { items } = Astro.props;
         })
       }
       <div class="hero-ctrl">
-        <button type="button" data-prev aria-label="Önceki manşet">
+        <button type="button" data-prev aria-label={t.prevHero}>
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"></path></svg>
         </button>
-        <button type="button" data-next aria-label="Sonraki manşet">
+        <button type="button" data-next aria-label={t.nextHero}>
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"></path></svg>
         </button>
       </div>
     </div>
     <div class="hero-dots">
-      {items.map((_, i) => <button type="button" class:list={[{ active: i === 0 }]} aria-label={`${i + 1}. habere git`} />)}
+      {items.map((_, i) => <button type="button" class:list={[{ active: i === 0 }]} aria-label={`${i + 1} ${t.goTo}`} />)}
     </div>
   </div>
 
   <ol class="hero-rail">
     {
       items.map((h, i) => {
-        const c = catOf(h.data.category);
+        const c = catOf(h.data.category, lang);
         return (
           <li>
-            <a class:list={[{ 'is-active': i === 0 }]} href={haberUrl(h.id)} style={`--c:${c.color}`}>
+            <a class:list={[{ 'is-active': i === 0 }]} href={haberUrl(h.id, lang)} style={`--c:${c.color}`}>
               <span>
                 <span class="rail-cat">{c.name}</span>
                 <span class="rail-title">{h.data.title}</span>

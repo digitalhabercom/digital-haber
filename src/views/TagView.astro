@@ -1,0 +1,31 @@
+---
+import Base from '../layouts/Base.astro';
+import NewsCard from '../components/NewsCard.astro';
+import { getNews, tagSlug } from '../lib/news';
+import { langOf, T } from '../lib/i18n';
+
+interface Props {
+  tag: string;
+  label: string;
+}
+const { tag, label } = Astro.props;
+const lang = langOf(Astro.url);
+const t = T[lang];
+const all = await getNews(lang);
+const items = all.filter((h) => h.data.tags.some((x: string) => tagSlug(x) === tag));
+---
+
+<Base
+  title={lang === 'en' ? `${label} News` : `${label} Haberleri`}
+  description={lang === 'en' ? `Stories tagged ${label}.` : `${label} etiketli haberler.`}
+>
+  <div class="page-head">
+    <h1>#{label}</h1>
+    <p>{items.length} {t.nNews}</p>
+  </div>
+  <section class="sec" style="margin-top:24px" aria-label={label}>
+    <div class="grid3">
+      {items.map((h) => <NewsCard item={h} />)}
+    </div>
+  </section>
+</Base>

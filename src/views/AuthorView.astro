@@ -1,0 +1,51 @@
+---
+import Base from '../layouts/Base.astro';
+import NewsCard from '../components/NewsCard.astro';
+import { authorsFor, authorUrl, getNews } from '../lib/news';
+import { langOf, T } from '../lib/i18n';
+import { SITE } from '../consts';
+
+interface Props {
+  slug: string;
+}
+const { slug } = Astro.props;
+const lang = langOf(Astro.url);
+const other = lang === 'tr' ? 'en' : 'tr';
+const t = T[lang];
+const author = authorsFor(lang).find((a) => a.slug === slug)!;
+const all = await getNews(lang);
+const items = all.filter((h) => h.data.author.toLowerCase() === author.name.toLowerCase());
+const origin = Astro.site!.href.replace(/\/$/, '');
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'ProfilePage',
+  mainEntity: {
+    '@type': 'Person',
+    name: author.name,
+    description: author.bio,
+    url: origin + authorUrl(slug, lang),
+    worksFor: { '@type': 'NewsMediaOrganization', name: SITE.name },
+  },
+};
+---
+
+<Base
+  title={author.name}
+  description={author.bio || author.name}
+  jsonLd={jsonLd}
+  alternates={{ [other]: authorUrl(slug, other) }}
+>
+  <div class="author-hero">
+    {author.photo ? <img src={author.photo} alt={author.name} width="84" height="84" /> : <span class="avatar" aria-hidden="true">{author.name.charAt(0)}</span>}
+    <div>
+      <h1>{author.name}</h1>
+      {author.role && <p><strong>{author.role}</strong></p>}
+      {author.bio && <p>{author.bio}</p>}
+    </div>
+  </div>
+  <section class="sec" style="margin-top:24px" aria-label={author.name}>
+    <div class="grid3">
+      {items.map((h) => <NewsCard item={h} />)}
+    </div>
+  </section>
+</Base>

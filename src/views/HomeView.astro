@@ -1,0 +1,86 @@
+---
+import Base from '../layouts/Base.astro';
+import Slider from '../components/Slider.astro';
+import NewsCard from '../components/NewsCard.astro';
+import MostRead from '../components/MostRead.astro';
+import AdSlot from '../components/AdSlot.astro';
+import RandomPicks from '../components/RandomPicks.astro';
+import { SITE } from '../consts';
+import { getNews, getPopular } from '../lib/news';
+import { langOf, T, ROUTES } from '../lib/i18n';
+
+const lang = langOf(Astro.url);
+const t = T[lang];
+const r = ROUTES[lang];
+const all = await getNews(lang);
+
+// Manşet: "featured" işaretliler önce, eksik kalırsa en yeniler ile 6'ya tamamlanır
+const slides = [...all.filter((h) => h.data.featured), ...all.filter((h) => !h.data.featured)].slice(0, 6);
+const slideIds = new Set(slides.map((s) => s.id));
+
+// Son haberler: manşette olmayanlar; yetmezse tüm haberler
+const rest = all.filter((h) => !slideIds.has(h.id));
+const feed = (rest.length >= 3 ? rest : all).slice(0, 10);
+const feedIds = new Set(feed.map((h) => h.id));
+
+const popular = getPopular(all, 5);
+
+// "Bunları da okuyun": sayfa HTML'inde hazır liste; tarayıcıda her yenilemede karıştırılır
+const used = new Set([...slideIds, ...feedIds]);
+const left = all.filter((h) => !used.has(h.id));
+const picks = (left.length >= 8 ? left : all).slice(0, 8);
+
+const origin = Astro.site!.href.replace(/\/$/, '');
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'WebSite',
+  name: SITE.name,
+  url: origin + r.home,
+  inLanguage: lang,
+  description: lang === 'en' ? SITE.descriptionEn : SITE.description,
+  potentialAction: {
+    '@type': 'SearchAction',
+    target: `${origin}${r.search}?q={search_term_string}`,
+    'query-input': 'required name=search_term_string',
+  },
+};
+---
+
+<Base
+  title={lang === 'en' ? 'Technology News, AI and Cybersecurity' : 'Teknoloji Haberleri, Yapay Zeka ve Siber Güvenlik'}
+  jsonLd={jsonLd}
+  alternates={{ tr: '/', en: '/en/' }}
+>
+  {
+    all.length === 0 ? (
+      <p class="empty">{t.empty}</p>
+    ) : (
+      <>
+        <Slider items={slides} />
+        <AdSlot pos="manset-alti" />
+
+        <div class="cols">
+          <section class="sec" style="margin-top:16px" aria-labelledby="son-haberler">
+            <div class="sec-head">
+              <h2 id="son-haberler">{t.latestNews}</h2>
+              <a href={r.all}>{t.allNewsLower}</a>
+            </div>
+            <div class="grid2">
+              {feed.map((h) => <NewsCard item={h} />)}
+            </div>
+          </section>
+
+          <aside class="side" style="margin-top:56px" aria-label={t.sideAria}>
+            <AdSlot pos="yan-ust" />
+            <MostRead items={popular} />
+            <div class="stick"><AdSlot pos="yan-alt" /></div>
+          </aside>
+        </div>
+
+        <AdSlot pos="anasayfa-orta" />
+
+        <RandomPicks items={picks} excludeIds={[...used]} count={8} />
+      </>
+    )
+  }
+</Base>

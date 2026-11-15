@@ -1,12 +1,16 @@
 ---
 import Icon from './Icon.astro';
+import { langOf, T, ROUTES } from '../lib/i18n';
+const lang = langOf(Astro.url);
+const t = T[lang];
+const r = ROUTES[lang];
 ---
 
-<form class="hs" action="/arama/" method="get" role="search" autocomplete="off">
-  <label class="sr-only" for="hs-q">Haberlerde ara</label>
+<form class="hs" action={r.search} method="get" role="search" autocomplete="off" data-json={r.searchJson} data-search={r.search} data-empty={t.searchEmpty} data-all={t.searchSeeAll}>
+  <label class="sr-only" for="hs-q">{t.searchAll}</label>
   <span class="hs-ico"><Icon name="search" size={18} /></span>
-  <input id="hs-q" name="q" type="search" placeholder="Haberlerde ara: yapay zeka, parola, SSD..." aria-controls="hs-list" />
-  <button class="hs-btn" type="submit">Ara</button>
+  <input id="hs-q" name="q" type="search" placeholder={t.searchPlaceholder} aria-controls="hs-list" />
+  <button class="hs-btn" type="submit">{t.searchBtn}</button>
   <ul class="hs-list" id="hs-list" hidden></ul>
 </form>
 
@@ -22,7 +26,7 @@ import Icon from './Icon.astro';
     let data: Item[] | null = null;
 
     const load = async () => {
-      if (!data) data = await (await fetch('/search.json')).json();
+      if (!data) data = await (await fetch(form.dataset.json || '/search.json')).json();
       return data!;
     };
     const close = () => { list.hidden = true; };
@@ -56,10 +60,10 @@ import Icon from './Icon.astro';
       if (!hits.length) {
         const li = document.createElement('li');
         li.className = 'hs-empty';
-        li.textContent = 'Sonuç bulunamadı';
+        li.textContent = form.dataset.empty || 'Sonuç bulunamadı';
         list.appendChild(li);
       }
-      list.appendChild(row('Tüm sonuçları gör', '/arama/?q=' + encodeURIComponent(q), 'hs-all').li);
+      list.appendChild(row(form.dataset.all || 'Tüm sonuçları gör', (form.dataset.search || '/arama/') + '?q=' + encodeURIComponent(q), 'hs-all').li);
       list.hidden = false;
     };
 

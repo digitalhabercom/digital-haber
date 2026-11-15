@@ -1,0 +1,12 @@
+---
+import ArticleView from '../../../views/ArticleView.astro';
+import { getNews } from '../../../lib/news';
+
+export async function getStaticPaths() {
+  const all = await getNews('en');
+  return all.map((entry) => ({ params: { id: entry.id }, props: { entry } }));
+}
+const { entry } = Astro.props;
+---
+
+<ArticleView entry={entry} />

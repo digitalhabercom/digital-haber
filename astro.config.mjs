@@ -3,5 +3,5 @@ import sitemap from '@astrojs/sitemap';
 
 export default defineConfig({
   site: 'https://www.digitalhaber.com',
-  integrations: [sitemap({ filter: (page) => !page.includes('/arama') })],
+  integrations: [sitemap({ filter: (page) => !page.includes('/arama') && !page.includes('/en/search') })],
 });

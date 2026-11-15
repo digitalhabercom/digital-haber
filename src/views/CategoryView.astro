@@ -1,0 +1,60 @@
+---
+import Base from '../layouts/Base.astro';
+import NewsCard from '../components/NewsCard.astro';
+import MostRead from '../components/MostRead.astro';
+import AdSlot from '../components/AdSlot.astro';
+import { catOf, catUrl, getNews, getPopular } from '../lib/news';
+import { langOf, T, ROUTES } from '../lib/i18n';
+
+interface Props {
+  slug: string;
+}
+const { slug } = Astro.props;
+const lang = langOf(Astro.url);
+const other = lang === 'tr' ? 'en' : 'tr';
+const t = T[lang];
+const r = ROUTES[lang];
+const cat = catOf(slug, lang);
+const all = await getNews(lang);
+const items = all.filter((h) => h.data.category === cat.slug);
+const popular = getPopular(all, 5);
+const origin = Astro.site!.href.replace(/\/$/, '');
+const desc =
+  cat.desc ||
+  (lang === 'en'
+    ? `The latest ${cat.name} technology news and guides.`
+    : `${cat.name} alanındaki en güncel teknoloji haberleri ve rehberler.`);
+
+// Diğer dilde de bu kategoride haber varsa dil bağlantısı verilir
+const otherAll = await getNews(other);
+const alternates = otherAll.some((h) => h.data.category === slug) ? { [other]: catUrl(slug, other) } : undefined;
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    { '@type': 'ListItem', position: 1, name: t.homeCrumb, item: origin + r.home },
+    { '@type': 'ListItem', position: 2, name: cat.name, item: `${origin}${catUrl(slug, lang)}` },
+  ],
+};
+---
+
+<Base title={lang === 'en' ? `${cat.name} News` : `${cat.name} Haberleri`} description={desc} jsonLd={jsonLd} alternates={alternates}>
+  <div class="page-head">
+    <h1>{cat.name}</h1>
+    <p>{desc}</p>
+  </div>
+
+  <div class="cols" style="margin-top:28px">
+    <section aria-label={cat.name}>
+      <div class="grid2">
+        {items.map((h) => <NewsCard item={h} />)}
+      </div>
+    </section>
+    <aside class="side" aria-label={t.sideAria}>
+      <AdSlot pos="yan-ust" />
+      <MostRead items={popular} />
+      <div class="stick"><AdSlot pos="yan-alt" /></div>
+    </aside>
+  </div>
+</Base>

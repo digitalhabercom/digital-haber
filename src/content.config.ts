@@ -8,23 +8,33 @@ const optDate = z.preprocess((v) => {
   return isNaN(d.getTime()) ? undefined : d;
 }, z.date().optional());
 
-const haberler = defineCollection({
-  loader: glob({ pattern: '**/*.md', base: './src/content/haberler' }),
-  schema: z.object({
-    title: z.string(),
-    description: z.string(),
-    date: z.coerce.date(),
-    updated: optDate,
-    category: z.string(), // kategori kodu; liste panelden yönetilir (Ayarlar → Kategoriler)
-    image: z.string(), // manşet / kapak görseli: /uploads/dosya.jpg veya https://...
-    imageAlt: z.string().optional(),
-    imageCredit: z.string().optional(),
-    author: z.string().default('digitalhaber Editör'),
-    featured: z.boolean().default(false), // manşette göster
-    popular: z.boolean().default(false), // en çok okunanlarda göster
-    draft: z.boolean().default(false),
-    tags: z.array(z.string()).default([]),
-  }),
+const schema = z.object({
+  title: z.string(),
+  description: z.string(),
+  date: z.coerce.date(),
+  updated: optDate,
+  category: z.string(), // kategori kodu; liste panelden yönetilir (Ayarlar → Kategoriler)
+  image: z.string(), // manşet / kapak görseli: /uploads/dosya.jpg veya https://...
+  imageAlt: z.string().optional(),
+  imageCredit: z.string().optional(),
+  author: z.string().default('digitalhaber Editör'),
+  summary: z.array(z.string()).default([]), // "Kısaca" kutusu maddeleri
+  featured: z.boolean().default(false), // manşette göster
+  popular: z.boolean().default(false), // en çok okunanlarda göster
+  draft: z.boolean().default(false),
+  tags: z.array(z.string()).default([]),
+  translationOf: z.string().optional(), // İngilizce haberde: Türkçe haberin kodu (dil bağlantısı için)
 });
 
-export const collections = { haberler };
+const haberler = defineCollection({
+  loader: glob({ pattern: '**/*.md', base: './src/content/haberler' }),
+  schema,
+});
+
+// İngilizce haberler: src/content/en
+const en = defineCollection({
+  loader: glob({ pattern: '**/*.md', base: './src/content/en' }),
+  schema,
+});
+
+export const collections = { haberler, en };

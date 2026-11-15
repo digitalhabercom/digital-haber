@@ -72,123 +72,111 @@ collections:
         label: Reklam Ayarları
         file: src/data/reklam.json
         fields:
-          - { label: "AdSense yayıncı kodu", name: adsenseClient, widget: string, required: false, hint: "AdSense onayı gelince buraya ca-pub-XXXXXXXXXXXXXXXX kodunu yazın. Boşsa AdSense yüklenmez." }
           - { label: "Reklam yerlerini boş kutu olarak göster", name: showPlaceholders, widget: boolean, default: false, hint: "Reklam yerlerini görmek için açın. Yayına almadan önce kapatın." }
           - label: "Reklam alanları"
             name: alanlar
             widget: object
-            hint: "Her alana AdSense birim numarası ya da kendi banner'ınızı girin. Öncelik sırası: özel HTML kodu, banner, AdSense. Boş alan sitede görünmez."
+            hint: "Her alana kendi banner'ınızı (görsel + bağlantı) ya da reklam verenin HTML kodunu girin. Öncelik: HTML kodu, banner. Boş alan sitede görünmez."
             fields:
               - label: "Üst (her sayfanın en üstü)"
                 name: ust
                 widget: object
                 collapsed: true
                 fields:
-                  - { label: "AdSense reklam birimi numarası", name: slot, widget: string, required: false, hint: "AdSense'ten aldığınız birim numarası (sadece rakamlar). Boşsa bu alanda AdSense reklamı gösterilmez." }
-                  - { label: "Kendi banner görseliniz", name: banner, widget: image, required: false, hint: "Doğrudan reklam verenin görseli. Doluysa AdSense yerine bu gösterilir." }
+                  - { label: "Kendi banner görseliniz", name: banner, widget: image, required: false, hint: "Reklam verenin görseli (yükleyin). Doluysa görsele tıklanınca bağlantı açılır." }
                   - { label: "Banner bağlantısı", name: link, widget: string, required: false, hint: "Banner'a tıklanınca gidilecek adres (https://...)." }
                   - { label: "Banner açıklaması", name: alt, widget: string, required: false }
-                  - { label: "Özel reklam HTML kodu", name: html, widget: text, required: false, hint: "Reklam verenin verdiği HTML/script kodunu olduğu gibi yapıştırın. Doluysa banner ve AdSense yerine bu gösterilir." }
+                  - { label: "Özel reklam HTML kodu", name: html, widget: text, required: false, hint: "Reklam verenin verdiği HTML kodunu olduğu gibi yapıştırın. Doluysa banner yerine bu gösterilir." }
               - label: "Manşet altı (ana sayfa)"
                 name: manset-alti
                 widget: object
                 collapsed: true
                 fields:
-                  - { label: "AdSense reklam birimi numarası", name: slot, widget: string, required: false, hint: "AdSense'ten aldığınız birim numarası (sadece rakamlar). Boşsa bu alanda AdSense reklamı gösterilmez." }
-                  - { label: "Kendi banner görseliniz", name: banner, widget: image, required: false, hint: "Doğrudan reklam verenin görseli. Doluysa AdSense yerine bu gösterilir." }
+                  - { label: "Kendi banner görseliniz", name: banner, widget: image, required: false, hint: "Reklam verenin görseli (yükleyin). Doluysa görsele tıklanınca bağlantı açılır." }
                   - { label: "Banner bağlantısı", name: link, widget: string, required: false, hint: "Banner'a tıklanınca gidilecek adres (https://...)." }
                   - { label: "Banner açıklaması", name: alt, widget: string, required: false }
-                  - { label: "Özel reklam HTML kodu", name: html, widget: text, required: false, hint: "Reklam verenin verdiği HTML/script kodunu olduğu gibi yapıştırın. Doluysa banner ve AdSense yerine bu gösterilir." }
+                  - { label: "Özel reklam HTML kodu", name: html, widget: text, required: false, hint: "Reklam verenin verdiği HTML kodunu olduğu gibi yapıştırın. Doluysa banner yerine bu gösterilir." }
               - label: "Ana sayfa ortası"
                 name: anasayfa-orta
                 widget: object
                 collapsed: true
                 fields:
-                  - { label: "AdSense reklam birimi numarası", name: slot, widget: string, required: false, hint: "AdSense'ten aldığınız birim numarası (sadece rakamlar). Boşsa bu alanda AdSense reklamı gösterilmez." }
-                  - { label: "Kendi banner görseliniz", name: banner, widget: image, required: false, hint: "Doğrudan reklam verenin görseli. Doluysa AdSense yerine bu gösterilir." }
+                  - { label: "Kendi banner görseliniz", name: banner, widget: image, required: false, hint: "Reklam verenin görseli (yükleyin). Doluysa görsele tıklanınca bağlantı açılır." }
                   - { label: "Banner bağlantısı", name: link, widget: string, required: false, hint: "Banner'a tıklanınca gidilecek adres (https://...)." }
                   - { label: "Banner açıklaması", name: alt, widget: string, required: false }
-                  - { label: "Özel reklam HTML kodu", name: html, widget: text, required: false, hint: "Reklam verenin verdiği HTML/script kodunu olduğu gibi yapıştırın. Doluysa banner ve AdSense yerine bu gösterilir." }
+                  - { label: "Özel reklam HTML kodu", name: html, widget: text, required: false, hint: "Reklam verenin verdiği HTML kodunu olduğu gibi yapıştırın. Doluysa banner yerine bu gösterilir." }
               - label: "Sol kenar (geniş ekranlarda)"
                 name: sol-kenar
                 widget: object
                 collapsed: true
                 fields:
-                  - { label: "AdSense reklam birimi numarası", name: slot, widget: string, required: false, hint: "AdSense'ten aldığınız birim numarası (sadece rakamlar). Boşsa bu alanda AdSense reklamı gösterilmez." }
-                  - { label: "Kendi banner görseliniz", name: banner, widget: image, required: false, hint: "Doğrudan reklam verenin görseli. Doluysa AdSense yerine bu gösterilir." }
+                  - { label: "Kendi banner görseliniz", name: banner, widget: image, required: false, hint: "Reklam verenin görseli (yükleyin). Doluysa görsele tıklanınca bağlantı açılır." }
                   - { label: "Banner bağlantısı", name: link, widget: string, required: false, hint: "Banner'a tıklanınca gidilecek adres (https://...)." }
                   - { label: "Banner açıklaması", name: alt, widget: string, required: false }
-                  - { label: "Özel reklam HTML kodu", name: html, widget: text, required: false, hint: "Reklam verenin verdiği HTML/script kodunu olduğu gibi yapıştırın. Doluysa banner ve AdSense yerine bu gösterilir." }
+                  - { label: "Özel reklam HTML kodu", name: html, widget: text, required: false, hint: "Reklam verenin verdiği HTML kodunu olduğu gibi yapıştırın. Doluysa banner yerine bu gösterilir." }
               - label: "Sağ kenar (geniş ekranlarda)"
                 name: sag-kenar
                 widget: object
                 collapsed: true
                 fields:
-                  - { label: "AdSense reklam birimi numarası", name: slot, widget: string, required: false, hint: "AdSense'ten aldığınız birim numarası (sadece rakamlar). Boşsa bu alanda AdSense reklamı gösterilmez." }
-                  - { label: "Kendi banner görseliniz", name: banner, widget: image, required: false, hint: "Doğrudan reklam verenin görseli. Doluysa AdSense yerine bu gösterilir." }
+                  - { label: "Kendi banner görseliniz", name: banner, widget: image, required: false, hint: "Reklam verenin görseli (yükleyin). Doluysa görsele tıklanınca bağlantı açılır." }
                   - { label: "Banner bağlantısı", name: link, widget: string, required: false, hint: "Banner'a tıklanınca gidilecek adres (https://...)." }
                   - { label: "Banner açıklaması", name: alt, widget: string, required: false }
-                  - { label: "Özel reklam HTML kodu", name: html, widget: text, required: false, hint: "Reklam verenin verdiği HTML/script kodunu olduğu gibi yapıştırın. Doluysa banner ve AdSense yerine bu gösterilir." }
+                  - { label: "Özel reklam HTML kodu", name: html, widget: text, required: false, hint: "Reklam verenin verdiği HTML kodunu olduğu gibi yapıştırın. Doluysa banner yerine bu gösterilir." }
               - label: "Yan sütun üst"
                 name: yan-ust
                 widget: object
                 collapsed: true
                 fields:
-                  - { label: "AdSense reklam birimi numarası", name: slot, widget: string, required: false, hint: "AdSense'ten aldığınız birim numarası (sadece rakamlar). Boşsa bu alanda AdSense reklamı gösterilmez." }
-                  - { label: "Kendi banner görseliniz", name: banner, widget: image, required: false, hint: "Doğrudan reklam verenin görseli. Doluysa AdSense yerine bu gösterilir." }
+                  - { label: "Kendi banner görseliniz", name: banner, widget: image, required: false, hint: "Reklam verenin görseli (yükleyin). Doluysa görsele tıklanınca bağlantı açılır." }
                   - { label: "Banner bağlantısı", name: link, widget: string, required: false, hint: "Banner'a tıklanınca gidilecek adres (https://...)." }
                   - { label: "Banner açıklaması", name: alt, widget: string, required: false }
-                  - { label: "Özel reklam HTML kodu", name: html, widget: text, required: false, hint: "Reklam verenin verdiği HTML/script kodunu olduğu gibi yapıştırın. Doluysa banner ve AdSense yerine bu gösterilir." }
+                  - { label: "Özel reklam HTML kodu", name: html, widget: text, required: false, hint: "Reklam verenin verdiği HTML kodunu olduğu gibi yapıştırın. Doluysa banner yerine bu gösterilir." }
               - label: "Yan sütun alt (kayarken sabit kalır)"
                 name: yan-alt
                 widget: object
                 collapsed: true
                 fields:
-                  - { label: "AdSense reklam birimi numarası", name: slot, widget: string, required: false, hint: "AdSense'ten aldığınız birim numarası (sadece rakamlar). Boşsa bu alanda AdSense reklamı gösterilmez." }
-                  - { label: "Kendi banner görseliniz", name: banner, widget: image, required: false, hint: "Doğrudan reklam verenin görseli. Doluysa AdSense yerine bu gösterilir." }
+                  - { label: "Kendi banner görseliniz", name: banner, widget: image, required: false, hint: "Reklam verenin görseli (yükleyin). Doluysa görsele tıklanınca bağlantı açılır." }
                   - { label: "Banner bağlantısı", name: link, widget: string, required: false, hint: "Banner'a tıklanınca gidilecek adres (https://...)." }
                   - { label: "Banner açıklaması", name: alt, widget: string, required: false }
-                  - { label: "Özel reklam HTML kodu", name: html, widget: text, required: false, hint: "Reklam verenin verdiği HTML/script kodunu olduğu gibi yapıştırın. Doluysa banner ve AdSense yerine bu gösterilir." }
+                  - { label: "Özel reklam HTML kodu", name: html, widget: text, required: false, hint: "Reklam verenin verdiği HTML kodunu olduğu gibi yapıştırın. Doluysa banner yerine bu gösterilir." }
               - label: "Haber içi 1 (2. paragraftan sonra)"
                 name: haber-ici-1
                 widget: object
                 collapsed: true
                 fields:
-                  - { label: "AdSense reklam birimi numarası", name: slot, widget: string, required: false, hint: "AdSense'ten aldığınız birim numarası (sadece rakamlar). Boşsa bu alanda AdSense reklamı gösterilmez." }
-                  - { label: "Kendi banner görseliniz", name: banner, widget: image, required: false, hint: "Doğrudan reklam verenin görseli. Doluysa AdSense yerine bu gösterilir." }
+                  - { label: "Kendi banner görseliniz", name: banner, widget: image, required: false, hint: "Reklam verenin görseli (yükleyin). Doluysa görsele tıklanınca bağlantı açılır." }
                   - { label: "Banner bağlantısı", name: link, widget: string, required: false, hint: "Banner'a tıklanınca gidilecek adres (https://...)." }
                   - { label: "Banner açıklaması", name: alt, widget: string, required: false }
-                  - { label: "Özel reklam HTML kodu", name: html, widget: text, required: false, hint: "Reklam verenin verdiği HTML/script kodunu olduğu gibi yapıştırın. Doluysa banner ve AdSense yerine bu gösterilir." }
+                  - { label: "Özel reklam HTML kodu", name: html, widget: text, required: false, hint: "Reklam verenin verdiği HTML kodunu olduğu gibi yapıştırın. Doluysa banner yerine bu gösterilir." }
               - label: "Haber içi 2 (uzun haberlerde 6. paragraftan sonra)"
                 name: haber-ici-2
                 widget: object
                 collapsed: true
                 fields:
-                  - { label: "AdSense reklam birimi numarası", name: slot, widget: string, required: false, hint: "AdSense'ten aldığınız birim numarası (sadece rakamlar). Boşsa bu alanda AdSense reklamı gösterilmez." }
-                  - { label: "Kendi banner görseliniz", name: banner, widget: image, required: false, hint: "Doğrudan reklam verenin görseli. Doluysa AdSense yerine bu gösterilir." }
+                  - { label: "Kendi banner görseliniz", name: banner, widget: image, required: false, hint: "Reklam verenin görseli (yükleyin). Doluysa görsele tıklanınca bağlantı açılır." }
                   - { label: "Banner bağlantısı", name: link, widget: string, required: false, hint: "Banner'a tıklanınca gidilecek adres (https://...)." }
                   - { label: "Banner açıklaması", name: alt, widget: string, required: false }
-                  - { label: "Özel reklam HTML kodu", name: html, widget: text, required: false, hint: "Reklam verenin verdiği HTML/script kodunu olduğu gibi yapıştırın. Doluysa banner ve AdSense yerine bu gösterilir." }
+                  - { label: "Özel reklam HTML kodu", name: html, widget: text, required: false, hint: "Reklam verenin verdiği HTML kodunu olduğu gibi yapıştırın. Doluysa banner yerine bu gösterilir." }
               - label: "Haber sonu"
                 name: haber-sonu
                 widget: object
                 collapsed: true
                 fields:
-                  - { label: "AdSense reklam birimi numarası", name: slot, widget: string, required: false, hint: "AdSense'ten aldığınız birim numarası (sadece rakamlar). Boşsa bu alanda AdSense reklamı gösterilmez." }
-                  - { label: "Kendi banner görseliniz", name: banner, widget: image, required: false, hint: "Doğrudan reklam verenin görseli. Doluysa AdSense yerine bu gösterilir." }
+                  - { label: "Kendi banner görseliniz", name: banner, widget: image, required: false, hint: "Reklam verenin görseli (yükleyin). Doluysa görsele tıklanınca bağlantı açılır." }
                   - { label: "Banner bağlantısı", name: link, widget: string, required: false, hint: "Banner'a tıklanınca gidilecek adres (https://...)." }
                   - { label: "Banner açıklaması", name: alt, widget: string, required: false }
-                  - { label: "Özel reklam HTML kodu", name: html, widget: text, required: false, hint: "Reklam verenin verdiği HTML/script kodunu olduğu gibi yapıştırın. Doluysa banner ve AdSense yerine bu gösterilir." }
+                  - { label: "Özel reklam HTML kodu", name: html, widget: text, required: false, hint: "Reklam verenin verdiği HTML kodunu olduğu gibi yapıştırın. Doluysa banner yerine bu gösterilir." }
               - label: "Alt (alt bilginin üstü)"
                 name: alt
                 widget: object
                 collapsed: true
                 fields:
-                  - { label: "AdSense reklam birimi numarası", name: slot, widget: string, required: false, hint: "AdSense'ten aldığınız birim numarası (sadece rakamlar). Boşsa bu alanda AdSense reklamı gösterilmez." }
-                  - { label: "Kendi banner görseliniz", name: banner, widget: image, required: false, hint: "Doğrudan reklam verenin görseli. Doluysa AdSense yerine bu gösterilir." }
+                  - { label: "Kendi banner görseliniz", name: banner, widget: image, required: false, hint: "Reklam verenin görseli (yükleyin). Doluysa görsele tıklanınca bağlantı açılır." }
                   - { label: "Banner bağlantısı", name: link, widget: string, required: false, hint: "Banner'a tıklanınca gidilecek adres (https://...)." }
                   - { label: "Banner açıklaması", name: alt, widget: string, required: false }
-                  - { label: "Özel reklam HTML kodu", name: html, widget: text, required: false, hint: "Reklam verenin verdiği HTML/script kodunu olduğu gibi yapıştırın. Doluysa banner ve AdSense yerine bu gösterilir." }
+                  - { label: "Özel reklam HTML kodu", name: html, widget: text, required: false, hint: "Reklam verenin verdiği HTML kodunu olduğu gibi yapıştırın. Doluysa banner yerine bu gösterilir." }
 
       - name: yazarlar
         label: Yazarlar

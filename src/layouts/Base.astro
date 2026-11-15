@@ -1,6 +1,5 @@
 ---
 import '../styles/global.css';
-import Consent from '../components/Consent.astro';
 import AdSlot from '../components/AdSlot.astro';
 import HeaderSearch from '../components/HeaderSearch.astro';
 import { SITE } from '../consts';
@@ -64,6 +63,11 @@ const otherHref = alt[other] ?? ROUTES[other].home;
 const hreflangs = alternates && alternates[other] ? (['tr', 'en'] as const).map((l) => ({ l, href: new URL(alt[l]!, Astro.site).href })) : [];
 const xDefault = hreflangs.find((h) => h.l === 'tr')?.href;
 
+// Sayfa çevirisi (Google Translate): tek Türkçe haber, ziyaretçi dilediği dile çevirir
+const TRANSLATE_LANGS: [string, string][] = [
+  ['tr', 'Türkçe'], ['en', 'English'], ['de', 'Deutsch'], ['fr', 'Français'], ['es', 'Español'], ['ru', 'Русский'],
+  ['ar', 'العربية'], ['it', 'Italiano'], ['nl', 'Nederlands'], ['pt', 'Português'], ['zh-CN', '中文'], ['ja', '日本語'],
+];
 const social = Object.entries(SITE_CFG.sosyal ?? {}).filter(([, v]) => typeof v === 'string' && /^https?:\/\//.test(v));
 const SOCIAL_NAMES: Record<string, string> = { x: 'X', telegram: 'Telegram', whatsapp: 'WhatsApp', instagram: 'Instagram', youtube: 'YouTube' };
 
@@ -136,15 +140,11 @@ const ldString = JSON.stringify(ld).replace(/</g, '\\u003c');
   <body>
     <a class="skip" href="#icerik">{t.skip}</a>
 
-    {
-      lang === 'tr' && (
-        <div class="langbar" id="langbar" hidden>
-          <span>This page is available in English.</span>
-          <a href={alt.en ?? '/en/'} hreflang="en" lang="en">Read in English</a>
-          <button type="button" id="langbar-x" aria-label="Close">✕</button>
-        </div>
-      )
-    }
+    <div class="langbar notranslate" id="langbar" hidden>
+      <span>Türkçe sayfa · Translate this page?</span>
+      <button type="button" id="langbar-go">Translate</button>
+      <button type="button" id="langbar-x" aria-label="Close">✕</button>
+    </div>
 
     <div class="ticker">
       <div class="wrap ticker-in">
@@ -166,7 +166,7 @@ const ldString = JSON.stringify(ld).replace(/</g, '\\u003c');
       <div class="wrap masthead-in">
         <a class="logo" href={r.home} aria-label={`${SITE.name} ${t.homeAria}`}>
           <span class="logo-mark" aria-hidden="true">dh</span>
-          <span class="logo-text">digital<b>haber</b></span>
+          <span class="logo-text notranslate" translate="no">digital<b>haber</b></span>
         </a>
         <HeaderSearch />
         <div class="tools">
@@ -175,7 +175,12 @@ const ldString = JSON.stringify(ld).replace(/</g, '\\u003c');
             <svg class="i-sun" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"></path></svg>
             <svg class="i-moon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"></path></svg>
           </button>
-          <a class="tool tool--lang" href={otherHref} hreflang={other} lang={other} aria-label={t.langAria}>{t.navLang}</a>
+          <label class="tool tool--lang notranslate" title={t.langAria}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"></path></svg>
+            <select class="lang-select" aria-label={t.langAria}>
+              {TRANSLATE_LANGS.map(([v, n]) => <option value={v}>{n}</option>)}
+            </select>
+          </label>
         </div>
       </div>
     </header>
@@ -232,7 +237,6 @@ const ldString = JSON.stringify(ld).replace(/</g, '\\u003c');
               <li><a href={r.rss}>RSS</a></li>
               <li><a href={r.search}>{t.searchAll}</a></li>
               <li><a href={r.all}>{t.allNewsLower}</a></li>
-              <li><a href={otherHref} hreflang={other} lang={other}>{t.langSwitch}</a></li>
             </ul>
           </div>
         </div>
@@ -255,15 +259,17 @@ const ldString = JSON.stringify(ld).replace(/</g, '\\u003c');
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-3.5-3.5"></path></svg>
             <span>{t.navSearch}</span>
           </a>
-          <a href={otherHref} hreflang={other} lang={other}>
+          <label class="bnav-lang notranslate">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"></path></svg>
             <span>{t.navLang}</span>
-          </a>
+            <select class="lang-select" aria-label={t.langAria}>
+              {TRANSLATE_LANGS.map(([v, n]) => <option value={v}>{n}</option>)}
+            </select>
+          </label>
         </nav>
       )
     }
 
-    <Consent />
     {SITE_CFG.cloudflareAnalitikToken && <script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon={JSON.stringify({ token: SITE_CFG.cloudflareAnalitikToken })}></script>}
   </body>
 </html>
@@ -291,13 +297,59 @@ const ldString = JSON.stringify(ld).replace(/</g, '\\u003c');
     });
   }
 
-  // İngilizce tarayıcıyla gelen ziyaretçiye (zorlamadan) İngilizce sürümü öner
+  // Sayfa çevirisi: Google Translate yalnızca bir dil seçilince yüklenir (hız ve gizlilik için)
+  const pageLang = (de.lang || 'tr').split('-')[0];
+  const SUPPORTED = ['en', 'de', 'fr', 'es', 'ru', 'ar', 'it', 'nl', 'pt', 'zh-CN', 'ja'];
+  const readCookie = (): string | null => {
+    const m = document.cookie.match(/(?:^|; )googtrans=\/[^/]*\/([^;]+)/);
+    return m ? decodeURIComponent(m[1]) : null;
+  };
+  const host = location.hostname.replace(/^www\./, '');
+  const writeCookie = (to: string | null) => {
+    const base = to ? `googtrans=/${pageLang}/${to}; path=/` : 'googtrans=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+    document.cookie = base;
+    if (host.includes('.')) document.cookie = `${base}; domain=.${host}`;
+  };
+  const loadTranslate = () => {
+    if (document.getElementById('gt-script')) return;
+    const box = document.createElement('div');
+    box.id = 'google_translate_element';
+    box.hidden = true;
+    document.body.appendChild(box);
+    (window as any).googleTranslateElementInit = () => {
+      const g = (window as any).google;
+      new g.translate.TranslateElement({ pageLanguage: pageLang, autoDisplay: false, includedLanguages: SUPPORTED.concat(['tr']).join(',') }, 'google_translate_element');
+    };
+    const sc = document.createElement('script');
+    sc.id = 'gt-script';
+    sc.async = true;
+    sc.src = 'https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit';
+    document.body.appendChild(sc);
+  };
+  const choose = (to: string) => {
+    writeCookie(to === pageLang ? null : to);
+    location.reload();
+  };
+
+  const current = readCookie();
+  const active = current && current !== pageLang ? current : null;
+  if (active) loadTranslate();
+  document.querySelectorAll<HTMLSelectElement>('.lang-select').forEach((sel) => {
+    sel.value = active || pageLang;
+    sel.addEventListener('change', () => choose(sel.value));
+  });
+
+  // Tarayıcı dili Türkçe değilse (ve çeviri açık değilse) çeviri öner. Otomatik çevirmeyiz: arama botları sayfayı olduğu gibi görsün.
   const bar = document.getElementById('langbar');
-  if (bar) {
+  if (bar && pageLang === 'tr' && !active) {
     let closed = false;
     safe(() => { closed = localStorage.getItem('dh-langbar') === 'x'; });
-    const l = (navigator.language || '').toLowerCase();
-    if (!closed && l && !l.startsWith('tr')) bar.hidden = false;
+    const nav = (navigator.language || 'en').toLowerCase();
+    const base = nav.startsWith('zh') ? 'zh-CN' : nav.split('-')[0];
+    if (!closed && base && base !== 'tr') {
+      bar.hidden = false;
+      document.getElementById('langbar-go')?.addEventListener('click', () => choose(SUPPORTED.includes(base) ? base : 'en'));
+    }
     document.getElementById('langbar-x')?.addEventListener('click', () => {
       bar.hidden = true;
       safe(() => localStorage.setItem('dh-langbar', 'x'));

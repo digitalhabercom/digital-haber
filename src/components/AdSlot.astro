@@ -43,12 +43,10 @@ const DIMS: Record<string, string> = {
 };
 
 const type = TYPES[pos] ?? 'rectangle';
-const cfg = ((ads as any).alanlar?.[pos] ?? {}) as { slot?: string; banner?: string; link?: string; alt?: string; html?: string };
-const client = ((ads as any).adsenseClient ?? '') as string;
+const cfg = ((ads as any).alanlar?.[pos] ?? {}) as { banner?: string; link?: string; alt?: string; html?: string };
 const hasHtml = Boolean(cfg.html && cfg.html.trim());
 const hasBanner = Boolean(cfg.banner && cfg.link);
-const live = Boolean(client && cfg.slot);
-const show = hasHtml || hasBanner || live || Boolean((ads as any).showPlaceholders) || import.meta.env.DEV;
+const show = hasHtml || hasBanner || Boolean((ads as any).showPlaceholders) || import.meta.env.DEV;
 ---
 
 {
@@ -61,15 +59,6 @@ const show = hasHtml || hasBanner || live || Boolean((ads as any).showPlaceholde
         <a href={cfg.link} target="_blank" rel="sponsored noopener noreferrer">
           <img src={cfg.banner} alt={cfg.alt || 'Reklam'} loading="lazy" decoding="async" />
         </a>
-      ) : live ? (
-        <ins
-          class="adsbygoogle"
-          style="display:block"
-          data-ad-client={client}
-          data-ad-slot={cfg.slot}
-          data-ad-format="auto"
-          data-full-width-responsive="true"
-        />
       ) : (
         <div class="ad-box">
           {LABELS[pos] ?? pos}

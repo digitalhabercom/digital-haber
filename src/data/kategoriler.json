@@ -1,78 +1,68 @@
 {
   "categories": [
     {
-      "name": "Yapay Zeka",
       "slug": "yapay-zeka",
+      "name": "Yapay Zeka",
       "color": "#6d28d9",
       "desc": "Yapay zeka modelleri, araçları ve günlük hayata etkileri.",
       "name_en": "Artificial Intelligence",
       "desc_en": "AI models, tools and their effect on everyday life."
     },
     {
-      "name": "Donanım",
       "slug": "donanim",
+      "name": "Donanım",
       "color": "#b45309",
       "desc": "Bilgisayar, telefon ve donanım dünyasından haberler ve alım rehberleri.",
       "name_en": "Hardware",
       "desc_en": "News and buying guides from the world of computers, phones and hardware."
     },
     {
-      "name": "Siber Güvenlik",
       "slug": "siber-guvenlik",
+      "name": "Siber Güvenlik",
       "color": "#b91c1c",
       "desc": "Güvenlik açıkları, saldırılar ve korunma yöntemleri.",
       "name_en": "Cybersecurity",
       "desc_en": "Vulnerabilities, attacks and ways to protect yourself."
     },
     {
-      "name": "Yazılım",
       "slug": "yazilim",
+      "name": "Yazılım",
       "color": "#047857",
       "desc": "Yazılım geliştirme, araçlar ve programlamaya dair rehberler.",
       "name_en": "Software",
       "desc_en": "Software development, tools and beginner-friendly guides."
     },
     {
-      "name": "Bulut Altyapı",
       "slug": "bulut-altyapi",
+      "name": "Bulut Altyapı",
       "color": "#0369a1",
       "desc": "Bulut hizmetleri, sunucular, ağlar ve yedekleme çözümleri.",
       "name_en": "Cloud & Infrastructure",
       "desc_en": "Cloud services, backups and infrastructure."
     },
     {
-      "name": "Mobil",
       "slug": "mobil",
+      "name": "Mobil",
       "color": "#be185d",
       "desc": "Telefonlar, tabletler ve mobil uygulamalardan haberler.",
       "name_en": "Mobile",
       "desc_en": "Phones, tablets and mobile apps."
     },
     {
-      "name": "Oyun",
       "slug": "oyun",
+      "name": "Oyun",
       "color": "#0f766e",
       "desc": "Oyun dünyasından haberler, incelemeler ve çıkış tarihleri.",
       "name_en": "Gaming",
       "desc_en": "Game news, hardware and industry trends."
     },
     {
-      "name": "Bilim",
       "slug": "bilim",
+      "name": "Bilim",
       "color": "#a21caf",
-<<<<<<< HEAD
       "desc": "Bilim ve uzay dünyasından teknoloji odaklı haberler.",
       "name_en": "Science",
       "desc_en": "Science and technology discoveries explained simply."
-=======
-      "desc": "Bilim ve uzay dünyasından teknoloji odaklı haberler."
-    },
-    {
-      "name": "Bilgi Teknolojileri",
-      "slug": "bilgi-teknolojileri",
-      "color": "#d39d27",
-      "desc": ""
->>>>>>> 60cb4bfcdabc410e2e4f64449f91aa8b2fd589f6
     }
   ]
 }

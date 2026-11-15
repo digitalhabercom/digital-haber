@@ -3,70 +3,81 @@
   "showPlaceholders": false,
   "alanlar": {
     "ust": {
-      "slot": "",
-      "banner": "",
+      "slot": "1",
+      "banner": "data:image/jpeg;base64,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",
       "link": "",
-      "alt": ""
+      "alt": "",
+      "html": ""
     },
     "manset-alti": {
       "slot": "",
       "banner": "",
       "link": "",
-      "alt": ""
+      "alt": "",
+      "html": ""
     },
     "anasayfa-orta": {
       "slot": "",
       "banner": "",
       "link": "",
-      "alt": ""
+      "alt": "",
+      "html": ""
     },
     "sol-kenar": {
       "slot": "",
       "banner": "",
       "link": "",
-      "alt": ""
+      "alt": "",
+      "html": ""
     },
     "sag-kenar": {
       "slot": "",
       "banner": "",
       "link": "",
-      "alt": ""
+      "alt": "",
+      "html": ""
     },
     "yan-ust": {
       "slot": "",
       "banner": "",
       "link": "",
-      "alt": ""
+      "alt": "",
+      "html": ""
     },
     "yan-alt": {
       "slot": "",
       "banner": "",
       "link": "",
-      "alt": ""
+      "alt": "",
+      "html": ""
     },
     "haber-ici-1": {
       "slot": "",
       "banner": "",
       "link": "",
-      "alt": ""
+      "alt": "",
+      "html": ""
     },
     "haber-ici-2": {
       "slot": "",
       "banner": "",
       "link": "",
-      "alt": ""
+      "alt": "",
+      "html": ""
     },
     "haber-sonu": {
       "slot": "",
       "banner": "",
       "link": "",
-      "alt": ""
+      "alt": "",
+      "html": ""
     },
     "alt": {
       "slot": "",
       "banner": "",
       "link": "",
-      "alt": ""
+      "alt": "",
+      "html": ""
     }
   }
 }

@@ -1,7 +1,7 @@
 ---
 title: 'Bulut Yedekleme Stratejisi: 3-2-1 Kuralı Nedir?  !'
 description: Verilerinizi kaybetmemek için üç kopya, iki farklı ortam ve bir uzak konum kuralını açıklıyoruz.
-category: yapay-zeka
+category: bilgi-teknolojileri
 image: https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=1200&auto=format&fit=crop
 imageAlt: Devre kartı üzerinde işlemci
 imageCredit: ''

@@ -17,7 +17,7 @@ const r = ROUTES[lang];
 const cat = catOf(slug, lang);
 const all = await getNews(lang);
 const items = all.filter((h) => h.data.category === cat.slug);
-const popular = getPopular(all, 5);
+const popular = getPopular(all, 10);
 const origin = Astro.site!.href.replace(/\/$/, '');
 const desc =
   cat.desc ||

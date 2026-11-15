@@ -23,7 +23,7 @@ const rest = all.filter((h) => !slideIds.has(h.id));
 const feed = (rest.length >= 3 ? rest : all).slice(0, 10);
 const feedIds = new Set(feed.map((h) => h.id));
 
-const popular = getPopular(all, 5);
+const popular = getPopular(all, 10);
 
 // "Bunları da okuyun": sayfa HTML'inde hazır liste; tarayıcıda her yenilemede karıştırılır
 const used = new Set([...slideIds, ...feedIds]);

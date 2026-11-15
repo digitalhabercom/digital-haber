@@ -45,7 +45,7 @@ export const T = {
     readMin: 'dk okuma',
     mostRead: 'En Çok Okunanlar',
     sideAria: 'Yan sütun',
-    picks: 'Bunları da okuyun',
+    picks: 'İlginizi çekebilir',
     latestNews: 'Son Haberler',
     ad: 'Reklam',
     adAria: 'Reklam',

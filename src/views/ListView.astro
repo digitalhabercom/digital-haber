@@ -13,7 +13,7 @@ const { page } = Astro.props;
 const lang = langOf(Astro.url);
 const t = T[lang];
 const all = await getNews(lang);
-const popular = getPopular(all, 5);
+const popular = getPopular(all, 10);
 const title = page.currentPage > 1 ? `${t.allNews}, ${page.currentPage}` : t.allNews;
 const desc =
   lang === 'en'

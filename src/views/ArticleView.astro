@@ -31,7 +31,7 @@ const all = await getNews(lang);
 const sameCat = all.filter((h) => h.id !== entry.id && h.data.category === d.category);
 const others = all.filter((h) => h.id !== entry.id && h.data.category !== d.category);
 const related = [...sameCat, ...others].slice(0, 3);
-const popular = getPopular(all, 5, entry.id);
+const popular = getPopular(all, 10, entry.id);
 const queue = queueFor(all, entry, 12, lang);
 
 const origin = Astro.site!.href.replace(/\/$/, '');

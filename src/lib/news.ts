@@ -4,7 +4,7 @@ import authorData from '../data/yazarlar.json';
 import siteData from '../data/site.json';
 import { ROUTES, T, type Lang } from './i18n';
 
-export type Haber = CollectionEntry<'haberler'> | CollectionEntry<'en'>;
+export type Haber = CollectionEntry<'haberler'>;
 export type Category = { slug: string; name: string; color: string; desc?: string };
 export type Author = { slug: string; name: string; role: string; bio: string; photo: string };
 
@@ -41,7 +41,7 @@ export const catOf = (slug: string, lang: Lang = 'tr'): Category => {
 
 /** Taslak olmayan tüm haberler, yeniden eskiye sıralı. */
 export async function getNews(lang: Lang = 'tr'): Promise<Haber[]> {
-  const all: Haber[] = await getCollection(lang === 'en' ? 'en' : 'haberler', ({ data }) => !data.draft);
+  const all: Haber[] = await getCollection('haberler', ({ data }) => !data.draft && data.dil === lang);
   return all.sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
 }
 

@@ -351,7 +351,7 @@ dialog.share[open] { animation: pop 0.2s ease-out; }
 .footer-bottom { margin-top: 36px; padding-top: 20px; border-top: 1px solid #2d3039; font-size: 0.85rem; color: #8b909b; }
 
 /* ---------- Yan paylaşım çubuğu ---------- */
-.dock { display: none; position: sticky; top: 96px; align-self: start; display: flex; flex-direction: column; align-items: center; gap: 10px; }
+.dock { display: none; position: sticky; top: 96px; align-self: start; flex-direction: column; align-items: center; gap: 10px; }
 .dock-label { font-size: 0.72rem; font-weight: 700; color: var(--muted); }
 .dock-btn { width: 46px; height: 46px; border-radius: 50%; border: 0; cursor: pointer; display: grid; place-items: center; background: var(--bc, #555); color: #fff; }
 .dock-btn:hover { filter: brightness(1.12); }

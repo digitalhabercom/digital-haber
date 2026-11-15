@@ -3,7 +3,7 @@ import { getCollection } from 'astro:content';
 import { SITE } from '../../consts';
 
 export async function GET(context) {
-  const items = (await getCollection('en', ({ data }) => !data.draft)).sort(
+  const items = (await getCollection('haberler', ({ data }) => !data.draft && data.dil === 'en')).sort(
     (a, b) => b.data.date.valueOf() - a.data.date.valueOf()
   );
 

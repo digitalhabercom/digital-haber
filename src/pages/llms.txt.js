@@ -6,8 +6,8 @@ import cats from '../data/kategoriler.json';
 export async function GET(context) {
   const origin = context.site.href.replace(/\/$/, '');
   const load = async (name) =>
-    (await getCollection(name, ({ data }) => !data.draft)).sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
-  const tr = await load('haberler');
+    (await getCollection('haberler', ({ data }) => !data.draft && data.dil === name)).sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+  const tr = await load('tr');
   const en = await load('en');
 
   const line = (h, prefix) => `- [${h.data.title}](${origin}${prefix}${h.id}/): ${h.data.description}`;

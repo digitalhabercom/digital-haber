@@ -2,7 +2,6 @@
 import { render } from 'astro:content';
 import Base from '../layouts/Base.astro';
 import ShareBar from '../components/ShareBar.astro';
-import ShareDock from '../components/ShareDock.astro';
 import ShareModal from '../components/ShareModal.astro';
 import NewsCard from '../components/NewsCard.astro';
 import MostRead from '../components/MostRead.astro';
@@ -84,7 +83,6 @@ const jsonLd = [
   section={c.name}
   jsonLd={jsonLd}
   alternates={alternates}
-  bottomNav={false}
 >
   <div class="progress" id="progress" aria-hidden="true"></div>
 
@@ -93,7 +91,6 @@ const jsonLd = [
   </nav>
 
   <div class="article-wrap">
-    <ShareDock url={url} title={d.title} image={imgAbs} />
 
     <div class="article-col">
       <div id="stream" data-queue={JSON.stringify(queue)}>
@@ -147,7 +144,6 @@ const jsonLd = [
                 </div>
               )
             }
-            <ShareBar url={url} title={d.title} image={imgAbs} />
           </footer>
 
           {
@@ -200,13 +196,11 @@ const jsonLd = [
     const more = document.getElementById('loadmore')!;
     const moreBtn = document.getElementById('loadmore-btn')!;
     const bar = document.getElementById('progress')!;
-    const dock = document.getElementById('dock');
     const BATCH = 3; // her seferde otomatik yüklenecek haber sayısı, sonra düğme çıkar
 
     let qi = 0;
     let budget = BATCH;
     let loading = false;
-    document.body.classList.add('has-dock');
 
     const arts = () => Array.from(stream.querySelectorAll<HTMLElement>('article.art'));
     const ctxOf = (a: HTMLElement) => ({ url: a.dataset.url!, title: a.dataset.title!, image: a.dataset.image ?? '' });
@@ -260,13 +254,6 @@ const jsonLd = [
     window.addEventListener('scroll', onScroll, { passive: true });
     window.addEventListener('resize', onScroll);
     onScroll();
-
-    // Yan çubuktaki paylaşım düğmeleri (o an ekrandaki haberi paylaşır)
-    dock?.addEventListener('click', (e) => {
-      const b = (e.target as HTMLElement).closest<HTMLElement>('[data-net]');
-      if (!b) return;
-      window.open(shareHref(b.dataset.net!, w.__dhCtx), '_blank', 'noopener');
-    });
 
     // Sonraki haberi getir ve altına ekle
     const loadNext = async () => {

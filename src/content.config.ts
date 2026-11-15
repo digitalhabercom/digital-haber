@@ -23,6 +23,7 @@ const schema = z.object({
   popular: z.boolean().default(false), // en çok okunanlarda göster
   draft: z.boolean().default(false),
   tags: z.array(z.string()).default([]),
+  dil: z.enum(['tr', 'en']).default('tr'), // haberin dili: tr = Türkçe site, en = İngilizce site (/en/)
   translationOf: z.string().optional(), // İngilizce haberde: Türkçe haberin kodu (dil bağlantısı için)
 });
 
@@ -31,10 +32,5 @@ const haberler = defineCollection({
   schema,
 });
 
-// İngilizce haberler: src/content/en
-const en = defineCollection({
-  loader: glob({ pattern: '**/*.md', base: './src/content/en' }),
-  schema,
-});
 
-export const collections = { haberler, en };
+export const collections = { haberler };

@@ -26,6 +26,9 @@ collections:
     slug: "{{slug}}"
     summary: "{{title}} ({{category}})"
     sortable_fields: ["date", "title", "category"]
+    view_filters:
+      - { label: Türkçe haberler, field: dil, pattern: tr }
+      - { label: İngilizce haberler, field: dil, pattern: en }
     fields:
       - { label: Başlık, name: title, widget: string, hint: "Net bir başlık yazın. Google için 60-70 karakter idealdir." }
       - { label: Kısa Açıklama (Spot), name: description, widget: text, hint: "Haberin özeti. Google sonuçlarında ve paylaşımlarda görünür (150-160 karakter ideal)." }
@@ -41,34 +44,8 @@ collections:
       - { label: Etiketler, name: tags, widget: list, required: false, hint: "Her etiket için bir giriş ekleyin. Etiket sayfaları otomatik oluşur." }
       - { label: Güncelleme Tarihi, name: updated, widget: datetime, format: "YYYY-MM-DDTHH:mm:ssZ", required: false, hint: "Haberi sonradan düzelttiyseniz doldurun." }
       - { label: Kısaca (özet maddeleri), name: summary, widget: list, required: false, hint: "2-4 kısa madde. Haberin başında Kısaca kutusu olarak görünür; okuyucuya ve arama/yapay zekâ motorlarına hızlı özet verir." }
-      - { label: Haber Metni, name: body, widget: markdown }
-
-  - name: haberler_en
-    label: Haberler (İngilizce)
-    label_singular: English story
-    folder: src/content/en
-    create: true
-    extension: md
-    format: frontmatter
-    slug: "{{slug}}"
-    summary: "{{title}} ({{category}})"
-    sortable_fields: ["date", "title", "category"]
-    fields:
-      - { label: Başlık, name: title, widget: string, hint: "Write a clear headline in English. Google için 60-70 karakter idealdir." }
-      - { label: Kısa Açıklama (Spot), name: description, widget: text, hint: "Haberin özeti. Google sonuçlarında ve paylaşımlarda görünür (150-160 karakter ideal)." }
-      - { label: Kategori, name: category, widget: relation, collection: ayarlar, file: kategoriler, value_field: "categories.*.slug", display_fields: ["categories.*.name"], search_fields: ["categories.*.name"], hint: "Kategori listesi Ayarlar bölümündeki Kategoriler'den gelir." }
-      - { label: Manşet / Kapak Görseli, name: image, widget: image, hint: "Bilgisayarınızdan yükleyin. 1600 piksel genişlikte, 300 KB altında bir görsel siteyi hızlı tutar. Manşet için yatay (16:10) görsel seçin." }
-      - { label: Görsel Açıklaması (alt), name: imageAlt, widget: string, required: false, hint: "Görselde ne olduğunu kısaca yazın (arama motorları ve ekran okuyucular için)." }
-      - { label: Görsel Kaynağı, name: imageCredit, widget: string, required: false, hint: "Örn: Unsplash / Ad Soyad. Haber sayfasında görselin altında görünür." }
-      - { label: Yayın Tarihi, name: date, widget: datetime, format: "YYYY-MM-DDTHH:mm:ssZ", date_format: "DD.MM.YYYY", time_format: "HH:mm" }
-      - { label: Yazar, name: author, widget: relation, collection: ayarlar, file: yazarlar, value_field: "authors.*.name", display_fields: ["authors.*.name"], search_fields: ["authors.*.name"], default: "digitalhaber Editör", hint: "Yazar listesi Ayarlar > Yazarlar bölümünden gelir. Haberin altında yazar kutusu ve yazar sayfası oluşur." }
-      - { label: Manşette Göster, name: featured, widget: boolean, default: false, hint: "Açıksa ana sayfadaki manşete girer (en fazla 6 haber gösterilir)." }
-      - { label: En Çok Okunanlarda Göster, name: popular, widget: boolean, default: false }
-      - { label: Taslak, name: draft, widget: boolean, default: false, hint: "Açıksa haber sitede yayınlanmaz." }
-      - { label: Etiketler, name: tags, widget: list, required: false, hint: "Her etiket için bir giriş ekleyin. Etiket sayfaları otomatik oluşur." }
-      - { label: Güncelleme Tarihi, name: updated, widget: datetime, format: "YYYY-MM-DDTHH:mm:ssZ", required: false, hint: "Haberi sonradan düzelttiyseniz doldurun." }
-      - { label: Kısaca (özet maddeleri), name: summary, widget: list, required: false, hint: "2-4 kısa madde. Haberin başında Kısaca kutusu olarak görünür; okuyucuya ve arama/yapay zekâ motorlarına hızlı özet verir." }
-      - { label: "Türkçe haberin karşılığı (dil bağlantısı)", name: translationOf, widget: relation, collection: haberler, value_field: "{{slug}}", search_fields: ["title"], display_fields: ["title"], required: false, hint: "Bu haber hangi Türkçe haberin İngilizcesi? Seçerseniz iki sayfa birbirine dil bağlantısıyla bağlanır (Google için hreflang)." }
+      - { label: "Dil", name: dil, widget: select, options: [{ label: "Türkçe (digitalhaber.com)", value: tr }, { label: "İngilizce (digitalhaber.com/en)", value: en }], default: tr, hint: "Haberin yayınlanacağı site: Türkçe ya da İngilizce." }
+      - { label: "Karşılığı olan Türkçe haber (yalnızca İngilizce haberde)", name: translationOf, widget: relation, collection: haberler, value_field: "{{slug}}", search_fields: ["title"], display_fields: ["title"], required: false, hint: "İngilizce haberse hangi Türkçe haberin çevirisi? Seçerseniz iki sayfa dil bağlantısıyla (hreflang) bağlanır. Türkçe haberde boş bırakın." }
       - { label: Haber Metni, name: body, widget: markdown }
 
   - name: ayarlar

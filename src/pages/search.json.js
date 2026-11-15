@@ -6,7 +6,7 @@ const mins = (body = '') => Math.max(1, Math.round(body.split(/\s+/).filter(Bool
 
 export async function GET() {
   const byslug = Object.fromEntries((cats.categories ?? []).map((c) => [c.slug, c]));
-  const all = (await getCollection('haberler', ({ data }) => !data.draft)).sort(
+  const all = (await getCollection('haberler', ({ data }) => !data.draft && data.dil === 'tr')).sort(
     (a, b) => b.data.date.valueOf() - a.data.date.valueOf()
   );
   const items = all.map((h) => ({

@@ -8,7 +8,7 @@ const esc = (s) =>
 export async function GET(context) {
   const origin = context.site.href.replace(/\/$/, '');
   const cutoff = Date.now() - 2 * 24 * 60 * 60 * 1000;
-  const recent = (await getCollection('en', ({ data }) => !data.draft))
+  const recent = (await getCollection('haberler', ({ data }) => !data.draft && data.dil === 'en'))
     .filter((h) => h.data.date.valueOf() >= cutoff)
     .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf())
     .slice(0, 1000);

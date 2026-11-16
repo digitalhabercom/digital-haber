@@ -1,13 +1,22 @@
 {
   "authors": [
     {
-      "slug": "digitalhaber-editor",
       "name": "digitalhaber Editör",
+      "slug": "digitalhaber-editor",
       "role": "Editör ekibi",
       "role_en": "Editorial team",
       "bio": "digitalhaber editör ekibi; yapay zeka, donanım, siber güvenlik, yazılım ve bulut alanlarında doğrulanmış haber ve rehberler hazırlar.",
       "bio_en": "The digitalhaber editorial team prepares verified news and guides on AI, hardware, cybersecurity, software and cloud.",
       "photo": ""
+    },
+    {
+      "name": "Yusuf Kaya",
+      "slug": "yusuf-kaya",
+      "role": "Editör",
+      "role_en": "",
+      "bio": "",
+      "bio_en": "",
+      "photo": "/uploads/1752061052816.jpg"
     }
   ]
 }

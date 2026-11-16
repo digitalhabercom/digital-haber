@@ -16,7 +16,7 @@ const r = ROUTES[lang];
 const all = await getNews(lang);
 
 // Manşet: "featured" işaretliler önce, eksik kalırsa en yeniler ile 6'ya tamamlanır
-const slides = [...all.filter((h) => h.data.featured), ...all.filter((h) => !h.data.featured)].slice(0, 6);
+const slides = [...all.filter((h) => h.data.featured), ...all.filter((h) => !h.data.featured)].slice(0, 5);
 const slideIds = new Set(slides.map((s) => s.id));
 
 // Son haberler: manşette olmayanlar; yetmezse tüm haberler

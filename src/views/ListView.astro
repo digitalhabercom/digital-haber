@@ -29,8 +29,8 @@ const desc =
 
   <div class="cols" style="margin-top:28px">
     <section aria-label={t.newsList}>
-      <div class="grid2">
-        {page.data.map((h: any) => <NewsCard item={h} />)}
+      <div class="newslist">
+        {page.data.map((h: any) => <NewsCard item={h} variant="row-big" />)}
       </div>
       <nav class="pager" aria-label={t.pagination}>
         {page.url.prev ? <a class="btn btn--ghost" href={page.url.prev}>{t.newer}</a> : <span />}

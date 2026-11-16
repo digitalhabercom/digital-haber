@@ -1,0 +1,43 @@
+name: Telegram'a yeni haberi paylaş
+
+# Yeni bir Türkçe haber dosyası main dalına eklenince Telegram kanalına otomatik gönderir.
+# Çalışması için GitHub > Settings > Secrets and variables > Actions altında şu iki anahtar tanımlı olmalı:
+#   TELEGRAM_BOT_TOKEN  (BotFather'dan alınan bot anahtarı)
+#   TELEGRAM_CHAT_ID    (kanal kullanıcı adı, örn. @digitalhaber)
+# Anahtarlar yoksa hiçbir şey yapmaz, hata da vermez.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'src/content/haberler/**'
+
+jobs:
+  paylas:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+      - name: Yeni haberleri gönder
+        env:
+          TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          CHAT: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: |
+          if [ -z "$TOKEN" ] || [ -z "$CHAT" ]; then echo "Telegram anahtarları yok, atlandı."; exit 0; fi
+          files=$(git diff --diff-filter=A --name-only HEAD~1 HEAD -- 'src/content/haberler/*.md' || true)
+          [ -z "$files" ] && { echo "Yeni haber yok."; exit 0; }
+          # Cloudflare sayfayı yayınlasın diye biraz bekle
+          sleep 150
+          for f in $files; do
+            if grep -qE '^dil:\s*"?en' "$f"; then continue; fi
+            if grep -qE '^draft:\s*true' "$f"; then continue; fi
+            slug=$(basename "$f" .md)
+            title=$(grep -m1 -E '^title:' "$f" | sed -E 's/^title:\s*//; s/^["'"'"']//; s/["'"'"']$//')
+            desc=$(grep -m1 -E '^description:' "$f" | sed -E 's/^description:\s*//; s/^["'"'"']//; s/["'"'"']$//')
+            url="https://www.digitalhaber.com/haber/${slug}/"
+            curl -s "https://api.telegram.org/bot${TOKEN}/sendMessage" \
+              --data-urlencode "chat_id=${CHAT}" \
+              --data-urlencode "text=${title}"$'\n\n'"${desc}"$'\n\n'"${url}" > /dev/null
+            echo "Gönderildi: $slug"
+          done

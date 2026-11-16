@@ -32,6 +32,7 @@ collections:
     fields:
       - { label: Başlık, name: title, widget: string, hint: "Net bir başlık yazın. Google için 60-70 karakter idealdir." }
       - { label: Kısa Açıklama (Spot), name: description, widget: text, hint: "Haberin özeti. Google sonuçlarında ve paylaşımlarda görünür (150-160 karakter ideal)." }
+      - { label: "İçerik türü", name: tur, widget: select, default: haber, options: [{ label: Haber, value: haber }, { label: Analiz, value: analiz }, { label: Rehber, value: rehber }, { label: Karşılaştırma, value: karsilastirma }, { label: İnceleme, value: inceleme }], hint: "Haber dışındaki türler kartlarda ve haberde rozet olarak görünür; üst menüde Rehberler gibi ayrı sayfalar açılır." }
       - { label: Kategori, name: category, widget: relation, collection: ayarlar, file: kategoriler, value_field: "categories.*.slug", display_fields: ["categories.*.name"], search_fields: ["categories.*.name"], hint: "Kategori listesi Ayarlar bölümündeki Kategoriler'den gelir." }
       - { label: Manşet / Kapak Görseli, name: image, widget: image, hint: "Bilgisayarınızdan yükleyin. 1600 piksel genişlikte, 300 KB altında bir görsel siteyi hızlı tutar. Manşet için yatay (16:10) görsel seçin." }
       - { label: Görsel Açıklaması (alt), name: imageAlt, widget: string, required: false, hint: "Görselde ne olduğunu kısaca yazın (arama motorları ve ekran okuyucular için)." }
@@ -44,6 +45,16 @@ collections:
       - { label: Etiketler, name: tags, widget: list, required: false, hint: "Her etiket için bir giriş ekleyin. Etiket sayfaları otomatik oluşur." }
       - { label: Güncelleme Tarihi, name: updated, widget: datetime, format: "YYYY-MM-DDTHH:mm:ssZ", required: false, hint: "Haberi sonradan düzelttiyseniz doldurun." }
       - { label: Kısaca (özet maddeleri), name: summary, widget: list, required: false, hint: "2-4 kısa madde. Haberin başında Kısaca kutusu olarak görünür; okuyucuya ve arama/yapay zekâ motorlarına hızlı özet verir." }
+      - label: "Sık sorulan sorular"
+        name: faq
+        widget: list
+        required: false
+        hint: "İsteğe bağlı. 2-3 soru-cevap ekleyin; haber altında görünür, Google ve yapay zekâ araçları doğrudan alıntılayabilir."
+        fields:
+          - { label: "Soru", name: q, widget: string }
+          - { label: "Cevap", name: a, widget: text }
+      - { label: "Kaynak", name: source, widget: string, required: false, hint: "Haberin dayandığı kaynak (ör. The Verge). Haber altında ve Google'a güven işareti olarak görünür." }
+      - { label: "Kaynak bağlantısı", name: sourceUrl, widget: string, required: false, hint: "Kaynağın tam adresi (https://...)." }
       - { label: "Dil", name: dil, widget: select, options: [{ label: "Türkçe (digitalhaber.com)", value: tr }, { label: "İngilizce (digitalhaber.com/en)", value: en }], default: tr, hint: "Haberin yayınlanacağı site: Türkçe ya da İngilizce." }
       - { label: "Karşılığı olan Türkçe haber (yalnızca İngilizce haberde)", name: translationOf, widget: relation, collection: haberler, value_field: "{{slug}}", search_fields: ["title"], display_fields: ["title"], required: false, hint: "İngilizce haberse hangi Türkçe haberin çevirisi? Seçerseniz iki sayfa dil bağlantısıyla (hreflang) bağlanır. Türkçe haberde boş bırakın." }
       - { label: Haber Metni, name: body, widget: markdown }
@@ -205,6 +216,9 @@ collections:
           - { label: "Yandex Webmaster doğrulama kodu", name: yandexDogrulama, widget: string, required: false, hint: "Yandex Webmaster'daki meta etiket yönteminin content değeri." }
           - { label: "Cloudflare Web Analytics anahtarı (token)", name: cloudflareAnalitikToken, widget: string, required: false, hint: "Ücretsiz ziyaretçi istatistiği. Cloudflare > Web Analytics > site ekle > JS snippet içindeki token değeri." }
           - { label: "Görsel optimizasyonu (Cloudflare)", name: gorselOptimizasyon, widget: boolean, default: false, hint: "Yalnızca Cloudflare > Images > Transformations açıkken (ücretsiz plan 5.000 dönüşüm/ay) açın. Açıkken yüklenen görseller küçük boyutlu WebP olarak sunulur, site hızlanır." }
+          - { label: "OneSignal App ID (web bildirimi)", name: onesignalAppId, widget: string, required: false, hint: "Ücretsiz web push bildirimi. onesignal.com > yeni uygulama > Web > Custom Code > site adresi digitalhaber.com. Oradaki App ID'yi buraya yapıştırın. Boşsa bildirim kapalıdır." }
+          - { label: "E-posta bülteni başlığı", name: bultenBaslik, widget: string, required: false, hint: "Boşsa varsayılan başlık kullanılır." }
+          - { label: "E-posta bülteni formu (Brevo HTML kodu)", name: bultenHtml, widget: text, required: false, hint: "Brevo > Kayıt formları > formu oluşturun > Embed / HTML kodunu yapıştırın. Boşsa kutu görünmez." }
           - label: "Sosyal hesaplar"
             name: sosyal
             widget: object

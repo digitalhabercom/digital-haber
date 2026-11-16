@@ -1,0 +1,34 @@
+---
+import Base from '../../layouts/Base.astro';
+import { SITE } from '../../consts';
+---
+
+<Base title="Künye ve Yayın İlkeleri" description={`${SITE.name} künyesi, editoryal ilkeler, düzeltme politikası ve iletişim bilgileri.`} ads={false} alternates={{ tr: '/kunye/', en: '/en/masthead/' }}>
+  <div class="page-head"><h1>Künye ve Yayın İlkeleri</h1></div>
+  <div class="prose">
+    <h2>Künye</h2>
+    <ul>
+      <li><strong>Yayın adı:</strong> {SITE.name}.com</li>
+      <li><strong>Yayın türü:</strong> Bağımsız, bilgi ve teknoloji odaklı internet haber yayını</li>
+      <li><strong>Yayın dili:</strong> Türkçe (İngilizce sürümüyle)</li>
+      <li><strong>Editör ve yayın sorumlusu:</strong> digitalhaber Editörlüğü</li>
+      <li><strong>İletişim:</strong> <a href={`mailto:${SITE.email}`}>{SITE.email}</a></li>
+    </ul>
+    <h2>Yayın ilkelerimiz</h2>
+    <ul>
+      <li>Haberleri doğruluk, açıklık ve okuyucuya fayda ilkeleriyle hazırlarız.</li>
+      <li>Kaynağını belirtemediğimiz bilgiyi haber olarak yayınlamayız. Dayandığımız kaynak haberin altında "Kaynak" satırında gösterilir.</li>
+      <li>Resimlerde yapımcı ve kaynak bilgisi varsa belirtiriz.</li>
+      <li>Haber metinlerini özgün olarak yazarız. Yapay zekâ araçları yalnızca yardımcı olarak kullanılabilir, yayın sorumluluğu editöre aittir.</li>
+    </ul>
+    <h2>Düzeltme politikası</h2>
+    <p>
+      Hatalı bir bilgi fark ederseniz <a href={`mailto:${SITE.email}`}>bize yazın</a>. Doğrulanan hatayı en kısa sürede düzeltir,
+      haberin güncelleme tarihini yeniler ve gerekiyorsa haber içinde düzeltme notu veririz.
+    </p>
+    <h2>Reklam ve sponsorluk</h2>
+    <p>Reklam ve sponsorlu içerikler haber içeriğinden ayrı gösterilir ve "Reklam" ya da "Sponsorlu" etiketi taşır. Reklam verenler editoryal kararları etkilemez.</p>
+    <h2>Haklar</h2>
+    <p>Haberlerimizden kaynak ve bağlantı vererek kısa alıntı yapılabilir. Tam metnin izinsiz kopyalanması yasaktır.</p>
+  </div>
+</Base>

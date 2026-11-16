@@ -14,6 +14,9 @@ export const SITE_CFG = siteData as {
   yandexDogrulama?: string;
   cloudflareAnalitikToken?: string;
   gorselOptimizasyon?: boolean;
+  onesignalAppId?: string;
+  bultenBaslik?: string;
+  bultenHtml?: string;
   sosyal?: Record<string, string>;
 };
 
@@ -36,8 +39,19 @@ export const catsFor = (lang: Lang): Category[] => RAW.map((c) => loc(c, lang));
 
 export const catOf = (slug: string, lang: Lang = 'tr'): Category => {
   const c = RAW.find((x) => x.slug === slug);
-  return c ? loc(c, lang) : { slug, name: slug, color: '#2455d6', desc: '' };
+  return c ? loc(c, lang) : { slug, name: slug, color: '#1256f0', desc: '' };
 };
+
+/** İçerik türleri (haber dışındakiler rozet ve ayrı liste sayfası alır) */
+export const TURLER: Record<string, { tr: string; trPlural: string; en: string }> = {
+  haber: { tr: 'Haber', trPlural: 'Haberler', en: 'News' },
+  analiz: { tr: 'Analiz', trPlural: 'Analizler', en: 'Analysis' },
+  rehber: { tr: 'Rehber', trPlural: 'Rehberler', en: 'Guide' },
+  karsilastirma: { tr: 'Karşılaştırma', trPlural: 'Karşılaştırmalar', en: 'Comparison' },
+  inceleme: { tr: 'İnceleme', trPlural: 'İncelemeler', en: 'Review' },
+};
+export const turLabel = (tur: string, lang: Lang = 'tr') => (lang === 'en' ? TURLER[tur]?.en : TURLER[tur]?.tr) ?? '';
+export const turUrl = (tur: string) => `/tur/${tur}/`;
 
 /** Taslak olmayan tüm haberler, yeniden eskiye sıralı. */
 export async function getNews(lang: Lang = 'tr'): Promise<Haber[]> {

@@ -18,7 +18,9 @@ export async function GET(context) {
       link: `/haber/${h.id}/`,
       categories: [h.data.category, ...h.data.tags],
       author: h.data.author,
+      customData: h.data.image ? `<media:content url="${new URL(h.data.image, context.site).href}" medium="image" />` : '',
     })),
+    xmlns: { media: 'http://search.yahoo.com/mrss/' },
     customData: '<language>tr-tr</language>',
   });
 }

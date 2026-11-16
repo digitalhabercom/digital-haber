@@ -33,6 +33,7 @@ ${en.slice(0, 40).map((h) => line(h, '/en/news/')).join('\n')}
 - [Sitemap](${origin}/sitemap-index.xml)
 - [News sitemap (TR)](${origin}/news-sitemap.xml)
 - [News sitemap (EN)](${origin}/en/news-sitemap.xml)
+- [Full text](${origin}/llms-full.txt)
 - [RSS (TR)](${origin}/rss.xml)
 - [RSS (EN)](${origin}/en/rss.xml)
 `;

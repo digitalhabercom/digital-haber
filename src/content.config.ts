@@ -17,6 +17,10 @@ const schema = z.object({
   image: z.string(), // manşet / kapak görseli: /uploads/dosya.jpg veya https://...
   imageAlt: z.string().optional(),
   imageCredit: z.string().optional(),
+  tur: z.enum(['haber', 'analiz', 'rehber', 'karsilastirma', 'inceleme']).default('haber'),
+  faq: z.array(z.object({ q: z.string(), a: z.string() })).default([]),
+  source: z.string().optional(), // kaynak adı (ör. The Verge)
+  sourceUrl: z.string().optional(), // kaynak bağlantısı
   author: z.string().default('digitalhaber Editör'),
   summary: z.array(z.string()).default([]), // "Kısaca" kutusu maddeleri
   featured: z.boolean().default(false), // manşette göster

@@ -1,0 +1,27 @@
+---
+import Base from '../../layouts/Base.astro';
+import NewsCard from '../../components/NewsCard.astro';
+import { TURLER, getNews } from '../../lib/news';
+
+// Yalnızca haberi olan içerik türleri için sayfa üretilir
+export async function getStaticPaths() {
+  const all = await getNews('tr');
+  return Object.keys(TURLER)
+    .filter((k) => k !== 'haber' && all.some((h) => h.data.tur === k))
+    .map((k) => ({ params: { tur: k }, props: { tur: k } }));
+}
+const { tur } = Astro.props;
+const all = await getNews('tr');
+const items = all.filter((h) => h.data.tur === tur);
+const name = TURLER[tur].trPlural;
+---
+
+<Base title={name} description={`${name}: digitalhaber teknoloji ${name.toLowerCase()} yazıları.`}>
+  <div class="page-head">
+    <h1>{name}</h1>
+    <p>{items.length} yazı</p>
+  </div>
+  <div class="newslist" style="margin-top:24px">
+    {items.map((h) => <NewsCard item={h} variant="row-big" />)}
+  </div>
+</Base>

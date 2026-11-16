@@ -1,0 +1,19 @@
+---
+import { SITE_CFG } from '../lib/news';
+import { langOf, T } from '../lib/i18n';
+const t = T[langOf(Astro.url)];
+const html = (SITE_CFG.bultenHtml ?? '').trim();
+const title = SITE_CFG.bultenBaslik?.trim() || t.newsletterTitle;
+---
+
+{
+  html && (
+    <section class="newsletter notranslate-ok" aria-label={title}>
+      <div class="newsletter-txt">
+        <h2>{title}</h2>
+        <p>{t.newsletterText}</p>
+      </div>
+      <div class="newsletter-form" set:html={html} />
+    </section>
+  )
+}

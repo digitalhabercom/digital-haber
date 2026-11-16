@@ -1,7 +1,7 @@
 ---
 import Base from '../layouts/Base.astro';
 import NewsCard from '../components/NewsCard.astro';
-import { getNews, tagSlug } from '../lib/news';
+import { getNews, tagSlug, tagUrl } from '../lib/news';
 import { langOf, T } from '../lib/i18n';
 
 interface Props {
@@ -13,6 +13,15 @@ const lang = langOf(Astro.url);
 const t = T[lang];
 const all = await getNews(lang);
 const items = all.filter((h) => h.data.tags.some((x: string) => tagSlug(x) === tag));
+const related = new Map<string, { label: string; n: number }>();
+for (const h of items) for (const x of h.data.tags) {
+  const s = tagSlug(x);
+  if (s === tag) continue;
+  const cur = related.get(s);
+  related.set(s, { label: x, n: (cur?.n ?? 0) + 1 });
+}
+const relatedTags = [...related.entries()].sort((a, b) => b[1].n - a[1].n).slice(0, 8);
+const [lead, ...restItems] = items;
 ---
 
 <Base
@@ -20,12 +29,21 @@ const items = all.filter((h) => h.data.tags.some((x: string) => tagSlug(x) === t
   description={lang === 'en' ? `Stories tagged ${label}.` : `${label} etiketli haberler.`}
 >
   <div class="page-head">
-    <h1>#{label}</h1>
+    <p class="kicker">{t.topicFile}</p>
+    <h1>{label}</h1>
     <p>{items.length} {t.nNews}</p>
+    {
+      relatedTags.length > 0 && (
+        <div class="tags" style="margin-top:12px" aria-label={t.relatedTopics}>
+          {relatedTags.map(([s, v]) => <a class="tag" href={tagUrl(s, lang)}>#{v.label}</a>)}
+        </div>
+      )
+    }
   </div>
+  {lead && <div class="cat-lead" style="margin-top:24px"><NewsCard item={lead} variant="lead" /></div>}
   <section class="sec" style="margin-top:24px" aria-label={label}>
     <div class="grid3">
-      {items.map((h) => <NewsCard item={h} />)}
+      {restItems.map((h) => <NewsCard item={h} />)}
     </div>
   </section>
 </Base>

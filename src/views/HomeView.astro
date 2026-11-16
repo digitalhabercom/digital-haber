@@ -3,6 +3,7 @@ import Base from '../layouts/Base.astro';
 import Slider from '../components/Slider.astro';
 import NewsCard from '../components/NewsCard.astro';
 import MostRead from '../components/MostRead.astro';
+import Newsletter from '../components/Newsletter.astro';
 import AdSlot from '../components/AdSlot.astro';
 import RandomPicks from '../components/RandomPicks.astro';
 import { SITE } from '../consts';
@@ -65,7 +66,7 @@ const jsonLd = {
               <h2 id="son-haberler">{t.latestNews}</h2>
               <a href={r.all}>{t.allNewsLower}</a>
             </div>
-            <div class="grid2">
+            <div class="grid2 grid2--home">
               {feed.map((h) => <NewsCard item={h} />)}
             </div>
           </section>
@@ -73,11 +74,12 @@ const jsonLd = {
           <aside class="side" style="margin-top:56px" aria-label={t.sideAria}>
             <AdSlot pos="yan-ust" />
             <MostRead items={popular} />
-            <div class="stick"><AdSlot pos="yan-alt" /></div>
           </aside>
         </div>
 
         <AdSlot pos="anasayfa-orta" />
+
+        <Newsletter />
 
         <RandomPicks items={picks} excludeIds={[...used]} count={8} />
       </>

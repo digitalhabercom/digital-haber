@@ -11,12 +11,12 @@ export const ROUTES = {
   tr: {
     home: '/', news: '/haber/', cat: '/kategori/', tag: '/etiket/', all: '/haberler/', search: '/arama/',
     about: '/hakkimizda/', contact: '/iletisim/', privacy: '/gizlilik/', author: '/yazar/',
-    rss: '/rss.xml', searchJson: '/search.json',
+    rss: '/rss.xml', searchJson: '/search.json', saved: '/kaydedilenler/', masthead: '/kunye/',
   },
   en: {
     home: '/en/', news: '/en/news/', cat: '/en/category/', tag: '/en/tag/', all: '/en/latest/', search: '/en/search/',
     about: '/en/about/', contact: '/en/contact/', privacy: '/en/privacy/', author: '/en/author/',
-    rss: '/en/rss.xml', searchJson: '/en/search.json',
+    rss: '/en/rss.xml', searchJson: '/en/search.json', saved: '/en/saved/', masthead: '/en/masthead/',
   },
 } as const;
 
@@ -98,6 +98,8 @@ export const T = {
     fontBtn: 'Yazı boyutu',
     langSwitch: 'English',
     langAria: 'Dil / Translate',
+    masthead: 'Künye ve Yayın İlkeleri', faq: 'Sık sorulan sorular', allIn: 'Tümü', topicFile: 'Konu dosyası', relatedTopics: 'İlgili konular', latestIn: 'En yeni',
+    save: 'Kaydet', saved: 'Kaydedildi', savedTitle: 'Sonra Oku', savedEmpty: 'Henüz kaydedilmiş haber yok. Haber sayfalarındaki "Kaydet" düğmesiyle sonra okumak için haber biriktirin.', savedAria: 'Sonra oku listesi', source: 'Kaynak', newsletterTitle: 'Haftalık teknoloji özeti', newsletterText: 'Haftanın önemli teknoloji haberleri e-postanıza gelsin.',
     navHome: 'Ana Sayfa',
     navLatest: 'Haberler',
     navSearch: 'Ara',
@@ -184,6 +186,8 @@ export const T = {
     fontBtn: 'Text size',
     langSwitch: 'Türkçe',
     langAria: 'Language',
+    masthead: 'Masthead and Editorial Policy', faq: 'Frequently asked questions', allIn: 'All', topicFile: 'Topic file', relatedTopics: 'Related topics', latestIn: 'Latest',
+    save: 'Save', saved: 'Saved', savedTitle: 'Read Later', savedEmpty: 'No saved stories yet. Use the "Save" button on any story to build a reading list.', savedAria: 'Read later list', source: 'Source', newsletterTitle: 'Weekly tech digest', newsletterText: 'Get the week\'s key technology stories by email.',
     navHome: 'Home',
     navLatest: 'News',
     navSearch: 'Search',

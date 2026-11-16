@@ -1,0 +1,29 @@
+---
+import Base from '../../../layouts/Base.astro';
+import { SITE } from '../../../consts';
+---
+
+<Base title="Masthead and Editorial Policy" description={`${SITE.name} masthead, editorial standards, corrections policy and contact details.`} ads={false} alternates={{ tr: '/kunye/', en: '/en/masthead/' }}>
+  <div class="page-head"><h1>Masthead and Editorial Policy</h1></div>
+  <div class="prose">
+    <h2>Masthead</h2>
+    <ul>
+      <li><strong>Publication:</strong> {SITE.name}.com</li>
+      <li><strong>Type:</strong> Independent technology news publication</li>
+      <li><strong>Languages:</strong> Turkish, with an English edition</li>
+      <li><strong>Editor:</strong> digitalhaber Editorial Team</li>
+      <li><strong>Contact:</strong> <a href={`mailto:${SITE.email}`}>{SITE.email}</a></li>
+    </ul>
+    <h2>Editorial standards</h2>
+    <ul>
+      <li>We aim for accuracy, clarity and usefulness to readers.</li>
+      <li>We do not publish claims whose source we cannot name. The source is shown at the bottom of each story.</li>
+      <li>We credit images where credit information is available.</li>
+      <li>Stories are written originally. AI tools may assist, but editorial responsibility stays with the editor.</li>
+    </ul>
+    <h2>Corrections</h2>
+    <p>If you spot an error, <a href={`mailto:${SITE.email}`}>email us</a>. Verified errors are corrected promptly, the update date is refreshed and a correction note is added when needed.</p>
+    <h2>Advertising and sponsorship</h2>
+    <p>Ads and sponsored content are separated from editorial content and labelled. Advertisers do not influence editorial decisions.</p>
+  </div>
+</Base>

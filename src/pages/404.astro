@@ -1,15 +1,33 @@
 ---
 import Base from '../layouts/Base.astro';
+import NewsCard from '../components/NewsCard.astro';
+import { getNews } from '../lib/news';
+
+const latest = (await getNews('tr')).slice(0, 6);
 ---
 
 <Base title="Sayfa bulunamadı" noindex={true} ads={false}>
   <div class="page-head">
     <h1>Sayfa bulunamadı</h1>
-    <p>Aradığınız sayfa taşınmış ya da kaldırılmış olabilir. Ana sayfaya dönebilir veya haberlerde arama yapabilirsiniz.</p>
+    <p>Aradığınız sayfa taşınmış ya da kaldırılmış olabilir. Aşağıdan arayabilir veya son haberlere göz atabilirsiniz.</p>
     <p lang="en">Page not found. It may have moved or been removed. Go back to the <a href="/en/"><strong>English home page</strong></a> or search the news.</p>
   </div>
-  <p style="display:flex;gap:10px;flex-wrap:wrap;margin-top:24px">
-    <a class="btn" href="/">Ana sayfaya dön</a>
-    <a class="btn btn--ghost" href="/arama/">Haberlerde ara</a>
+  <form class="search-box" action="/arama/" method="get" role="search" style="margin-top:20px">
+    <label class="sr-only" for="q404">Haberlerde ara</label>
+    <input id="q404" name="q" type="search" placeholder="Haberlerde ara..." autocomplete="off" />
+    <button class="btn" type="submit">Ara</button>
+  </form>
+  <p style="display:flex;gap:10px;flex-wrap:wrap;margin-top:16px">
+    <a class="btn btn--ghost" href="/">Ana sayfaya dön</a>
   </p>
+  {
+    latest.length > 0 && (
+      <section class="sec" style="margin-top:32px" aria-label="Son haberler">
+        <div class="sec-head"><h2>Son Haberler</h2></div>
+        <div class="newslist" style="margin-top:12px">
+          {latest.map((h) => <NewsCard item={h} variant="row-big" />)}
+        </div>
+      </section>
+    )
+  }
 </Base>

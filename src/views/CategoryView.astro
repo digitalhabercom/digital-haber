@@ -47,8 +47,9 @@ const jsonLd = {
 
   <div class="cols" style="margin-top:28px">
     <section aria-label={cat.name}>
-      <div class="grid2">
-        {items.map((h) => <NewsCard item={h} />)}
+      {items[0] && <div class="cat-lead"><NewsCard item={items[0]} variant="lead" /></div>}
+      <div class="newslist">
+        {items.slice(1).map((h) => <NewsCard item={h} variant="row-big" />)}
       </div>
     </section>
     <aside class="side" aria-label={t.sideAria}>

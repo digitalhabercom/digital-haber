@@ -1,5 +1,6 @@
 ---
 import Icon from './Icon.astro';
+import SaveButton from './SaveButton.astro';
 import { shareHref } from '../lib/share';
 import { langOf, T } from '../lib/i18n';
 
@@ -7,8 +8,9 @@ interface Props {
   url: string;
   title: string;
   image?: string;
+  id?: string;
 }
-const { url, title, image = '' } = Astro.props;
+const { url, title, image = '', id = '' } = Astro.props;
 const ctx = { url, title, image };
 const t = T[langOf(Astro.url)];
 ---
@@ -29,4 +31,5 @@ const t = T[langOf(Astro.url)];
   <button class="sb sb--plain" type="button" data-copy-link data-url={url}>
     <Icon name="link" size={16} /> {t.copyLink}
   </button>
+  {id && <SaveButton id={id} />}
 </div>

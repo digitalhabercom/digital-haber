@@ -6,9 +6,11 @@ import ShareModal from '../components/ShareModal.astro';
 import NewsCard from '../components/NewsCard.astro';
 import MostRead from '../components/MostRead.astro';
 import AdSlot from '../components/AdSlot.astro';
+import Newsletter from '../components/Newsletter.astro';
+import SaveButton from '../components/SaveButton.astro';
 import { SITE } from '../consts';
 import {
-  absUrl, authorByName, authorUrl, catOf, catUrl, counterpart, fmtDate, getNews, getPopular, haberUrl, img,
+  turLabel, turUrl, absUrl, authorByName, authorUrl, catOf, catUrl, counterpart, fmtDate, getNews, getPopular, haberUrl, img,
   queueFor, readMins, tagSlug, tagUrl,
 } from '../lib/news';
 import { langOf, T, ROUTES } from '../lib/i18n';
@@ -59,8 +61,14 @@ const jsonLd = [
     mainEntityOfPage: { '@type': 'WebPage', '@id': url },
     articleSection: c.name,
     keywords: d.tags.join(', '),
+    ...(d.source ? { isBasedOn: { '@type': 'CreativeWork', name: d.source, ...(d.sourceUrl && /^https?:\/\//.test(d.sourceUrl) ? { url: d.sourceUrl } : {}) } } : {}),
     inLanguage: lang,
   },
+  ...(d.faq.length > 0 ? [{
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: d.faq.map((f: { q: string; a: string }) => ({ '@type': 'Question', name: f.q, acceptedAnswer: { '@type': 'Answer', text: f.a } })),
+  }] : []),
   {
     '@context': 'https://schema.org',
     '@type': 'BreadcrumbList',
@@ -97,6 +105,7 @@ const jsonLd = [
         <article class="art" data-url={url} data-title={d.title} data-image={imgAbs} data-path={path} data-doctitle={docTitle}>
           <header class="article-head" style={`--c:${c.color}`}>
             <a class="chip" href={catUrl(c.slug, lang)}>{c.name}</a>
+            {d.tur && d.tur !== 'haber' && (lang === 'tr' ? <a class="chip chip--tur" href={turUrl(d.tur)}>{turLabel(d.tur, lang)}</a> : <span class="chip chip--tur">{turLabel(d.tur, lang)}</span>)}
             <h1 class="article-title">{d.title}</h1>
             <p class="lead">{d.description}</p>
             <div class="byline">
@@ -105,7 +114,7 @@ const jsonLd = [
               {d.updated && <span>{t.updated}: {fmtDate(d.updated, lang)}</span>}
               <span>{readMins(entry.body)} {t.readMin}</span>
             </div>
-            <ShareBar url={url} title={d.title} image={imgAbs} />
+            <ShareBar url={url} title={d.title} image={imgAbs} id={entry.id} />
           </header>
 
           <figure class="figure">
@@ -136,6 +145,29 @@ const jsonLd = [
           <template class="ad-t" data-n="1"><AdSlot pos="haber-ici-1" /></template>
           <template class="ad-t" data-n="2"><AdSlot pos="haber-ici-2" /></template>
 
+          {
+            d.faq.length > 0 && (
+              <section class="faq" aria-label={t.faq}>
+                <h2>{t.faq}</h2>
+                {d.faq.map((f: { q: string; a: string }) => (
+                  <details>
+                    <summary>{f.q}</summary>
+                    <p>{f.a}</p>
+                  </details>
+                ))}
+              </section>
+            )
+          }
+
+          {
+            d.source && (
+              <p class="source">
+                {t.source}:{' '}
+                {d.sourceUrl && /^https?:\/\//.test(d.sourceUrl) ? <a href={d.sourceUrl} rel="noopener nofollow" target="_blank">{d.source}</a> : <span>{d.source}</span>}
+              </p>
+            )
+          }
+
           <footer class="article-foot">
             {
               d.tags.length > 0 && (
@@ -158,6 +190,7 @@ const jsonLd = [
             )
           }
 
+          <Newsletter />
           <AdSlot pos="haber-sonu" />
         </article>
       </div>

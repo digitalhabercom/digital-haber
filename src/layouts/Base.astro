@@ -380,10 +380,15 @@ const ldString = JSON.stringify(ld).replace(/</g, '\\u003c');
       b.setAttribute('aria-pressed', String(on));
       b.classList.toggle('is-on', on);
       const s = b.querySelector('span');
-      if (s) s.textContent = (on ? b.dataset.lSaved : b.dataset.lSave) || '';
+      const label = (on ? b.dataset.lSaved : b.dataset.lSave) || '';
+      if (s && s.textContent !== label) s.textContent = label;
     });
     const n = document.getElementById('saved-n');
-    if (n) { n.textContent = String(ids.length); n.hidden = ids.length === 0; }
+    if (n) {
+      const v = String(ids.length);
+      if (n.textContent !== v) n.textContent = v;
+      n.hidden = ids.length === 0;
+    }
   };
   document.addEventListener('click', (e) => {
     const b = (e.target as HTMLElement).closest<HTMLElement>('[data-save]');

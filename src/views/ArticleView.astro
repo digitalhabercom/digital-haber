@@ -10,7 +10,7 @@ import Newsletter from '../components/Newsletter.astro';
 import { SITE } from '../consts';
 import {
   turLabel, turUrl, absUrl, authorByName, authorUrl, catOf, catUrl, counterpart, fmtDate, getNews, getPopular, haberUrl, img,
-  queueFor, readMins, tagSlug, tagUrl,
+  queueFor, readMins,
 } from '../lib/news';
 import { langOf, T, ROUTES } from '../lib/i18n';
 
@@ -170,16 +170,6 @@ const jsonLd = [
               </p>
             )
           }
-
-          <footer class="article-foot">
-            {
-              d.tags.length > 0 && (
-                <div class="tags">
-                  {d.tags.map((tg: string) => <a class="tag" href={tagUrl(tagSlug(tg), lang)}>#{tg}</a>)}
-                </div>
-              )
-            }
-          </footer>
 
           {
             author && (

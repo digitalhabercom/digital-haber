@@ -214,10 +214,6 @@ const ldString = JSON.stringify(ld).replace(/</g, '\\u003c');
             <p>{lang === 'en' ? SITE.descriptionEn : SITE.description}</p>
           </div>
           <div>
-            <h3>{t.categories}</h3>
-            <ul>{navCats.map((c) => <li><a href={catUrl(c.slug, lang)}>{c.name}</a></li>)}</ul>
-          </div>
-          <div>
             <h3>{t.corporate}</h3>
             <ul>
               <li><a href={r.about}>{t.about}</a></li>
@@ -373,43 +369,6 @@ const ldString = JSON.stringify(ld).replace(/</g, '\\u003c');
 </script>
 
 <script>
-<<<<<<< HEAD
-=======
-  // "Sonra oku": tarayıcıda saklanan liste (üyelik gerekmez)
-  const KEY = 'dh-saved';
-  const read = (): string[] => { try { return JSON.parse(localStorage.getItem(KEY) || '[]'); } catch { return []; } };
-  const write = (v: string[]) => { try { localStorage.setItem(KEY, JSON.stringify(v)); } catch { /* yok say */ } };
-  const sync = () => {
-    const ids = read();
-    document.querySelectorAll<HTMLElement>('[data-save]').forEach((b) => {
-      const on = ids.includes(b.dataset.save || '');
-      b.setAttribute('aria-pressed', String(on));
-      b.classList.toggle('is-on', on);
-      const s = b.querySelector('span');
-      const label = (on ? b.dataset.lSaved : b.dataset.lSave) || '';
-      if (s && s.textContent !== label) s.textContent = label;
-    });
-    const n = document.getElementById('saved-n');
-    if (n) {
-      const v = String(ids.length);
-      if (n.textContent !== v) n.textContent = v;
-      n.hidden = ids.length === 0;
-    }
-  };
-  document.addEventListener('click', (e) => {
-    const b = (e.target as HTMLElement).closest<HTMLElement>('[data-save]');
-    if (!b) return;
-    const id = b.dataset.save || '';
-    const ids = read();
-    write(ids.includes(id) ? ids.filter((x) => x !== id) : [id, ...ids].slice(0, 100));
-    sync();
-  });
-  sync();
-  new MutationObserver(() => sync()).observe(document.body, { childList: true, subtree: true });
-</script>
-
-<script>
->>>>>>> 2866ca265a3cfab134d9d3fc9d9a0d4a1bfeda80
   // Yukarı çık düğmesi
   const up = document.getElementById('totop');
   if (up) {

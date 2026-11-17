@@ -571,3 +571,7 @@ html.translated-ltr .listen, html.translated-rtl .listen { display: none; }
 .tur { background: #fff0dc; color: #a24a00; }
 .chip--tur { background: #fff0dc; color: #a24a00; border: 1px solid #f6cf9c; }
 :root[data-theme='dark'] .tur, :root[data-theme='dark'] .chip--tur { background: #3a2a14; color: #ffb866; border-color: #5a3f1c; }
+
+.footer-grid { grid-template-columns: 1.6fr 1fr 1fr; }
+@media (max-width: 860px) { .footer-grid { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 520px) { .footer-grid { grid-template-columns: 1fr; } }

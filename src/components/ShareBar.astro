@@ -1,6 +1,5 @@
 ---
 import Icon from './Icon.astro';
-import SaveButton from './SaveButton.astro';
 import { shareHref } from '../lib/share';
 import { langOf, T } from '../lib/i18n';
 
@@ -10,26 +9,43 @@ interface Props {
   image?: string;
   id?: string;
 }
-const { url, title, image = '', id = '' } = Astro.props;
+const { url, title, image = '' } = Astro.props;
 const ctx = { url, title, image };
 const t = T[langOf(Astro.url)];
+
+// Doğrudan paylaşım bağlantıları (mesajlaşma uygulamaları önce)
+const nets = [
+  { net: 'whatsapp', name: 'WhatsApp', bc: '#1fa855' },
+  { net: 'telegram', name: 'Telegram', bc: '#229ed9' },
+  { net: 'messenger', name: 'Messenger', bc: '#0a7cff', touch: true },
+  { net: 'facebook', name: 'Facebook', bc: '#1877f2' },
+  { net: 'x', name: 'X', bc: '#111111' },
+  { net: 'linkedin', name: 'LinkedIn', bc: '#0a66c2' },
+  { net: 'reddit', name: 'Reddit', bc: '#ff4500' },
+  { net: 'threads', name: 'Threads', bc: '#000000' },
+];
 ---
 
 <div class="sharebar" role="group" aria-label={t.shareNews}>
-  <button class="sb sb--main" type="button" data-share-open data-url={url} data-title={title} data-image={image}>
-    <Icon name="share" size={16} /> {t.share}
-  </button>
-  <a class="sb" style="--bc:#1fa855" href={shareHref('whatsapp', ctx)} target="_blank" rel="noopener noreferrer">
-    <Icon name="whatsapp" size={16} /> WhatsApp
-  </a>
-  <a class="sb sb--hide" style="--bc:#111111" href={shareHref('x', ctx)} target="_blank" rel="noopener noreferrer">
-    <Icon name="x" size={16} /> X
-  </a>
-  <a class="sb sb--hide" style="--bc:#1877f2" href={shareHref('facebook', ctx)} target="_blank" rel="noopener noreferrer">
-    <Icon name="facebook" size={16} /> Facebook
-  </a>
-  <button class="sb sb--plain" type="button" data-copy-link data-url={url}>
-    <Icon name="link" size={16} /> {t.copyLink}
-  </button>
-  {id && <SaveButton id={id} />}
+  <span class="sharebar-label">{t.share}</span>
+  <div class="sharebar-row">
+    {
+      nets.map((n) => (
+        <a
+          class:list={['sb-ico', { 'only-touch': n.touch }]}
+          style={`--bc:${n.bc}`}
+          href={shareHref(n.net, ctx)}
+          target={n.touch ? undefined : '_blank'}
+          rel="noopener noreferrer"
+          aria-label={`${n.name} ${t.share}`}
+          title={n.name}
+        >
+          <Icon name={n.net} size={18} />
+        </a>
+      ))
+    }
+    <button class="sb-ico sb-ico--copy" type="button" data-copy-link data-url={url} aria-label={t.copyLink} title={t.copyLink}>
+      <Icon name="link" size={18} />
+    </button>
+  </div>
 </div>

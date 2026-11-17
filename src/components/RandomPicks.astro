@@ -17,7 +17,6 @@ const r = ROUTES[lang];
 <section class="sec" aria-labelledby="rastgele">
   <div class="sec-head">
     <h2 id="rastgele">{t.picks}</h2>
-    <a href={r.all}>{t.allNewsLower}</a>
   </div>
   <div class="grid4" id="picks" data-count={count} data-exclude={JSON.stringify(excludeIds)} data-json={r.searchJson} data-rm={t.readMin}>
     {items.map((h) => <NewsCard item={h} excerpt={false} />)}

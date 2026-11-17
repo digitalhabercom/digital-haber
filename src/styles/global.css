@@ -457,10 +457,6 @@ font.goog-text-highlight, .goog-text-highlight { background: none !important; bo
 /* Kaynak, bülten, kaydet */
 .source { margin: 18px 0 0; font-size: 0.9rem; color: var(--muted); }
 .source a { color: var(--link, inherit); text-decoration: underline; text-underline-offset: 3px; }
-.sb--save.is-on { color: var(--hot); border-color: var(--hot); }
-.sb--save.is-on svg { fill: currentColor; }
-.tool--saved { position: relative; display: inline-flex; align-items: center; justify-content: center; }
-.saved-n { position: absolute; top: -4px; right: -4px; min-width: 16px; height: 16px; padding: 0 4px; border-radius: 999px; background: var(--hot); color: #fff; font-size: 0.65rem; font-weight: 800; line-height: 16px; text-align: center; }
 .newsletter { display: grid; grid-template-columns: 1fr minmax(0, 1fr); gap: 24px; align-items: center; margin: 36px 0; padding: 24px 28px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--card, var(--bg)); }
 .newsletter h2 { margin: 0 0 6px; font-size: 1.25rem; }
 .newsletter p { margin: 0; color: var(--muted); font-size: 0.95rem; }
@@ -531,3 +527,47 @@ font.goog-text-highlight, .goog-text-highlight { background: none !important; bo
 .nav a:hover { color: #fff; }
 .nav a.active { color: #fff; box-shadow: inset 0 -3px 0 var(--hot); }
 .nav-in::-webkit-scrollbar { display: none; }
+
+/* Paylaşım satırı: tek hizada, ikonlu daire düğmeler */
+.sharebar { display: flex; flex-wrap: nowrap; align-items: center; gap: 12px; padding-block: 12px; border-block: 1px solid var(--line); }
+.sharebar-label { flex: none; font-weight: 700; font-size: 0.9rem; color: var(--muted); }
+.sharebar-row { display: flex; flex-wrap: nowrap; align-items: center; gap: 8px; min-width: 0; overflow-x: auto; scrollbar-width: none; padding: 2px; }
+.sharebar-row::-webkit-scrollbar { display: none; }
+.sb-ico { flex: none; width: 40px; height: 40px; display: inline-grid; place-items: center; border-radius: 50%; border: 0; background: var(--bc, #555); color: #fff; cursor: pointer; transition: transform 0.15s ease, filter 0.15s ease; }
+.sb-ico:hover { transform: translateY(-2px); filter: brightness(1.12); }
+.sb-ico:focus-visible { outline: 3px solid var(--cobalt); outline-offset: 2px; }
+.sb-ico--copy { background: var(--tint); color: var(--ink); box-shadow: inset 0 0 0 1px var(--line); }
+.sb-ico--copy.copied { background: #1fa855; color: #fff; }
+.sb-ico.only-touch { display: none; }
+@media (hover: none) { .sb-ico.only-touch { display: inline-grid; } }
+@media (max-width: 560px) { .sb-ico { width: 34px; height: 34px; } .sharebar-row { gap: 6px; } .sharebar-label { display: none; } .sharebar { gap: 0; } }
+
+/* Haberi dinle */
+.listen { display: inline-flex; align-items: center; gap: 8px; margin: 2px 0 14px; padding: 8px 16px 8px 10px; border: 1px solid var(--line); background: var(--surface); border-radius: 999px; font: inherit; font-size: 0.9rem; font-weight: 600; color: var(--ink); cursor: pointer; }
+.listen .pl { width: 26px; height: 26px; border-radius: 50%; background: var(--cobalt); color: #fff; display: grid; place-items: center; }
+.listen small { color: var(--muted); font-weight: 500; }
+.listen:hover { border-color: var(--cobalt); }
+.listen.is-on .pl { background: var(--hot); }
+.listen.is-on .pl svg path { d: path('M6 6h12v12H6z'); }
+.listen[hidden] { display: none; }
+html.translated-ltr .listen, html.translated-rtl .listen { display: none; }
+
+/* Sayfa sonu: yukarı çık */
+.footer-top { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; margin-top: 32px; padding: 12px; border: 1px solid #3a3e4a; border-radius: 10px; background: transparent; color: #fff; font: inherit; font-weight: 700; cursor: pointer; }
+.footer-top:hover { background: #2a2d38; border-color: var(--hot); }
+
+.totop--down { bottom: 70px; }
+@media (max-width: 720px) { .totop--down { bottom: 128px; } }
+
+/* v16: küçük arama, menüde ev simgesi, tür rozeti rengi, 3 sütunlu alt bilgi */
+.hs { flex: 0 1 210px; max-width: 210px; }
+.hs-ico { left: 10px; }
+.hs-ico svg { width: 15px; height: 15px; }
+.hs input { font-size: 0.88rem; padding: 8px 52px 8px 32px; border-radius: 10px; }
+.hs-btn { right: 3px; top: 3px; bottom: 3px; padding: 0 10px; font-size: 0.8rem; border-radius: 7px; }
+.hs-list { right: auto; width: 340px; max-width: 90vw; left: auto; right: 0; }
+@media (max-width: 720px) { .hs { flex: 1 1 100%; max-width: none; } .hs input { padding: 9px 56px 9px 34px; } }
+.nav a.nav-home { padding-inline: 14px; display: inline-flex; align-items: center; }
+.tur { background: #fff0dc; color: #a24a00; }
+.chip--tur { background: #fff0dc; color: #a24a00; border: 1px solid #f6cf9c; }
+:root[data-theme='dark'] .tur, :root[data-theme='dark'] .chip--tur { background: #3a2a14; color: #ffb866; border-color: #5a3f1c; }

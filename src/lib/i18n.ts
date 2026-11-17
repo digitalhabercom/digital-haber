@@ -11,12 +11,12 @@ export const ROUTES = {
   tr: {
     home: '/', news: '/haber/', cat: '/kategori/', tag: '/etiket/', all: '/haberler/', search: '/arama/',
     about: '/hakkimizda/', contact: '/iletisim/', privacy: '/gizlilik/', author: '/yazar/',
-    rss: '/rss.xml', searchJson: '/search.json', saved: '/kaydedilenler/', masthead: '/kunye/',
+    rss: '/rss.xml', searchJson: '/search.json', masthead: '/kunye/',
   },
   en: {
     home: '/en/', news: '/en/news/', cat: '/en/category/', tag: '/en/tag/', all: '/en/latest/', search: '/en/search/',
     about: '/en/about/', contact: '/en/contact/', privacy: '/en/privacy/', author: '/en/author/',
-    rss: '/en/rss.xml', searchJson: '/en/search.json', saved: '/en/saved/', masthead: '/en/masthead/',
+    rss: '/en/rss.xml', searchJson: '/en/search.json', masthead: '/en/masthead/',
   },
 } as const;
 

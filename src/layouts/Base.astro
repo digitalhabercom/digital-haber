@@ -172,7 +172,6 @@ const ldString = JSON.stringify(ld).replace(/</g, '\\u003c');
             <svg class="i-sun" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"></path></svg>
             <svg class="i-moon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"></path></svg>
           </button>
-          <a class="tool tool--saved" href={r.saved} aria-label={t.savedAria} title={t.savedAria}><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3h12a1 1 0 0 1 1 1v17l-7-4-7 4V4a1 1 0 0 1 1-1z"></path></svg><span class="saved-n" id="saved-n" hidden></span></a>
           <button class="tool tool--lang notranslate" type="button" id="lang-btn" aria-label={t.langAria} title={t.langAria}>EN</button>
         </div>
       </div>
@@ -180,11 +179,13 @@ const ldString = JSON.stringify(ld).replace(/</g, '\\u003c');
 
     <nav class="nav" aria-label={t.categories}>
       <div class="wrap nav-in">
+        <a href={r.home} class:list={['nav-home', { active: path === r.home }]} aria-label={t.navHome} title={t.navHome}>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11l9-8 9 8M5 10v10h14V10"></path></svg>
+        </a>
         {navCats.map((c) => (
           <a href={catUrl(c.slug, lang)} class:list={[{ active: path.startsWith(catUrl(c.slug, lang)) }]}>{c.name}</a>
         ))}
         {navTurler.map((k) => <a href={turUrl(k)} class:list={[{ active: path.startsWith(turUrl(k)) }]}>{TURLER[k].trPlural}</a>)}
-        <a href={r.all} class:list={[{ active: path.startsWith(r.all) }]}>{t.allNews}</a>
       </div>
     </nav>
 
@@ -229,13 +230,15 @@ const ldString = JSON.stringify(ld).replace(/</g, '\\u003c');
             <h3>{t.follow}</h3>
             <ul>
               {social.map(([k, v]) => <li><a href={v} rel="me noopener" target="_blank">{SOCIAL_NAMES[k] ?? k}</a></li>)}
-              <li><a href={r.saved}>{t.savedTitle}</a></li>
               <li><a href={r.rss}>RSS</a></li>
               <li><a href={r.search}>{t.searchAll}</a></li>
-              <li><a href={r.all}>{t.allNewsLower}</a></li>
             </ul>
           </div>
         </div>
+        <button class="footer-top" type="button" data-top>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 15l6-6 6 6"></path></svg>
+          {lang === 'en' ? 'Back to top' : 'Yukarı çık'}
+        </button>
         <p class="footer-bottom">© {new Date().getFullYear()} {SITE.name}.com {t.rights}</p>
       </div>
     </footer>
@@ -246,10 +249,6 @@ const ldString = JSON.stringify(ld).replace(/</g, '\\u003c');
           <a href={r.home} class:list={[{ on: path === r.home }]}>
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11l9-8 9 8M5 10v10h14V10"></path></svg>
             <span>{t.navHome}</span>
-          </a>
-          <a href={r.all} class:list={[{ on: path.startsWith(r.all) }]}>
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h16M4 12h16M4 19h10"></path></svg>
-            <span>{t.navLatest}</span>
           </a>
           <a href={r.search} class:list={[{ on: path.startsWith(r.search) }]}>
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-3.5-3.5"></path></svg>
@@ -275,6 +274,11 @@ const ldString = JSON.stringify(ld).replace(/</g, '\\u003c');
       </>
     )}
     {SITE_CFG.cloudflareAnalitikToken && <script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon={JSON.stringify({ token: SITE_CFG.cloudflareAnalitikToken })}></script>}
+  {!isArticle && (
+    <button class="totop totop--down" id="tobottom" type="button" aria-label={lang === 'en' ? 'Go to bottom' : 'En alta in'} hidden>
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"></path></svg>
+    </button>
+  )}
   <button class="totop" id="totop" type="button" aria-label={lang === 'en' ? 'Back to top' : 'Yukarı çık'} hidden>
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 15l6-6 6 6"></path></svg>
   </button>
@@ -369,43 +373,21 @@ const ldString = JSON.stringify(ld).replace(/</g, '\\u003c');
 </script>
 
 <script>
-  // "Sonra oku": tarayıcıda saklanan liste (üyelik gerekmez)
-  const KEY = 'dh-saved';
-  const read = (): string[] => { try { return JSON.parse(localStorage.getItem(KEY) || '[]'); } catch { return []; } };
-  const write = (v: string[]) => { try { localStorage.setItem(KEY, JSON.stringify(v)); } catch { /* yok say */ } };
-  const sync = () => {
-    const ids = read();
-    document.querySelectorAll<HTMLElement>('[data-save]').forEach((b) => {
-      const on = ids.includes(b.dataset.save || '');
-      b.setAttribute('aria-pressed', String(on));
-      b.classList.toggle('is-on', on);
-      const s = b.querySelector('span');
-      if (s) s.textContent = (on ? b.dataset.lSaved : b.dataset.lSave) || '';
-    });
-    const n = document.getElementById('saved-n');
-    if (n) { n.textContent = String(ids.length); n.hidden = ids.length === 0; }
-  };
-  document.addEventListener('click', (e) => {
-    const b = (e.target as HTMLElement).closest<HTMLElement>('[data-save]');
-    if (!b) return;
-    const id = b.dataset.save || '';
-    const ids = read();
-    write(ids.includes(id) ? ids.filter((x) => x !== id) : [id, ...ids].slice(0, 100));
-    sync();
-  });
-  sync();
-  new MutationObserver(() => sync()).observe(document.body, { childList: true, subtree: true });
-</script>
-
-<script>
   // Yukarı çık düğmesi
   const up = document.getElementById('totop');
   if (up) {
-    const toggle = () => { up.hidden = window.scrollY < 900; };
-    window.addEventListener('scroll', toggle, { passive: true });
+    const down = document.getElementById('tobottom');
+    const toggle = () => {
+      up.hidden = window.scrollY < 400;
+      if (down) down.hidden = document.documentElement.scrollHeight - window.scrollY - window.innerHeight < 500;
+    };
+    down?.addEventListener('click', () => window.scrollTo({ top: document.documentElement.scrollHeight, behavior: 'smooth' }));
+    let tick = false;
+    window.addEventListener('scroll', () => { if (tick) return; tick = true; requestAnimationFrame(() => { tick = false; toggle(); }); }, { passive: true });
     toggle();
     up.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
   }
+  document.querySelectorAll('[data-top]').forEach((b) => b.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' })));
 
   // Kartlarda göreli tarih: "2 saat önce", "Dün" (son 2 gün); daha eskiyse yazılı tarih kalır
   const en = document.documentElement.lang === 'en';

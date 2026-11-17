@@ -7,7 +7,6 @@ import NewsCard from '../components/NewsCard.astro';
 import MostRead from '../components/MostRead.astro';
 import AdSlot from '../components/AdSlot.astro';
 import Newsletter from '../components/Newsletter.astro';
-import SaveButton from '../components/SaveButton.astro';
 import { SITE } from '../consts';
 import {
   turLabel, turUrl, absUrl, authorByName, authorUrl, catOf, catUrl, counterpart, fmtDate, getNews, getPopular, haberUrl, img,
@@ -32,7 +31,7 @@ const alternates = counter ? { [lang === 'tr' ? 'en' : 'tr']: counter } : undefi
 const all = await getNews(lang);
 const sameCat = all.filter((h) => h.id !== entry.id && h.data.category === d.category);
 const others = all.filter((h) => h.id !== entry.id && h.data.category !== d.category);
-const related = [...sameCat, ...others].slice(0, 3);
+const related = [...sameCat, ...others].slice(0, 4);
 const popular = getPopular(all, 10, entry.id);
 const queue = queueFor(all, entry, 12, lang);
 
@@ -114,6 +113,10 @@ const jsonLd = [
               {d.updated && <span>{t.updated}: {fmtDate(d.updated, lang)}</span>}
               <span>{readMins(entry.body)} {t.readMin}</span>
             </div>
+            <button class="listen notranslate" type="button" data-listen data-lang={lang} data-l-play={lang === 'en' ? 'Listen to this article' : 'Haberi dinle'} data-l-stop={lang === 'en' ? 'Stop' : 'Durdur'}>
+              <span class="pl" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"></path></svg></span>
+              <span class="listen-txt">{lang === 'en' ? 'Listen to this article' : 'Haberi dinle'}</span> <small>· {readMins(entry.body)} {t.readMin}</small>
+            </button>
             <ShareBar url={url} title={d.title} image={imgAbs} id={entry.id} />
           </header>
 
@@ -210,13 +213,65 @@ const jsonLd = [
 
   <section class="sec" aria-labelledby="ilgi">
     <div class="sec-head"><h2 id="ilgi">{t.related}</h2></div>
-    <div class="grid3">
+    <div class="grid4">
       {related.map((h) => <NewsCard item={h} excerpt={false} />)}
     </div>
   </section>
 
   <ShareModal />
 </Base>
+
+<script>
+  // Haberi dinle: tarayıcının kendi sesiyle okur (ek hizmet yok)
+  const synth = 'speechSynthesis' in window ? window.speechSynthesis : null;
+  let activeBtn: HTMLElement | null = null;
+  const resetBtn = (b: HTMLElement | null) => {
+    if (!b) return;
+    b.classList.remove('is-on');
+    const txt = b.querySelector('.listen-txt');
+    if (txt) txt.textContent = b.dataset.lPlay || '';
+  };
+  const stopListen = () => { try { synth?.cancel(); } catch {} resetBtn(activeBtn); activeBtn = null; };
+  if (!synth) {
+    document.querySelectorAll<HTMLElement>('[data-listen]').forEach((b) => (b.hidden = true));
+  } else {
+    document.addEventListener('click', (e) => {
+      const btn = (e.target as HTMLElement).closest<HTMLElement>('[data-listen]');
+      if (!btn) return;
+      if (activeBtn === btn) { stopListen(); return; }
+      stopListen();
+      const art = btn.closest('article.art');
+      if (!art) return;
+      const lang = btn.dataset.lang === 'en' ? 'en-US' : 'tr-TR';
+      const text = [
+        art.querySelector('.article-title')?.textContent,
+        art.querySelector('.lead')?.textContent,
+        art.querySelector('.article-body')?.textContent,
+      ].filter(Boolean).join('. ').replace(/\s+/g, ' ').trim();
+      // Uzun metin bazı tarayıcılarda yarıda kesilir; cümle cümle okut
+      const parts = text.match(/[^.!?]+[.!?]*\s*/g) || [text];
+      const chunks: string[] = [];
+      let cur = '';
+      for (const p of parts) {
+        if ((cur + p).length > 200 && cur) { chunks.push(cur); cur = p; } else cur += p;
+      }
+      if (cur) chunks.push(cur);
+      const voice = synth.getVoices().find((v) => v.lang.toLowerCase().startsWith(lang.slice(0, 2)));
+      activeBtn = btn;
+      btn.classList.add('is-on');
+      const txt = btn.querySelector('.listen-txt');
+      if (txt) txt.textContent = btn.dataset.lStop || '';
+      chunks.forEach((c, i) => {
+        const u = new SpeechSynthesisUtterance(c);
+        u.lang = lang;
+        if (voice) u.voice = voice;
+        if (i === chunks.length - 1) { u.onend = () => { if (activeBtn === btn) { resetBtn(btn); activeBtn = null; } }; }
+        synth.speak(u);
+      });
+    });
+    window.addEventListener('pagehide', stopListen);
+  }
+</script>
 
 <script>
   import { shareHref } from '../lib/share';

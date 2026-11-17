@@ -3,8 +3,6 @@ Allow: /
 Disallow: /admin/
 Disallow: /arama/
 Disallow: /en/search/
-Disallow: /kaydedilenler/
-Disallow: /en/saved/
 
 # Yapay zekâ arama ve yanıt motorları: haberlerimizi kaynak göstermelerine izin veriyoruz
 User-agent: OAI-SearchBot

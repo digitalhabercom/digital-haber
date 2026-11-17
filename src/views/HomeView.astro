@@ -16,7 +16,7 @@ const r = ROUTES[lang];
 const all = await getNews(lang);
 
 // Manşet: "featured" işaretliler önce, eksik kalırsa en yeniler ile 6'ya tamamlanır
-const slides = [...all.filter((h) => h.data.featured), ...all.filter((h) => !h.data.featured)].slice(0, 6);
+const slides = [...all.filter((h) => h.data.featured), ...all.filter((h) => !h.data.featured)].slice(0, 5);
 const slideIds = new Set(slides.map((s) => s.id));
 
 // Son haberler: manşette olmayanlar; yetmezse tüm haberler
@@ -64,7 +64,6 @@ const jsonLd = {
           <section class="sec" style="margin-top:16px" aria-labelledby="son-haberler">
             <div class="sec-head">
               <h2 id="son-haberler">{t.latestNews}</h2>
-              <a href={r.all}>{t.allNewsLower}</a>
             </div>
             <div class="grid2 grid2--home">
               {feed.map((h) => <NewsCard item={h} />)}

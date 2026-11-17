@@ -1,0 +1,17 @@
+---
+// Sayfa numaraları: 1 2 3 ... (ana sayfa = 1, devamı /sayfa/2/, /sayfa/3/ ...)
+interface Props { current: number; total: number; }
+const { current, total } = Astro.props;
+const href = (n: number) => (n === 1 ? '/' : `/sayfa/${n}/`);
+const nums: (number | '…')[] = [];
+for (let i = 1; i <= total; i++) {
+  if (i === 1 || i === total || Math.abs(i - current) <= 1) nums.push(i);
+  else if (nums[nums.length - 1] !== '…') nums.push('…');
+}
+---
+
+<nav class="pages" aria-label="Sayfalar">
+  {current > 1 && <a class="pg pg--arrow" href={href(current - 1)} rel="prev" aria-label="Önceki sayfa">‹</a>}
+  {nums.map((n) => n === '…' ? <span class="pg pg--gap">…</span> : n === current ? <span class="pg pg--on" aria-current="page">{n}</span> : <a class="pg" href={href(n)}>{n}</a>)}
+  {current < total && <a class="pg pg--arrow" href={href(current + 1)} rel="next" aria-label="Sonraki sayfa">›</a>}
+</nav>

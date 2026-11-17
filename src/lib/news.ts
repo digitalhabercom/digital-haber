@@ -146,3 +146,16 @@ export async function counterpart(entry: Haber, lang: Lang): Promise<string | un
   const tr = await getNews('tr');
   return tr.some((h) => h.id === id) ? haberUrl(id, 'tr') : undefined;
 }
+
+
+/** Ana sayfada gösterilen manşet ve son haberler (sayfalama bunların devamından başlar). */
+export function homeSets(all: Haber[]) {
+  const slides = [...all.filter((h) => h.data.featured), ...all.filter((h) => !h.data.featured)].slice(0, 5);
+  const slideIds = new Set(slides.map((x) => x.id));
+  const feed = all.filter((h) => !slideIds.has(h.id)).slice(0, 10);
+  // En az 6 haber göster; yetmezse manşetten tamamla
+  for (const h of all) { if (feed.length >= 6) break; if (!feed.includes(h)) feed.push(h); }
+  // Izgara düzgün dursun: 6'dan fazlaysa çift sayıda göster
+  if (feed.length > 6 && feed.length % 2 === 1) feed.pop();
+  return { slides, feed };
+}

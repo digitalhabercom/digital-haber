@@ -1,0 +1,25 @@
+---
+import ListView from '../../views/ListView.astro';
+import { getNews, homeSets } from '../../lib/news';
+
+const PAGE_SIZE = 10;
+
+export async function getStaticPaths() {
+  const all = await getNews('tr');
+  const { slides, feed } = homeSets(all);
+  const shown = new Set([...slides, ...feed].map((h) => h.id));
+  const older = all.filter((h) => !shown.has(h.id));
+  const lastPage = 1 + Math.ceil(older.length / PAGE_SIZE);
+  const paths = [];
+  for (let n = 2; n <= lastPage; n++) {
+    paths.push({
+      params: { page: String(n) },
+      props: { page: { custom: true, data: older.slice((n - 2) * PAGE_SIZE, (n - 1) * PAGE_SIZE), total: all.length, currentPage: n, lastPage } },
+    });
+  }
+  return paths;
+}
+const { page } = Astro.props;
+---
+
+<ListView page={page} />

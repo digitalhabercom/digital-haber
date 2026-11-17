@@ -7,7 +7,8 @@ import Newsletter from '../components/Newsletter.astro';
 import AdSlot from '../components/AdSlot.astro';
 import RandomPicks from '../components/RandomPicks.astro';
 import { SITE } from '../consts';
-import { getNews, getPopular } from '../lib/news';
+import { getNews, getPopular, homeSets } from '../lib/news';
+import Pager from '../components/Pager.astro';
 import { langOf, T, ROUTES } from '../lib/i18n';
 
 const lang = langOf(Astro.url);
@@ -15,20 +16,15 @@ const t = T[lang];
 const r = ROUTES[lang];
 const all = await getNews(lang);
 
-// Manşet: "featured" işaretliler önce, eksik kalırsa en yeniler ile 6'ya tamamlanır
-const slides = [...all.filter((h) => h.data.featured), ...all.filter((h) => !h.data.featured)].slice(0, 5);
-const slideIds = new Set(slides.map((s) => s.id));
-
-// Son haberler: manşette olmayanlar; yetmezse tüm haberler
-const rest = all.filter((h) => !slideIds.has(h.id));
-const feed = rest.slice(0, 10);
-// En az 6 haber göster (2 sütunda 3 satır); yetmezse manşetten tamamla
-for (const h of all) { if (feed.length >= 6) break; if (!feed.includes(h)) feed.push(h); }
-// Izgara düzgün dursun: 6'dan fazlaysa çift sayıda göster
-if (feed.length > 6 && feed.length % 2 === 1) feed.pop();
+// Manşet ve son haberler (lib/news.ts homeSets)
+const { slides, feed } = homeSets(all);
+const slideIds = new Set(slides.map((x) => x.id));
 const feedIds = new Set(feed.map((h) => h.id));
 
 const popular = getPopular(all, 10);
+const PAGE_SIZE = 10;
+const olderCount = all.filter((h) => !slideIds.has(h.id) && !feedIds.has(h.id)).length;
+const totalPages = 1 + Math.ceil(olderCount / PAGE_SIZE);
 
 // "Bunları da okuyun": sayfa HTML'inde hazır liste; tarayıcıda her yenilemede karıştırılır
 const used = new Set([...slideIds, ...feedIds]);
@@ -72,6 +68,7 @@ const jsonLd = {
             <div class="grid2 grid2--home">
               {feed.map((h) => <NewsCard item={h} />)}
             </div>
+            {lang === 'tr' && totalPages > 1 && <Pager current={1} total={totalPages} />}
           </section>
 
           <aside class="side" style="margin-top:56px" aria-label={t.sideAria}>

@@ -418,8 +418,6 @@ dialog.share[open] { animation: pop 0.2s ease-out; }
 }
 
 /* Yazı boyutu ayarı (Aa düğmesi) */
-html[data-fs='1'] .article-body { font-size: clamp(1.2rem, 1.9vw, 1.32rem); }
-html[data-fs='2'] .article-body { font-size: clamp(1.32rem, 2.1vw, 1.48rem); }
 
 /* ---------- Kısaca kutusu, içindekiler, yazar ---------- */
 .tldr { margin: 4px 0 20px; padding: 16px 20px; background: var(--tint); border-radius: var(--radius); border-left: 4px solid var(--hot); }
@@ -552,9 +550,6 @@ font.goog-text-highlight, .goog-text-highlight { background: none !important; bo
 .listen[hidden] { display: none; }
 html.translated-ltr .listen, html.translated-rtl .listen { display: none; }
 
-/* Sayfa sonu: yukarı çık */
-.footer-top { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; margin-top: 32px; padding: 12px; border: 1px solid #3a3e4a; border-radius: 10px; background: transparent; color: #fff; font: inherit; font-weight: 700; cursor: pointer; }
-.footer-top:hover { background: #2a2d38; border-color: var(--hot); }
 
 .totop--down { bottom: 70px; }
 @media (max-width: 720px) { .totop--down { bottom: 128px; } }
@@ -575,3 +570,23 @@ html.translated-ltr .listen, html.translated-rtl .listen { display: none; }
 .footer-grid { grid-template-columns: 1.6fr 1fr 1fr; }
 @media (max-width: 860px) { .footer-grid { grid-template-columns: 1fr 1fr; } }
 @media (max-width: 520px) { .footer-grid { grid-template-columns: 1fr; } }
+
+/* v18 */
+.logo-mark svg { display: block; }
+.nav-home-ico { display: grid; place-items: center; width: 30px; height: 30px; border-radius: 50%; background: rgb(255 255 255 / 0.16); }
+.nav a.nav-home { padding: 8px 12px; }
+.nav a.nav-home:hover .nav-home-ico, .nav a.nav-home.active .nav-home-ico { background: rgb(255 255 255 / 0.28); }
+.pages { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin: 32px 0 8px; }
+.pg { min-width: 40px; height: 40px; padding: 0 12px; display: inline-grid; place-items: center; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); color: var(--ink); font-weight: 700; }
+a.pg:hover { border-color: var(--cobalt); color: var(--cobalt); }
+.pg--on { background: var(--cobalt); border-color: var(--cobalt); color: #fff; }
+.pg--gap { border: 0; background: transparent; min-width: 20px; padding: 0; color: var(--muted); }
+
+/* v19: haber yazıları biraz daha küçük */
+.article-title { font-size: clamp(1.6rem, 3.6vw, 2.35rem); line-height: 1.12; }
+.lead { font-size: clamp(1rem, 1.6vw, 1.12rem); line-height: 1.55; }
+.article-body { font-size: clamp(1rem, 1.35vw, 1.06rem); line-height: 1.72; }
+.article-body > p:first-of-type { font-size: 1.04em; line-height: 1.7; }
+.article-body h2 { font-size: 1.4rem; }
+.article-body h3 { font-size: 1.15rem; }
+.hs-btn { font-size: 0.78rem; padding: 0 9px; }

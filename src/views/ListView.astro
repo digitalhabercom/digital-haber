@@ -4,6 +4,7 @@ import NewsCard from '../components/NewsCard.astro';
 import MostRead from '../components/MostRead.astro';
 import AdSlot from '../components/AdSlot.astro';
 import { getNews, getPopular } from '../lib/news';
+import Pager from '../components/Pager.astro';
 import { langOf, T } from '../lib/i18n';
 
 interface Props {
@@ -14,16 +15,16 @@ const lang = langOf(Astro.url);
 const t = T[lang];
 const all = await getNews(lang);
 const popular = getPopular(all, 10);
-const title = page.currentPage > 1 ? `${t.allNews}, ${page.currentPage}` : t.allNews;
+const title = page.custom ? `Haberler, sayfa ${page.currentPage}` : page.currentPage > 1 ? `${t.allNews}, ${page.currentPage}` : t.allNews;
 const desc =
   lang === 'en'
     ? 'All technology news on digitalhaber, newest first.'
     : 'digitalhaber üzerindeki tüm teknoloji haberleri, yeniden eskiye sıralı.';
 ---
 
-<Base title={title} description={desc} alternates={{ tr: '/haberler/', en: '/en/latest/' }}>
+<Base title={title} description={desc} alternates={page.custom ? { tr: `/sayfa/${page.currentPage}/` } : { tr: '/haberler/', en: '/en/latest/' }}>
   <div class="page-head">
-    <h1>{t.allNews}</h1>
+    <h1>{page.custom ? `Haberler, sayfa ${page.currentPage}` : t.allNews}</h1>
     <p>{page.total} {t.nNews}, {t.sortedNote}</p>
   </div>
 
@@ -32,10 +33,14 @@ const desc =
       <div class="newslist">
         {page.data.map((h: any) => <NewsCard item={h} variant="row-big" />)}
       </div>
-      <nav class="pager" aria-label={t.pagination}>
-        {page.url.prev ? <a class="btn btn--ghost" href={page.url.prev}>{t.newer}</a> : <span />}
-        {page.url.next ? <a class="btn" href={page.url.next}>{t.older}</a> : <span />}
-      </nav>
+      {page.custom ? (
+        <Pager current={page.currentPage} total={page.lastPage} />
+      ) : (
+        <nav class="pager" aria-label={t.pagination}>
+          {page.url.prev ? <a class="btn btn--ghost" href={page.url.prev}>{t.newer}</a> : <span />}
+          {page.url.next ? <a class="btn" href={page.url.next}>{t.older}</a> : <span />}
+        </nav>
+      )}
     </section>
     <aside class="side" aria-label={t.sideAria}>
       <AdSlot pos="yan-ust" />

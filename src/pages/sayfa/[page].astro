@@ -2,9 +2,8 @@
 import ListView from '../../views/ListView.astro';
 import { getNews, homeSets } from '../../lib/news';
 
-const PAGE_SIZE = 10;
-
 export async function getStaticPaths() {
+  const PAGE_SIZE = 10; // Astro getStaticPaths'i bileşenden ayrı çalıştırır, sabit burada olmalı
   const all = await getNews('tr');
   const { slides, feed } = homeSets(all);
   const shown = new Set([...slides, ...feed].map((h) => h.id));

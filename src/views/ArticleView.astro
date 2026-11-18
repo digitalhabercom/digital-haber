@@ -122,7 +122,7 @@ const jsonLd = [
 
           <figure class="figure">
             <img src={img(d.image, 1200)} alt={d.imageAlt ?? d.title} width="1200" height="675" fetchpriority="high" decoding="async" />
-            {d.imageCredit && <figcaption>{t.imageBy}: {d.imageCredit}</figcaption>}
+            {(d.imageCaption || d.imageCredit) && <figcaption>{[d.imageCaption, d.imageCredit && `${t.imageBy}: ${d.imageCredit}`].filter(Boolean).join(' · ')}</figcaption>}
           </figure>
 
           {

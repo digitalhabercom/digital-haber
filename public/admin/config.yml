@@ -36,6 +36,7 @@ collections:
       - { label: Kategori, name: category, widget: relation, collection: ayarlar, file: kategoriler, value_field: "categories.*.slug", display_fields: ["categories.*.name"], search_fields: ["categories.*.name"], hint: "Kategori listesi Ayarlar bölümündeki Kategoriler'den gelir." }
       - { label: Manşet / Kapak Görseli, name: image, widget: image, hint: "Bilgisayarınızdan yükleyin. 1600 piksel genişlikte, 300 KB altında bir görsel siteyi hızlı tutar. Manşet için yatay (16:10) görsel seçin." }
       - { label: Görsel Açıklaması (alt), name: imageAlt, widget: string, required: false, hint: "Görselde ne olduğunu kısaca yazın (arama motorları ve ekran okuyucular için)." }
+      - { label: Görsel Altyazısı, name: imageCaption, widget: string, required: false, hint: "Görselin altında görünen kısa açıklama. Boş bırakabilirsiniz." }
       - { label: Görsel Kaynağı, name: imageCredit, widget: string, required: false, hint: "Örn: Unsplash / Ad Soyad. Haber sayfasında görselin altında görünür." }
       - { label: Yayın Tarihi, name: date, widget: datetime, format: "YYYY-MM-DDTHH:mm:ssZ", date_format: "DD.MM.YYYY", time_format: "HH:mm" }
       - { label: Yazar, name: author, widget: relation, collection: ayarlar, file: yazarlar, value_field: "authors.*.name", display_fields: ["authors.*.name"], search_fields: ["authors.*.name"], default: "digitalhaber Editör", hint: "Yazar listesi Ayarlar > Yazarlar bölümünden gelir. Haberin altında yazar kutusu ve yazar sayfası oluşur." }

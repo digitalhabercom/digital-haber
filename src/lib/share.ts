@@ -11,7 +11,6 @@ export function shareHref(net: string, c: Ctx): string {
     case 'x': return `https://twitter.com/intent/tweet?url=${u}&text=${t}`;
     case 'whatsapp': return `https://wa.me/?text=${t}%20${u}`;
     case 'telegram': return `https://t.me/share/url?url=${u}&text=${t}`;
-    case 'messenger': return `fb-messenger://share/?link=${u}`;
     case 'threads': return `https://www.threads.net/intent/post?text=${t}%20${u}`;
     case 'reddit': return `https://www.reddit.com/submit?url=${u}&title=${t}`;
     case 'linkedin': return `https://www.linkedin.com/sharing/share-offsite/?url=${u}`;

@@ -17,7 +17,6 @@ const t = T[langOf(Astro.url)];
 const nets = [
   { net: 'whatsapp', name: 'WhatsApp', bc: '#1fa855' },
   { net: 'telegram', name: 'Telegram', bc: '#229ed9' },
-  { net: 'messenger', name: 'Messenger', bc: '#0a7cff', touch: true },
   { net: 'facebook', name: 'Facebook', bc: '#1877f2' },
   { net: 'x', name: 'X', bc: '#111111' },
   { net: 'linkedin', name: 'LinkedIn', bc: '#0a66c2' },
@@ -40,7 +39,7 @@ const nets = [
           aria-label={`${n.name} ${t.share}`}
           title={n.name}
         >
-          <Icon name={n.net} size={18} />
+          <Icon name={n.net} size={n.net === 'reddit' ? 24 : n.net === 'whatsapp' ? 22 : 18} />
         </a>
       ))
     }

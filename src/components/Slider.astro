@@ -29,7 +29,6 @@ const t = T[lang];
               />
               <div class="hero-shade" />
               <div class="hero-copy">
-                <span class="chip">{c.name}</span>
                 <h2>{h.data.title}</h2>
                 <p>{h.data.description}</p>
                 <div class="meta">
@@ -63,7 +62,6 @@ const t = T[lang];
           <li>
             <a class:list={[{ 'is-active': i === 0 }]} href={haberUrl(h.id, lang)} style={`--c:${c.color}`}>
               <span>
-                <span class="rail-cat">{c.name}</span>
                 <span class="rail-title">{h.data.title}</span>
               </span>
               <span class="rail-bar" />

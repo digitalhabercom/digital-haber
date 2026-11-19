@@ -112,6 +112,7 @@ const jsonLd = [
               <time datetime={d.date.toISOString()}>{fmtDate(d.date, lang)}</time>
               {d.updated && <span>{t.updated}: {fmtDate(d.updated, lang)}</span>}
               <span>{readMins(entry.body)} {t.readMin}</span>
+              <span class="views notranslate" data-views data-lang={lang} hidden></span>
             </div>
             <button class="listen notranslate" type="button" data-listen data-lang={lang} data-l-play={lang === 'en' ? 'Listen to this article' : 'Haberi dinle'} data-l-stop={lang === 'en' ? 'Stop' : 'Durdur'}>
               <span class="pl" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"></path></svg></span>
@@ -385,4 +386,32 @@ const jsonLd = [
       io.observe(end);
     });
   }
+</script>
+
+<script is:inline>
+  // Okunma sayısı: bir haber oturum başına bir kez sayılır. Sayaç kurulu değilse hiçbir şey göstermez.
+  (function () {
+    var el = document.querySelector('[data-views]');
+    if (!el || location.hostname === 'localhost') return;
+    var path = location.pathname;
+    if (path.slice(-1) !== '/') path += '/';
+    var key = 'v:' + path;
+    var seen = false;
+    try { seen = sessionStorage.getItem(key) === '1'; } catch (e) {}
+    function show(n) {
+      if (!n || n < 1) return;
+      var en = el.getAttribute('data-lang') === 'en';
+      var txt = n >= 1000000 ? (n / 1e6).toFixed(1).replace('.0', '') + (en ? 'M' : ' Mn') : n >= 10000 ? Math.round(n / 1000) + (en ? 'K' : ' B') : n >= 1000 ? (n / 1000).toFixed(1).replace('.0', '') + (en ? 'K' : ' B') : String(n);
+      if (!en) txt = txt.replace('.', ',');
+      el.textContent = txt + (en ? ' views' : ' okunma');
+      el.hidden = false;
+    }
+    var req = seen
+      ? fetch('/api/views?p=' + encodeURIComponent(path))
+      : fetch('/api/views', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ p: path }) });
+    req.then(function (r) { return r.json(); }).then(function (j) {
+      show(j[path]);
+      if (!seen) { try { sessionStorage.setItem(key, '1'); } catch (e) {} }
+    }).catch(function () {});
+  })();
 </script>

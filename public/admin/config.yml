@@ -40,7 +40,7 @@ collections:
       - { label: Görsel Kaynağı, name: imageCredit, widget: string, required: false, hint: "Örn: Unsplash / Ad Soyad. Haber sayfasında görselin altında görünür." }
       - { label: Yayın Tarihi, name: date, widget: datetime, format: "YYYY-MM-DDTHH:mm:ssZ", date_format: "DD.MM.YYYY", time_format: "HH:mm" }
       - { label: Yazar, name: author, widget: relation, collection: ayarlar, file: yazarlar, value_field: "authors.*.name", display_fields: ["authors.*.name"], search_fields: ["authors.*.name"], default: "digitalhaber Editör", hint: "Yazar listesi Ayarlar > Yazarlar bölümünden gelir. Haberin altında yazar kutusu ve yazar sayfası oluşur." }
-      - { label: Manşette Göster, name: featured, widget: boolean, default: false, hint: "Açıksa ana sayfadaki manşete girer (en fazla 6 haber gösterilir)." }
+      - { label: Manşette Göster, name: featured, widget: boolean, default: false, hint: "Açıksa ana sayfadaki manşete girer (en fazla 5 haber gösterilir)." }
       - { label: En Çok Okunanlarda Göster, name: popular, widget: boolean, default: false }
       - { label: Taslak, name: draft, widget: boolean, default: false, hint: "Açıksa haber sitede yayınlanmaz." }
       - { label: Etiketler, name: tags, widget: list, required: false, hint: "Her etiket için bir giriş ekleyin. Etiket sayfaları otomatik oluşur." }
@@ -58,7 +58,7 @@ collections:
       - { label: "Kaynak bağlantısı", name: sourceUrl, widget: string, required: false, hint: "Kaynağın tam adresi (https://...)." }
       - { label: "Dil", name: dil, widget: select, options: [{ label: "Türkçe (digitalhaber.com)", value: tr }, { label: "İngilizce (digitalhaber.com/en)", value: en }], default: tr, hint: "Haberin yayınlanacağı site: Türkçe ya da İngilizce." }
       - { label: "Karşılığı olan Türkçe haber (yalnızca İngilizce haberde)", name: translationOf, widget: relation, collection: haberler, value_field: "{{slug}}", search_fields: ["title"], display_fields: ["title"], required: false, hint: "İngilizce haberse hangi Türkçe haberin çevirisi? Seçerseniz iki sayfa dil bağlantısıyla (hreflang) bağlanır. Türkçe haberde boş bırakın." }
-      - { label: Haber Metni, name: body, widget: markdown }
+      - { label: Haber Metni, name: body, widget: markdown, hint: "Video eklemek için YouTube veya Vimeo bağlantısını boş bir satıra tek başına yapıştırın; haberde video olarak görünür. Bilgi kutusu için alıntıyı '> **Bilgi:** ...' diye başlatın." }
 
   - name: ayarlar
     label: Ayarlar

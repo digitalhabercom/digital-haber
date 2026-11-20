@@ -2,6 +2,7 @@
 import '../styles/global.css';
 import AdSlot from '../components/AdSlot.astro';
 import HeaderSearch from '../components/HeaderSearch.astro';
+import Markets from '../components/Markets.astro';
 import { SITE } from '../consts';
 import { activeCategories, getNews, TURLER, turUrl, haberUrl, absUrl, catUrl, SITE_CFG } from '../lib/news';
 import { langOf, T, ROUTES } from '../lib/i18n';
@@ -156,6 +157,8 @@ const ldString = JSON.stringify(ld).replace(/</g, '\\u003c');
         </div>
       </div>
     </div>
+
+    <Markets />
 
     <header class="masthead">
       <div class="wrap masthead-in">

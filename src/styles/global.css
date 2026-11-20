@@ -689,3 +689,21 @@ html.lb-open { overflow: hidden; }
 .nf .search-box { margin: 20px auto 0; }
 .nf-actions { margin-top: 16px; display: flex; justify-content: center; }
 .empty-sug { margin: 28px 0 6px; font-size: 1.2rem; font-weight: 800; }
+
+/* v29: tarih/saat öğesi, şeritte ayraçla ayrılır */
+.mk-t { padding-right: 22px; margin-right: 0; border-right: 1px solid var(--line); }
+.mk-t .mk-l { color: var(--ink); font-weight: 600; text-transform: capitalize; }
+.mk-t b { font-variant-numeric: tabular-nums; }
+
+/* v29: ana sayfada okuma süresi gösterilmez; piyasa şeridi ortalı */
+.home .meta .rt { display: none; }
+
+/* v29: şerit tam genişlikte; dar ekranlarda önceliği düşük öğeler gizlenir, telefonda hepsi kaydırılır */
+.mk-in { gap: 16px; padding-inline: 16px; }
+.mk-t { padding-right: 16px; }
+@media (max-width: 1599px) { .mk-x1 { display: none; } }
+@media (max-width: 1399px) { .mk-x2 { display: none; } }
+@media (max-width: 900px) { .mk-x1, .mk-x2 { display: inline-flex; } .mk-in { gap: 20px; } .mk-t { padding-right: 20px; } }
+
+/* v30: şerit öğeleri tüm genişliğe eşit yayılır; dar ekranlarda kaydırılır */
+@media (min-width: 901px) { .mk-in { justify-content: space-evenly; gap: 12px; padding-inline: 20px; } .mk-i { font-size: 0.88rem; } }

@@ -29,7 +29,7 @@ const isRow = variant === 'row' || variant === 'row-big';
     {excerpt && variant !== 'row' && <p>{d.description}</p>}
     <div class="meta">
       <time datetime={d.date.toISOString()} data-rel>{fmtShort(d.date, lang)}</time>
-      <span>{readMins(item.body)} {t.readMin}</span>
+      <span class="rt">{readMins(item.body)} {t.readMin}</span>
     </div>
   </div>
 </a>

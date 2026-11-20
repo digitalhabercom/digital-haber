@@ -57,7 +57,7 @@ const r = ROUTES[lang];
       const h3 = document.createElement('h3'); h3.textContent = it.t;
       const meta = document.createElement('div'); meta.className = 'meta';
       const time = document.createElement('time'); time.textContent = it.dt;
-      const rm = document.createElement('span'); rm.textContent = it.rm + ' ' + rmText;
+      const rm = document.createElement('span'); rm.className = 'rt'; rm.textContent = it.rm + ' ' + rmText;
       meta.append(time, rm);
       body.append(cat, h3, meta);
       a.append(wrap, body);

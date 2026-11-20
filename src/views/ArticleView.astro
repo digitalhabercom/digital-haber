@@ -111,7 +111,6 @@ const jsonLd = [
               <span>{t.byAuthor}: {author ? <a href={authorUrl(author.slug, lang)}><strong>{d.author}</strong></a> : <strong>{d.author}</strong>}</span>
               <time datetime={d.date.toISOString()}>{fmtDate(d.date, lang)}</time>
               {d.updated && <span>{t.updated}: {fmtDate(d.updated, lang)}</span>}
-              <span>{readMins(entry.body)} {t.readMin}</span>
               <span class="views notranslate" data-views data-lang={lang} hidden></span>
             </div>
             <button class="listen notranslate" type="button" data-listen data-lang={lang} data-l-play={lang === 'en' ? 'Listen to this article' : 'Haberi dinle'} data-l-stop={lang === 'en' ? 'Stop' : 'Durdur'}>

@@ -1,10 +1,10 @@
 ---
-// Döviz, altın ve kripto şeridi. Veriler tarayıcıda, ücretsiz açık servislerden çekilir;
-// hiçbiri alınamazsa şerit hiç gösterilmez. Sunucu veya anahtar gerekmez.
+// Tarih/saat + döviz, altın ve kripto şeridi. Veriler tarayıcıda, ücretsiz açık servislerden çekilir;
+// hiçbiri alınamazsa yalnızca tarih ve saat görünür. Sunucu veya anahtar gerekmez.
 ---
 
-<div class="mk" id="mk" hidden aria-label="Piyasalar" title="Veriler bilgi amaçlıdır. Kaynak: Truncgil, CoinGecko">
-  <div class="wrap mk-in" id="mk-in"></div>
+<div class="mk" id="mk" hidden aria-label="Tarih ve piyasalar" title="Veriler bilgi amaçlıdır. Kaynak: Truncgil, CoinGecko">
+  <div class="mk-in" id="mk-in"></div>
 </div>
 
 <script is:inline>
@@ -12,15 +12,38 @@
     var box = document.getElementById('mk');
     var row = document.getElementById('mk-in');
     if (!box || !row) return;
+    var EN = (document.documentElement.lang || '').indexOf('en') === 0;
+    var LOC = EN ? 'en-GB' : 'tr-TR';
     var KEY = 'dh-mk', TTL = 90000;
     var fmt = new Intl.NumberFormat('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     var fmt0 = new Intl.NumberFormat('tr-TR', { maximumFractionDigits: 0 });
 
-    function num(v) {
+    // --- Tarih ve saat (her zaman görünür, dakikada bir güncellenir) ---
+    var dateF = new Intl.DateTimeFormat(LOC, { day: 'numeric', month: 'long', year: 'numeric', weekday: 'long', timeZone: 'Europe/Istanbul' });
+    var timeF = new Intl.DateTimeFormat(LOC, { hour: '2-digit', minute: '2-digit', hourCycle: 'h23', timeZone: 'Europe/Istanbul' });
+    var clock = document.createElement('span'); clock.className = 'mk-i mk-t';
+    var cd = document.createElement('span'); cd.className = 'mk-l';
+    var ct = document.createElement('b');
+    clock.append(cd, ct);
+    function tick() {
+      var n = new Date();
+      var d = dateF.format(n), t = timeF.format(n);
+      if (cd.textContent !== d) cd.textContent = d;
+      if (ct.textContent !== t) ct.textContent = t;
+    }
+    tick();
+    setInterval(tick, 10000);
+    row.append(clock);
+    box.hidden = false;
+
+    // --- Piyasa verileri ---
+    // th: noktalı binlik yazımı ("9.800" = 9800) kabul edilsin (yalnızca altın fiyatları için)
+    function num(v, th) {
       if (typeof v === 'number') return v;
       if (typeof v !== 'string') return NaN;
       var s = v.replace(/[%\s]/g, '');
       if (s.indexOf(',') > -1) s = s.replace(/\./g, '').replace(',', '.');
+      else if (th && /^\d{1,3}(\.\d{3})+$/.test(s)) s = s.replace(/\./g, '');
       return parseFloat(s);
     }
     function ok(n) { return typeof n === 'number' && isFinite(n) && n > 0; }
@@ -31,8 +54,13 @@
         .then(function (r) { if (!r.ok) throw 0; return r.json(); })
         .finally(function () { clearTimeout(t); });
     }
-    function pick(o, keys) {
-      for (var i = 0; i < keys.length; i++) if (o && o[keys[i]]) return o[keys[i]];
+    // Önce bilinen adlarla, olmazsa anahtar adlarında arayarak bul
+    function find(j, names, re) {
+      for (var i = 0; i < names.length; i++) if (j[names[i]] && typeof j[names[i]] === 'object') return j[names[i]];
+      if (re) {
+        var ks = Object.keys(j);
+        for (var k = 0; k < ks.length; k++) if (re.test(ks[k]) && j[ks[k]] && typeof j[ks[k]] === 'object') return j[ks[k]];
+      }
       return null;
     }
 
@@ -40,14 +68,16 @@
       var out = {};
       var tasks = [
         get('https://finans.truncgil.com/v4/today.json').then(function (j) {
-          var usd = pick(j, ['USD']), eur = pick(j, ['EUR']);
-          var gra = pick(j, ['GRA', 'GRAM-ALTIN', 'GRAMALTIN', 'gram-altin']);
-          function put(k, o) {
+          function put(k, o, th) {
             if (!o) return;
-            var v = num(o.Selling != null ? o.Selling : o.selling), ch = num(o.Change != null ? o.Change : o.change);
+            var v = num(o.Selling != null ? o.Selling : o.selling, th), ch = num(o.Change != null ? o.Change : o.change);
             if (ok(v)) out[k] = { v: v, ch: isFinite(ch) ? ch : null };
           }
-          put('usd', usd); put('eur', eur); put('gram', gra);
+          put('usd', find(j, ['USD']));
+          put('eur', find(j, ['EUR']));
+          put('gbp', find(j, ['GBP']));
+          put('gram', find(j, ['GRA', 'GRAM-ALTIN', 'GRAMALTIN', 'gram-altin']), true);
+          put('ceyrek', find(j, ['CEYREKALTIN', 'CEYREK-ALTIN', 'CEYREK'], /ceyrek|çeyrek/i), true);
         }).catch(function () {}),
         get('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum&vs_currencies=usd&include_24hr_change=true').then(function (j) {
           if (j.bitcoin && ok(j.bitcoin.usd)) out.btc = { v: j.bitcoin.usd, ch: isFinite(j.bitcoin.usd_24h_change) ? j.bitcoin.usd_24h_change : null };
@@ -62,27 +92,31 @@
           if (r && ok(r.TRY)) {
             if (!out.usd) out.usd = { v: r.TRY, ch: null };
             if (!out.eur && ok(r.EUR)) out.eur = { v: r.TRY / r.EUR, ch: null };
+            if (!out.gbp && ok(r.GBP)) out.gbp = { v: r.TRY / r.GBP, ch: null };
           }
           return out;
         }).catch(function () { return out; });
       });
     }
 
+    var N2 = function (v) { return fmt.format(v); };
+    var USD = function (v) { return '$' + fmt0.format(v); };
     var ITEMS = [
-      ['usd', 'Dolar', function (v) { return fmt.format(v); }],
-      ['eur', 'Euro', function (v) { return fmt.format(v); }],
-      ['gram', 'Gram altın', function (v) { return fmt.format(v); }],
-      ['btc', 'Bitcoin', function (v) { return '$' + fmt0.format(v); }],
-      ['eth', 'Ethereum', function (v) { return '$' + fmt0.format(v); }]
+      ['usd', EN ? 'USD' : 'Dolar', N2],
+      ['eur', EN ? 'EUR' : 'Euro', N2],
+      ['gbp', EN ? 'GBP' : 'Sterlin', N2, 'mk-x2'],
+      ['gram', EN ? 'Gold (g)' : 'Gram altın', N2],
+      ['ceyrek', EN ? 'Quarter gold' : 'Çeyrek altın', N2],
+      ['btc', 'Bitcoin', USD],
+      ['eth', 'Ethereum', USD, 'mk-x1']
     ];
 
     function render(d) {
-      row.textContent = '';
-      var n = 0;
+      while (row.children.length > 1) row.removeChild(row.lastChild);
       ITEMS.forEach(function (it) {
         var x = d[it[0]];
         if (!x || !ok(x.v)) return;
-        var a = document.createElement('span'); a.className = 'mk-i';
+        var a = document.createElement('span'); a.className = 'mk-i' + (it[3] ? ' ' + it[3] : '');
         var l = document.createElement('span'); l.className = 'mk-l'; l.textContent = it[1];
         var v = document.createElement('b'); v.textContent = it[2](x.v);
         a.append(l, v);
@@ -92,10 +126,8 @@
           c.textContent = (x.ch > 0 ? '▲' : '▼') + ' %' + fmt.format(Math.abs(x.ch));
           a.append(c);
         }
-        row.append(a); n++;
+        row.append(a);
       });
-      if (!n) { box.hidden = true; return; }
-      box.hidden = false;
     }
 
     var cached = null;
@@ -114,6 +146,6 @@
     }
     refresh();
     setInterval(refresh, TTL);
-    document.addEventListener('visibilitychange', refresh);
+    document.addEventListener('visibilitychange', function () { tick(); refresh(); });
   })();
 </script>

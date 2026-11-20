@@ -56,7 +56,7 @@ const jsonLd = {
     all.length === 0 ? (
       <p class="empty">{t.empty}</p>
     ) : (
-      <>
+      <div class="home">
         <Slider items={slides} />
         <AdSlot pos="manset-alti" />
 
@@ -81,8 +81,10 @@ const jsonLd = {
 
         <Newsletter />
 
-        <RandomPicks items={picks} excludeIds={[...used]} count={8} />
-      </>
+        <div class="band">
+          <RandomPicks items={picks} excludeIds={[...used]} count={8} />
+        </div>
+      </div>
     )
   }
 </Base>

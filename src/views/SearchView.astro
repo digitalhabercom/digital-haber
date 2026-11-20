@@ -12,7 +12,7 @@ const r = ROUTES[lang];
     <h1>{t.searchTitle}</h1>
   </div>
 
-  <form class="search-box" id="search-form" role="search" data-json={r.searchJson} data-found={t.results} data-none={t.noResults}>
+  <form class="search-box" id="search-form" role="search" data-json={r.searchJson} data-found={t.results} data-none={t.noResults} data-try={lang === 'en' ? 'You may like' : 'İlginizi çekebilir'}>
     <label class="sr-only" for="q">{t.searchLabel}</label>
     <input id="q" name="q" type="search" placeholder={t.searchExample} autocomplete="off" autofocus />
     <button class="btn" type="submit">{t.searchBtn}</button>
@@ -44,7 +44,7 @@ const r = ROUTES[lang];
     const words = q.split(/\s+/);
     const hits = (await load()).filter((it) => words.every((w) => norm(`${it.t} ${it.d} ${it.s}`).includes(w)));
     count.textContent = hits.length ? `${hits.length} ${form.dataset.found}` : form.dataset.none || '';
-    for (const it of hits) {
+    const card = (it: Item) => {
       const a = document.createElement('a');
       a.className = 'story-row story-row--big';
       a.href = it.u;
@@ -59,7 +59,18 @@ const r = ROUTES[lang];
       const p = document.createElement('p'); p.textContent = it.d; p.style.cssText = 'margin:0;color:var(--muted);font-size:.95rem';
       body.append(cat, h3, p);
       a.append(wrap, body);
-      out.appendChild(a);
+      return a;
+    };
+    for (const it of hits) out.appendChild(card(it));
+    if (!hits.length) {
+      // Sonuç yoksa okuyucuyu boş bırakma: önerilen haberler
+      const all = await load();
+      if (all.length) {
+        const h = document.createElement('h2');
+        h.className = 'empty-sug';
+        h.textContent = form.dataset.try || '';
+        out.append(h, ...all.slice(0, 4).map(card));
+      }
     }
   }
 

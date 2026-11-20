@@ -58,7 +58,7 @@ collections:
       - { label: "Kaynak bağlantısı", name: sourceUrl, widget: string, required: false, hint: "Kaynağın tam adresi (https://...)." }
       - { label: "Dil", name: dil, widget: select, options: [{ label: "Türkçe (digitalhaber.com)", value: tr }, { label: "İngilizce (digitalhaber.com/en)", value: en }], default: tr, hint: "Haberin yayınlanacağı site: Türkçe ya da İngilizce." }
       - { label: "Karşılığı olan Türkçe haber (yalnızca İngilizce haberde)", name: translationOf, widget: relation, collection: haberler, value_field: "{{slug}}", search_fields: ["title"], display_fields: ["title"], required: false, hint: "İngilizce haberse hangi Türkçe haberin çevirisi? Seçerseniz iki sayfa dil bağlantısıyla (hreflang) bağlanır. Türkçe haberde boş bırakın." }
-      - { label: Haber Metni, name: body, widget: markdown, hint: "Video eklemek için YouTube veya Vimeo bağlantısını boş bir satıra tek başına yapıştırın; haberde video olarak görünür. Bilgi kutusu için alıntıyı '> **Bilgi:** ...' diye başlatın." }
+      - { label: Haber Metni, name: body, widget: markdown, hint: "Video eklemek için YouTube veya Vimeo bağlantısını boş bir satıra tek başına yapıştırın; haberde video olarak görünür. Bilgi kutusu için alıntıyı '> **Bilgi:** ...' diye başlatın. Rakam kutusu için: '> **Rakamlar:** 8 GB = RAM | 5.000 mAh = Batarya | 29.999 TL = Fiyat' (en fazla 4 değer)." }
 
   - name: ayarlar
     label: Ayarlar

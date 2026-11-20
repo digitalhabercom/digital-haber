@@ -1,0 +1,119 @@
+---
+// Döviz, altın ve kripto şeridi. Veriler tarayıcıda, ücretsiz açık servislerden çekilir;
+// hiçbiri alınamazsa şerit hiç gösterilmez. Sunucu veya anahtar gerekmez.
+---
+
+<div class="mk" id="mk" hidden aria-label="Piyasalar" title="Veriler bilgi amaçlıdır. Kaynak: Truncgil, CoinGecko">
+  <div class="wrap mk-in" id="mk-in"></div>
+</div>
+
+<script is:inline>
+  (function () {
+    var box = document.getElementById('mk');
+    var row = document.getElementById('mk-in');
+    if (!box || !row) return;
+    var KEY = 'dh-mk', TTL = 90000;
+    var fmt = new Intl.NumberFormat('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    var fmt0 = new Intl.NumberFormat('tr-TR', { maximumFractionDigits: 0 });
+
+    function num(v) {
+      if (typeof v === 'number') return v;
+      if (typeof v !== 'string') return NaN;
+      var s = v.replace(/[%\s]/g, '');
+      if (s.indexOf(',') > -1) s = s.replace(/\./g, '').replace(',', '.');
+      return parseFloat(s);
+    }
+    function ok(n) { return typeof n === 'number' && isFinite(n) && n > 0; }
+    function get(url) {
+      var c = new AbortController();
+      var t = setTimeout(function () { c.abort(); }, 7000);
+      return fetch(url, { signal: c.signal, headers: { Accept: 'application/json' } })
+        .then(function (r) { if (!r.ok) throw 0; return r.json(); })
+        .finally(function () { clearTimeout(t); });
+    }
+    function pick(o, keys) {
+      for (var i = 0; i < keys.length; i++) if (o && o[keys[i]]) return o[keys[i]];
+      return null;
+    }
+
+    function load() {
+      var out = {};
+      var tasks = [
+        get('https://finans.truncgil.com/v4/today.json').then(function (j) {
+          var usd = pick(j, ['USD']), eur = pick(j, ['EUR']);
+          var gra = pick(j, ['GRA', 'GRAM-ALTIN', 'GRAMALTIN', 'gram-altin']);
+          function put(k, o) {
+            if (!o) return;
+            var v = num(o.Selling != null ? o.Selling : o.selling), ch = num(o.Change != null ? o.Change : o.change);
+            if (ok(v)) out[k] = { v: v, ch: isFinite(ch) ? ch : null };
+          }
+          put('usd', usd); put('eur', eur); put('gram', gra);
+        }).catch(function () {}),
+        get('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum&vs_currencies=usd&include_24hr_change=true').then(function (j) {
+          if (j.bitcoin && ok(j.bitcoin.usd)) out.btc = { v: j.bitcoin.usd, ch: isFinite(j.bitcoin.usd_24h_change) ? j.bitcoin.usd_24h_change : null };
+          if (j.ethereum && ok(j.ethereum.usd)) out.eth = { v: j.ethereum.usd, ch: isFinite(j.ethereum.usd_24h_change) ? j.ethereum.usd_24h_change : null };
+        }).catch(function () {})
+      ];
+      return Promise.all(tasks).then(function () {
+        if (out.usd && out.eur) return out;
+        // Yedek kaynak: günlük döviz kurları
+        return get('https://open.er-api.com/v6/latest/USD').then(function (j) {
+          var r = j && j.rates;
+          if (r && ok(r.TRY)) {
+            if (!out.usd) out.usd = { v: r.TRY, ch: null };
+            if (!out.eur && ok(r.EUR)) out.eur = { v: r.TRY / r.EUR, ch: null };
+          }
+          return out;
+        }).catch(function () { return out; });
+      });
+    }
+
+    var ITEMS = [
+      ['usd', 'Dolar', function (v) { return fmt.format(v); }],
+      ['eur', 'Euro', function (v) { return fmt.format(v); }],
+      ['gram', 'Gram altın', function (v) { return fmt.format(v); }],
+      ['btc', 'Bitcoin', function (v) { return '$' + fmt0.format(v); }],
+      ['eth', 'Ethereum', function (v) { return '$' + fmt0.format(v); }]
+    ];
+
+    function render(d) {
+      row.textContent = '';
+      var n = 0;
+      ITEMS.forEach(function (it) {
+        var x = d[it[0]];
+        if (!x || !ok(x.v)) return;
+        var a = document.createElement('span'); a.className = 'mk-i';
+        var l = document.createElement('span'); l.className = 'mk-l'; l.textContent = it[1];
+        var v = document.createElement('b'); v.textContent = it[2](x.v);
+        a.append(l, v);
+        if (x.ch !== null && x.ch !== undefined && isFinite(x.ch) && Math.abs(x.ch) >= 0.005) {
+          var c = document.createElement('span');
+          c.className = 'mk-c ' + (x.ch > 0 ? 'up' : 'dn');
+          c.textContent = (x.ch > 0 ? '▲' : '▼') + ' %' + fmt.format(Math.abs(x.ch));
+          a.append(c);
+        }
+        row.append(a); n++;
+      });
+      if (!n) { box.hidden = true; return; }
+      box.hidden = false;
+    }
+
+    var cached = null;
+    try { cached = JSON.parse(sessionStorage.getItem(KEY) || 'null'); } catch (e) {}
+    if (cached && cached.d) render(cached.d);
+
+    function refresh() {
+      if (document.hidden) return;
+      if (cached && Date.now() - cached.t < TTL) return;
+      load().then(function (d) {
+        if (!Object.keys(d).length) return;
+        cached = { t: Date.now(), d: d };
+        try { sessionStorage.setItem(KEY, JSON.stringify(cached)); } catch (e) {}
+        render(d);
+      });
+    }
+    refresh();
+    setInterval(refresh, TTL);
+    document.addEventListener('visibilitychange', refresh);
+  })();
+</script>

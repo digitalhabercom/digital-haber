@@ -7,19 +7,18 @@ const latest = (await getNews('tr')).slice(0, 6);
 ---
 
 <Base title="Sayfa bulunamadı" noindex={true} ads={false}>
-  <div class="page-head">
-    <h1>Sayfa bulunamadı</h1>
-    <p>Aradığınız sayfa taşınmış ya da kaldırılmış olabilir. Aşağıdan arayabilir veya son haberlere göz atabilirsiniz.</p>
-    <p lang="en">Page not found. It may have moved or been removed. Go back to the <a href="/en/"><strong>English home page</strong></a> or search the news.</p>
-  </div>
-  <form class="search-box" action="/arama/" method="get" role="search" style="margin-top:20px">
-    <label class="sr-only" for="q404">Haberlerde ara</label>
-    <input id="q404" name="q" type="search" placeholder="Haberlerde ara..." autocomplete="off" />
-    <button class="btn" type="submit">Ara</button>
-  </form>
-  <p style="display:flex;gap:10px;flex-wrap:wrap;margin-top:16px">
-    <a class="btn btn--ghost" href="/">Ana sayfaya dön</a>
-  </p>
+  <section class="nf">
+    <div class="nf-num" aria-hidden="true">404</div>
+    <h1>Bu sayfa bulunamadı</h1>
+    <p>Aradığınız sayfa taşınmış ya da kaldırılmış olabilir. Aramayı deneyin ya da aşağıdaki son haberlere göz atın.</p>
+    <p lang="en" class="nf-en">Page not found. Go to the <a href="/en/"><strong>English home page</strong></a> or search the news.</p>
+    <form class="search-box" action="/arama/" method="get" role="search">
+      <label class="sr-only" for="q404">Haberlerde ara</label>
+      <input id="q404" name="q" type="search" placeholder="Haberlerde ara..." autocomplete="off" />
+      <button class="btn" type="submit">Ara</button>
+    </form>
+    <p class="nf-actions"><a class="btn btn--ghost" href="/">Ana sayfaya dön</a></p>
+  </section>
   {
     latest.length > 0 && (
       <section class="sec" style="margin-top:32px" aria-label="Son haberler">

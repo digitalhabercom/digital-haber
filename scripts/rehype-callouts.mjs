@@ -3,9 +3,11 @@
 //   > **İpucu:** ...   -> yeşil ipucu kutusu
 //   > **Dikkat:** ...  -> turuncu uyarı kutusu
 //   > düz alıntı       -> büyük alıntı satırı
+//   > **Rakamlar:** 8 GB = RAM | 5.000 mAh = Batarya | 29.999 TL = Fiyat  -> rakam kutusu
 // Tek başına bir satıra yapıştırılan YouTube / Vimeo bağlantısı -> yerleşik video
 const KINDS = { bilgi: 'bilgi', info: 'bilgi', ipucu: 'ipucu', ipuçu: 'ipucu', tip: 'ipucu', dikkat: 'uyari', uyari: 'uyari', uyarı: 'uyari', warning: 'uyari' };
 
+const STATS = new Set(['rakamlar', 'rakamlarla', 'sayılar', 'sayilar', 'numbers', 'stats']);
 const text = (n) => (n.type === 'text' ? n.value : (n.children || []).map(text).join(''));
 const isEl = (n, tag) => n && n.type === 'element' && (!tag || n.tagName === tag);
 
@@ -61,6 +63,26 @@ function walk(node) {
       if (isEl(first, 'strong')) {
         const label = text(first).trim().replace(/[:：]+$/, '').toLocaleLowerCase('tr');
         kind = KINDS[label] || null;
+        if (STATS.has(label)) {
+          const raw = text(p).replace(/^\s*[^:：]*[:：]\s*/, '');
+          const items = raw.split('|').map((x) => x.trim()).filter(Boolean).slice(0, 4).map((x) => {
+            const [v, ...rest] = x.split('=');
+            return { v: v.trim(), l: rest.join('=').trim() };
+          });
+          if (items.length) {
+            node.children[i] = {
+              type: 'element', tagName: 'div', properties: { className: ['stats'] },
+              children: items.map((it) => ({
+                type: 'element', tagName: 'div', properties: { className: ['stat'] },
+                children: [
+                  { type: 'element', tagName: 'b', properties: {}, children: [{ type: 'text', value: it.v }] },
+                  ...(it.l ? [{ type: 'element', tagName: 'span', properties: {}, children: [{ type: 'text', value: it.l }] }] : []),
+                ],
+              })),
+            };
+            continue;
+          }
+        }
       }
       child.properties = child.properties || {};
       child.properties.className = kind ? ['box', 'box--' + kind] : ['pull'];
